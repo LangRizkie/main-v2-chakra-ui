@@ -1,0 +1,145 @@
+'use client'
+
+import type { ButtonProps, GroupProps, InputProps, StackProps } from '@chakra-ui/react'
+import {
+	Box,
+	HStack,
+	IconButton,
+	Input,
+	InputGroup,
+	mergeRefs,
+	Show,
+	Stack,
+	useControllableState
+} from '@chakra-ui/react'
+import { forwardRef, useRef } from 'react'
+import Iconify from './iconify'
+
+type PasswordStrengthMeterProps = StackProps & {
+	max?: number
+	value: number
+}
+
+type PasswordVisibilityProps = {
+	defaultVisible?: boolean
+	visible?: boolean
+	onVisibleChange?: (visible: boolean) => void
+	visibilityIcon?: { on: React.ReactNode; off: React.ReactNode }
+}
+
+type PasswordInputProps = {
+	groupProps?: GroupProps
+} & PasswordVisibilityProps &
+	InputProps
+
+function getColorPalette(percent: number) {
+	switch (true) {
+		case percent < 33:
+			return { colorPalette: 'red', label: 'Low' }
+		case percent < 66:
+			return { colorPalette: 'orange', label: 'Medium' }
+		default:
+			return { colorPalette: 'primary', label: 'High' }
+	}
+}
+
+const PasswordMeter = forwardRef<HTMLDivElement, PasswordStrengthMeterProps>(
+	(properties, ref) => {
+		const { max = 4, value, ...props } = properties
+
+		const percent = (value / max) * 100
+		const { colorPalette, label } = getColorPalette(percent)
+
+		return (
+			<Stack align="flex-end" gap="1" ref={ref} {...props}>
+				<HStack width="full" ref={ref} {...props}>
+					{Array.from({ length: max }).map((_, index) => (
+						<Box
+							key={index}
+							height="1"
+							flex="1"
+							rounded="sm"
+							data-selected={index < value ? '' : undefined}
+							layerStyle="fill.subtle"
+							colorPalette="gray"
+							_selected={{
+								colorPalette,
+								layerStyle: 'fill.solid'
+							}}
+						/>
+					))}
+				</HStack>
+				<Show when={Boolean(label)}>
+					<HStack textStyle="xs">{label}</HStack>
+				</Show>
+			</Stack>
+		)
+	}
+)
+
+const VisibilityTrigger = forwardRef<HTMLButtonElement, ButtonProps>(
+	function VisibilityTrigger(properties, ref) {
+		return (
+			<IconButton
+				tabIndex={-1}
+				ref={ref}
+				me="-2"
+				aspectRatio="square"
+				size="sm"
+				variant="ghost"
+				height="calc(full - {spacing.2})"
+				aria-label="Toggle Password visibility"
+				{...properties}
+			/>
+		)
+	}
+)
+
+const Password = forwardRef<HTMLInputElement, PasswordInputProps>((properties, ref) => {
+	const {
+		defaultVisible: isVisible,
+		groupProps,
+		onVisibleChange,
+		visibilityIcon = {
+			off: <Iconify icon="bx:hide" />,
+			on: <Iconify icon="bx:show" />
+		},
+		visible: visibleProps,
+		...props
+	} = properties
+
+	const inputRef = useRef<HTMLInputElement>(null)
+	const [visible, setVisible] = useControllableState({
+		defaultValue: isVisible || false,
+		onChange: onVisibleChange,
+		value: visibleProps
+	})
+
+	const type = visible ? 'text' : 'password'
+
+	return (
+		<InputGroup
+			endElement={
+				<VisibilityTrigger
+					disabled={props.disabled}
+					onPointerDown={(e) => {
+						if (props.disabled || e.button !== 0) return
+
+						e.preventDefault()
+						setVisible(!visible)
+					}}
+				>
+					{visible ? visibilityIcon.off : visibilityIcon.on}
+				</VisibilityTrigger>
+			}
+			{...groupProps}
+		>
+			<Input {...props} ref={mergeRefs(ref, inputRef)} type={type} />
+		</InputGroup>
+	)
+})
+
+PasswordMeter.displayName = 'PasswordMeter'
+Password.displayName = 'Password'
+
+export { Password, PasswordMeter }
