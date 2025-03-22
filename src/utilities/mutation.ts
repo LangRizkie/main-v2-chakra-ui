@@ -37,6 +37,20 @@ const put = async <P, R>(path: string, payload?: P, options?: Partial<OptionProp
 	return data
 }
 
+const erase = async <P, R>(path: string, payload?: P, options?: Partial<OptionProps>) => {
+	const { data } = await instance.delete<R>(path, {
+		data: options?.asParameter ? undefined : payload,
+		headers: {
+			'x-redirect-replace': options?.redirectTo?.replace ?? false,
+			'x-redirect-url': options?.redirectTo?.url,
+			'x-toast': options?.useToast ?? true
+		},
+		params: options?.asParameter ? payload : undefined
+	})
+
+	return data
+}
+
 const get = async <P, R>(path: string, payload?: P, options?: Partial<OptionProps>) => {
 	const { data } = await instance.get<R>(path, {
 		headers: {
@@ -50,4 +64,4 @@ const get = async <P, R>(path: string, payload?: P, options?: Partial<OptionProp
 	return data
 }
 
-export { get, post, put }
+export { erase, get, post, put }

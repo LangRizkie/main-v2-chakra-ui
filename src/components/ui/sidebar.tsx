@@ -6,13 +6,15 @@ import {
 	Menu,
 	MenuSelectionDetails,
 	Portal,
+	Presence,
 	Stack,
 	Text
 } from '@chakra-ui/react'
 import Image from 'next/image'
-import { useParams, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
-import useGetRoute from '../../hooks/use-get-route'
+import useGetParentId from '@/hooks/use-get-parent-id'
+import { Layout } from '@/types/default'
 import useQueryFetched from '../../hooks/use-query-fetched'
 import usePreference from '../../stores/preference'
 import {
@@ -23,21 +25,15 @@ import {
 import { GenerateIcon } from '../../utilities/helper'
 import Iconify from './iconify'
 
-type SidebarProps = {
+type SidebarProps = Layout & {
 	isOpen?: boolean
 }
 
-const Sidebar: React.FC<SidebarProps> = (props) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 	const router = useRouter()
-	const route = useGetRoute()
+	const parentId = useGetParentId()
 
 	const { setOpen } = usePreference()
-	const { slug } = useParams()
-
-	const parentId = useMemo(() => {
-		if (slug) return slug[slug.length - 1]
-		return route
-	}, [route, slug])
 
 	const getAllNavigationScreen = useQueryFetched<GetAllNavigationScreenResponse>({
 		queryKey: ['get_all_navigation_screen', parentId]
@@ -47,8 +43,8 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
 		queryKey: ['get_navigation_screen']
 	})
 
-	const maxWidth = props.isOpen ? '72' : '20'
-	const justifyContent = props.isOpen ? 'start' : 'center'
+	const width = isOpen ? '64' : '20'
+	const justifyContent = isOpen ? 'start' : 'center'
 
 	const menu = useMemo(() => {
 		return (getAllNavigationScreen && getAllNavigationScreen.data) || []
@@ -65,28 +61,12 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
 
 	return (
 		<>
-			<Portal>
-				<Box
-					hideFrom="xl"
-					position="fixed"
-					top="0"
-					left="0"
-					width="100vw"
-					height="100vh"
-					background="gray.900/90"
-					zIndex="10"
-					onClick={() => setOpen(!props.isOpen)}
-					hidden={!props.isOpen}
-				/>
-			</Portal>
 			<Stack
 				top="0"
-				width="full"
+				width={width}
 				height="100vh"
-				alignSelf="start"
-				maxWidth={maxWidth}
 				position={{ base: 'fixed', xl: 'sticky' }}
-				left={{ base: props.isOpen ? '0' : '-24', xl: '0' }}
+				left={{ base: isOpen ? '0' : '-24', xl: '0' }}
 				backgroundColor={{ _dark: 'gray.900', _light: 'bg' }}
 				transition="all"
 				zIndex="15"
@@ -94,7 +74,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
 				<Center height="24" minHeight="24" maxHeight="24" alignItems="center" gap="2">
 					<Image src="/logo/compact.svg" alt="bot" width={40} height={40} draggable={false} />
 					<Image
-						hidden={!props.isOpen}
+						hidden={!isOpen}
 						src="/logo/wordmark.svg"
 						alt="bot"
 						width={80}
@@ -122,7 +102,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
 								onClick={() => router.push(item.url)}
 							>
 								<GenerateIcon icon={item.image_url} size={20} />
-								<Text textWrap="pretty" textAlign="left" hidden={!props.isOpen}>
+								<Text textWrap="pretty" textAlign="left" hidden={!isOpen}>
 									{item.title}
 								</Text>
 							</Button>
@@ -134,7 +114,7 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
 						<Menu.Trigger asChild>
 							<Button justifyContent="start" variant="outline" width="full" size="sm">
 								<Iconify icon="bxs:grid-alt" height={20} />
-								<Text hidden={!props.isOpen}>Menu</Text>
+								<Text hidden={!isOpen}>Menu</Text>
 							</Button>
 						</Menu.Trigger>
 						<Portal>
@@ -154,6 +134,21 @@ const Sidebar: React.FC<SidebarProps> = (props) => {
 					</Menu.Root>
 				</Center>
 			</Stack>
+			<Portal>
+				<Presence present={isOpen}>
+					<Box
+						hideFrom="xl"
+						position="fixed"
+						top="0"
+						left="0"
+						width="100vw"
+						height="100vh"
+						background="gray.900/60"
+						zIndex="10"
+						onClick={() => setOpen(!isOpen)}
+					/>
+				</Presence>
+			</Portal>
 		</>
 	)
 }

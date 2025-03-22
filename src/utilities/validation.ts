@@ -12,6 +12,12 @@ const messages = {
 	username: 'Password cannot be matched with username'
 }
 
+const values = {
+	length: 5,
+	per: [5, 8, 10],
+	start: 0
+}
+
 const regex = {
 	alphabet: /^[A-Za-z]+$/,
 	date: /^\d{4}\/\d{2}\/\d{2}$/,
@@ -51,4 +57,4 @@ const isJSON = (value: string) => {
 	}
 }
 
-export { getPasswordScore, isJSON, messages, regex }
+export { getPasswordScore, isJSON, messages, regex, values }

@@ -3,6 +3,7 @@
 import { useIsFetching } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import GridCard from '@/components/pages/grid-card'
+import useCustomViewId from '@/hooks/use-custom-view-id'
 import useGetParentId from '@/hooks/use-get-parent-id'
 import useGetRoute from '@/hooks/use-get-route'
 import useQueryFetched from '@/hooks/use-query-fetched'
@@ -12,11 +13,12 @@ import { GetPrivilegeResponse } from '@/types/user/security-role'
 const Page = () => {
 	const parentId = useGetParentId()
 	const screenId = useGetRoute()
+	const customViewId = useCustomViewId()
 
-	useIsFetching({ queryKey: ['get_navigation_screen', parentId] })
+	useIsFetching({ queryKey: ['get_navigation_screen', customViewId, parentId] })
 
 	const getNavigationScreen = useQueryFetched<GetNavigationScreenResponse>({
-		queryKey: ['get_navigation_screen', parentId]
+		queryKey: ['get_navigation_screen', customViewId, parentId]
 	})
 
 	const getPrivilege = useQueryFetched<GetPrivilegeResponse>({

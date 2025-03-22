@@ -29,14 +29,15 @@ const request = async (config: InternalAxiosRequestConfig) => {
 	return config
 }
 
-export const logout = async (credential: string) => {
+export const logout = async () => {
+	const { credential } = await getCredential()
 	const callback = [location.pathname, location.search].join('')
 
 	const headers = new Headers()
 
 	headers.append('content-type', 'application/json')
 	headers.append('x-appid', process.env.NEXT_PUBLIC_APP_ID || '')
-	headers.append('Authorization', credential)
+	headers.append('Authorization', credential ? credential.toString() : '')
 
 	await fetch(process.env.NEXT_PUBLIC_BASE_API + endpoints.user.common.logout, {
 		headers: headers,
@@ -112,9 +113,7 @@ instance.interceptors.response.use(
 
 							return instance(error.config)
 						})
-						.catch(async () => {
-							await logout(credential.toString())
-						})
+						.catch(logout)
 				}
 			}
 		} else {

@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import DataTable from '@/components/pages/data-table'
 import GridCard from '@/components/pages/grid-card'
 import Static from '@/components/pages/static-page'
+import useCustomViewId from '@/hooks/use-custom-view-id'
 import useGetParentId from '@/hooks/use-get-parent-id'
 import useGetRoute from '@/hooks/use-get-route'
 import useQueryFetched from '@/hooks/use-query-fetched'
@@ -14,12 +15,13 @@ import { GetPrivilegeResponse } from '@/types/user/security-role'
 const Page = () => {
 	const screenId = useGetRoute()
 	const parentId = useGetParentId()
+	const customViewId = useCustomViewId()
 
-	useIsFetching({ queryKey: ['get_navigation_screen', parentId] })
+	useIsFetching({ queryKey: ['get_navigation_screen', customViewId, parentId] })
 	useIsFetching({ queryKey: ['get_privilege', screenId] })
 
 	const getNavigationScreen = useQueryFetched<GetNavigationScreenResponse>({
-		queryKey: ['get_navigation_screen', parentId]
+		queryKey: ['get_navigation_screen', customViewId, parentId]
 	})
 
 	const getPrivilege = useQueryFetched<GetPrivilegeResponse>({
@@ -42,11 +44,8 @@ const Page = () => {
 		return navigation.some((item) => isTable && item.form_type === 'STATIC')
 	}, [isTable, navigation])
 
-	if (isStatic)
-		return <Static screenId={screenId} navigation={navigation} privilege={privilege} />
-
+	if (isStatic) return <Static navigation={navigation} privilege={privilege} isCard />
 	if (isTable) return <DataTable navigation={navigation} privilege={privilege} />
-
 	return <GridCard navigation={navigation} privilege={privilege} />
 }
 

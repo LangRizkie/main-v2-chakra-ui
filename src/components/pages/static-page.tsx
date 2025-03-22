@@ -1,8 +1,8 @@
-import { Card, Show } from '@chakra-ui/react'
+import { Card, Presence, Show } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
 import { useEffect, useMemo } from 'react'
 import useGetRoute from '@/hooks/use-get-route'
-import useButton from '@/stores/button-static'
+import useStaticStore from '@/stores/button-static'
 import { GetNavigationScreenData } from '@/types/user/common'
 import { GetPrivilegeData } from '@/types/user/security-role'
 import { messages } from '@/utilities/validation'
@@ -11,17 +11,17 @@ import Forbidden from './forbidden'
 type StaticProps = {
 	navigation: GetNavigationScreenData[]
 	privilege: GetPrivilegeData[]
-	screenId: string
+	isCard?: boolean
 }
 
 const ErrorComponent = () => <>{messages.component_not_found}</>
 
 const Static: React.FC<StaticProps> = (props) => {
 	const screenId = useGetRoute()
-	const { reset, setBack, setSubmit } = useButton()
+	const { reset, setBack, setSubmit } = useStaticStore()
 
 	const Component = dynamic<StaticProps>(
-		() => import(`./${props.screenId}/page.tsx`).catch(() => ErrorComponent),
+		() => import(`./${screenId}/page.tsx`).catch(() => ErrorComponent),
 		{ ssr: false }
 	)
 
@@ -46,30 +46,35 @@ const Static: React.FC<StaticProps> = (props) => {
 	}, [privilege])
 
 	const canInteractWithSubmit = useMemo(() => {
-		return canSubmit && canView
-	}, [canSubmit, canView])
+		return canSubmit && canView && props.isCard
+	}, [canSubmit, canView, props.isCard])
 
 	useEffect(() => {
-		setBack({ hidden: false })
+		setBack({ hidden: props.isCard ? false : true })
 		setSubmit({ hidden: !canInteractWithSubmit })
 
 		return () => reset()
-	}, [setBack, setSubmit, reset, canInteractWithSubmit])
+	}, [setBack, setSubmit, reset, canInteractWithSubmit, props.isCard])
 
 	return (
 		<Show when={canView} fallback={<Forbidden />}>
-			<Card.Root
-				width="full"
-				size="sm"
-				animationName="slide-from-top, fade-in"
-				animationDuration="200ms"
-			>
-				<Card.Header></Card.Header>
-				<Card.Body paddingX="8">
-					<Component {...props} />
-				</Card.Body>
-				<Card.Footer></Card.Footer>
-			</Card.Root>
+			<Presence present={props.isCard}>
+				<Card.Root
+					width="full"
+					size="sm"
+					animationName="slide-from-top, fade-in"
+					animationDuration="200ms"
+				>
+					<Card.Header></Card.Header>
+					<Card.Body paddingX="8">
+						<Component {...props} />
+					</Card.Body>
+					<Card.Footer></Card.Footer>
+				</Card.Root>
+			</Presence>
+			<Presence present={!props.isCard}>
+				<Component {...props} />
+			</Presence>
 		</Show>
 	)
 }
