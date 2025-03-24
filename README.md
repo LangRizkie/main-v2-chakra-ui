@@ -1,4 +1,4 @@
-![Logo](https://webapp-dev.regla.cloud/ifrs9/logo.svg)
+![Logo](./public/logo/full.svg)
 
 # Regla Platform V2
 
