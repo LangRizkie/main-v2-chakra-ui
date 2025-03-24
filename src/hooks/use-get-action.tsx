@@ -1,0 +1,41 @@
+import { useIsFetching } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { GetNavigationScreenAction, GetNavigationScreenResponse } from '@/types/user/common'
+import useCustomViewId from './use-custom-view-id'
+import useGetCurrentId from './use-get-current-id'
+import useGetParentId from './use-get-parent-id'
+import useQueryFetched from './use-query-fetched'
+
+const useGetAction = (action?: GetNavigationScreenAction) => {
+	const customViewId = useCustomViewId()
+	const parentId = useGetParentId()
+	const currentId = useGetCurrentId()
+
+	useIsFetching({ queryKey: ['get_navigation_screen', customViewId, currentId] })
+
+	const getNavigationScreen = useQueryFetched<GetNavigationScreenResponse>({
+		queryKey: ['get_navigation_screen', customViewId, currentId]
+	})
+
+	const form = useMemo(() => {
+		if (getNavigationScreen && getNavigationScreen.data) {
+			const map = getNavigationScreen.data.map((item) => {
+				if (item.dynamic_form) {
+					return item.dynamic_form.find((form) => {
+						const parent = parentId ? parentId.toLowerCase() : ''
+						const act = action ? action.toLowerCase() : parent
+						return form.action.toLowerCase() === act
+					})
+				}
+			})
+
+			return map && map[0] ? map[0] : undefined
+		}
+
+		return undefined
+	}, [action, parentId, getNavigationScreen])
+
+	return form
+}
+
+export default useGetAction

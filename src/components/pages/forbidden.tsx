@@ -11,7 +11,7 @@ const Forbidden = () => (
 					alt="forbidden"
 					width={384}
 					height={384}
-					style={{ height: 384, width: 'auto' }}
+					style={{ height: 'auto', width: 'auto' }}
 					draggable={false}
 					priority
 				/>

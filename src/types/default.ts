@@ -37,6 +37,8 @@ export interface ButtonData {
 }
 
 export type ButtonKeys = keyof ButtonData
+export type Sizes = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'cover' | 'full'
+
 export interface UseButtonProps extends Partial<ButtonData> {
 	setActivate: (state: ButtonProps) => void
 	setBack: (state: ButtonProps) => void

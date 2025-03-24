@@ -6,26 +6,28 @@ import DataTable from '@/components/pages/data-table'
 import GridCard from '@/components/pages/grid-card'
 import Static from '@/components/pages/static-page'
 import useCustomViewId from '@/hooks/use-custom-view-id'
-import useGetParentId from '@/hooks/use-get-parent-id'
-import useGetRoute from '@/hooks/use-get-route'
+import useGetAction from '@/hooks/use-get-action'
+import useGetCurrentId from '@/hooks/use-get-current-id'
+import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import useQueryFetched from '@/hooks/use-query-fetched'
 import { GetNavigationScreenResponse } from '@/types/user/common'
 import { GetPrivilegeResponse } from '@/types/user/security-role'
 
 const Page = () => {
-	const screenId = useGetRoute()
-	const parentId = useGetParentId()
 	const customViewId = useCustomViewId()
+	const currentId = useGetCurrentId()
+	const isCRUDPath = useIsCRUDPath()
+	const action = useGetAction()
 
-	useIsFetching({ queryKey: ['get_navigation_screen', customViewId, parentId] })
-	useIsFetching({ queryKey: ['get_privilege', screenId] })
+	useIsFetching({ queryKey: ['get_navigation_screen', customViewId, currentId] })
+	useIsFetching({ queryKey: ['get_privilege', currentId] })
 
 	const getNavigationScreen = useQueryFetched<GetNavigationScreenResponse>({
-		queryKey: ['get_navigation_screen', customViewId, parentId]
+		queryKey: ['get_navigation_screen', customViewId, currentId]
 	})
 
 	const getPrivilege = useQueryFetched<GetPrivilegeResponse>({
-		queryKey: ['get_privilege', screenId]
+		queryKey: ['get_privilege', currentId]
 	})
 
 	const navigation = useMemo(() => {
@@ -41,8 +43,11 @@ const Page = () => {
 	}, [navigation])
 
 	const isStatic = useMemo(() => {
-		return navigation.some((item) => isTable && item.form_type === 'STATIC')
-	}, [isTable, navigation])
+		const BE = navigation.some((item) => isTable && item.form_type === 'STATIC')
+		const FE = isCRUDPath && action && !action.is_modal
+
+		return BE || FE
+	}, [action, isCRUDPath, isTable, navigation])
 
 	if (isStatic) return <Static navigation={navigation} privilege={privilege} isCard />
 	if (isTable) return <DataTable navigation={navigation} privilege={privilege} />

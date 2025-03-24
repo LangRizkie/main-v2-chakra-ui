@@ -4,12 +4,12 @@ import { ButtonData, ButtonKeys, UseButtonProps } from '@/types/default'
 
 type StaticContent = {
 	title?: string
-	setTitle: (value: string) => void
 	getTitle: () => string | undefined
+	setTitle: (value: string) => void
 	setAttribute: (key: ButtonKeys, props: ButtonProps) => void
 }
 
-const initial: Partial<ButtonData & StaticContent> = {
+const getInitialState = (): Partial<ButtonData & StaticContent> => ({
 	activate: { colorPalette: 'teal', form: 'activate-form', hidden: true, title: 'Activate' },
 	back: { hidden: true, title: 'Back', variant: 'subtle' },
 	cancel: { hidden: true, title: 'Cancel', variant: 'subtle' },
@@ -27,12 +27,12 @@ const initial: Partial<ButtonData & StaticContent> = {
 	},
 	submit: { colorPalette: 'primary', form: 'submit-form', hidden: true, title: 'Save' },
 	title: ''
-}
+})
 
 const useStaticStore = create<UseButtonProps & StaticContent>((set, get) => ({
-	...initial,
+	...getInitialState(),
 	getTitle: () => get().title,
-	reset: () => set(initial),
+	reset: () => set(() => getInitialState()),
 	setActivate: (props) => set((state) => ({ activate: { ...state.activate, ...props } })),
 	setAttribute: (key, props) => set((state) => ({ [key]: { ...state[key], ...props } })),
 	setBack: (props) => set((state) => ({ back: { ...state.back, ...props } })),

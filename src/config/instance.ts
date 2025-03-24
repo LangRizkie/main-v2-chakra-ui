@@ -21,6 +21,7 @@ export const instance = axios.create({
 
 const request = async (config: InternalAxiosRequestConfig) => {
 	const { credential } = await getCredential()
+	await mutex.waitForUnlock()
 
 	if (credential) {
 		config.headers.Authorization = ['Bearer', credential].join(' ')
@@ -87,10 +88,12 @@ instance.interceptors.response.use(
 		const property = useUserProperty.getState()
 		const message = error.response?.data?.message ? error.response.data.message : error.message
 
-		if (error.status === 401) {
-			const release = await mutex.acquire()
+		if (mutex.isLocked()) {
+			return await mutex.waitForUnlock().then(() => instance(error.config))
+		}
 
-			if (property) {
+		if (error.status === 401) {
+			try {
 				const { username } = property
 				const { credential, refresh } = await getCredential()
 
@@ -101,20 +104,30 @@ instance.interceptors.response.use(
 					headers.append('x-appid', process.env.NEXT_PUBLIC_APP_ID || '')
 					headers.append('Authorization', credential.toString())
 
-					await fetch(process.env.NEXT_PUBLIC_BASE_API + endpoints.user.common.refresh_token, {
-						body: JSON.stringify({ refreshToken: refresh.toString(), username }),
-						headers: headers,
-						method: 'POST'
-					})
-						.then(async (res) => {
-							const response: AuthenticateResponse = await res.json()
-							await setCredential(response)
-							release()
+					await mutex.runExclusive(async () => {
+						const response = await fetch(
+							process.env.NEXT_PUBLIC_BASE_API + endpoints.user.common.refresh_token,
+							{
+								body: JSON.stringify({ refreshToken: refresh.toString(), username }),
+								headers: headers,
+								method: 'POST'
+							}
+						)
 
-							return instance(error.config)
-						})
-						.catch(logout)
+						if (!response.ok) return logout()
+
+						const result: AuthenticateResponse = await response.json()
+						await setCredential(result)
+
+						mutex.release()
+						return await instance(error.config)
+					})
 				}
+			} catch (error) {
+				mutex.release()
+
+				await logout()
+				return Promise.reject(error)
 			}
 		} else {
 			toast.error({ title: message })

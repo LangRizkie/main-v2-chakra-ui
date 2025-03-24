@@ -5,16 +5,15 @@ import { useQuery } from '@tanstack/react-query'
 import { Case } from 'change-case-all'
 import { isEmpty } from 'lodash'
 import { usePathname } from 'next/navigation'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import Breadcrumb from '@/components/ui/breadcrumb'
 import Header from '@/components/ui/header'
 import Iconify from '@/components/ui/iconify'
 import Sidebar from '@/components/ui/sidebar'
 import TitleContainer from '@/components/ui/title-container'
 import useCustomViewId from '@/hooks/use-custom-view-id'
+import useGetCurrentId from '@/hooks/use-get-current-id'
 import { GetPrivilege } from '@/libraries/mutation/user/security-role'
-import useStaticStore from '@/stores/button-static'
-import useGetParentId from '../../hooks/use-get-parent-id'
 import useGetRoute from '../../hooks/use-get-route'
 import {
 	GetAllNavigationScreen,
@@ -24,19 +23,18 @@ import { GetPathUrlScreen } from '../../libraries/mutation/user/screen'
 import usePreference from '../../stores/preference'
 import { Layout } from '../../types/default'
 
-const SidebarLayout: React.FC<Layout> = ({ children }) => {
+const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 	const route = useGetRoute()
 	const pathname = usePathname()
-	const parentId = useGetParentId()
 	const customViewId = useCustomViewId()
+	const currentId = useGetCurrentId()
 
 	const { isSidebarOpen } = usePreference()
-	const { setTitle } = useStaticStore()
 
 	// Sidebar Menu
 	useQuery({
-		queryFn: () => GetAllNavigationScreen({ parentId }),
-		queryKey: ['get_all_navigation_screen', parentId],
+		queryFn: () => GetAllNavigationScreen({ parentId: currentId }),
+		queryKey: ['get_all_navigation_screen', currentId],
 		refetchOnWindowFocus: false
 	})
 
@@ -49,22 +47,22 @@ const SidebarLayout: React.FC<Layout> = ({ children }) => {
 
 	// Dynamic menu
 	useQuery({
-		queryFn: () => GetNavigationScreen({ customViewId, parentId }),
-		queryKey: ['get_navigation_screen', customViewId, parentId],
+		queryFn: () => GetNavigationScreen({ customViewId, parentId: currentId }),
+		queryKey: ['get_navigation_screen', customViewId, currentId],
 		refetchOnWindowFocus: false
 	})
 
 	// User Privilege
 	useQuery({
-		queryFn: () => GetPrivilege({ screenId: route }),
-		queryKey: ['get_privilege', route],
+		queryFn: () => GetPrivilege({ screenId: currentId }),
+		queryKey: ['get_privilege', currentId],
 		refetchOnWindowFocus: false
 	})
 
 	// Breadcrumb and title
 	const { data } = useQuery({
-		queryFn: () => GetPathUrlScreen({ screenId: Case.upper(route) }),
-		queryKey: ['get_path_url_screen', route],
+		queryFn: () => GetPathUrlScreen({ screenId: Case.upper(currentId) }),
+		queryKey: ['get_path_url_screen', currentId],
 		refetchOnWindowFocus: false
 	})
 
@@ -85,10 +83,6 @@ const SidebarLayout: React.FC<Layout> = ({ children }) => {
 	const title = useMemo(() => {
 		return breadcrumb[breadcrumb.length - 1].title
 	}, [breadcrumb])
-
-	useEffect(() => {
-		setTitle(title)
-	}, [setTitle, title])
 
 	return (
 		<Flex width="full" height="100vh">
@@ -118,6 +112,7 @@ const SidebarLayout: React.FC<Layout> = ({ children }) => {
 					<TitleContainer title={title}>{children}</TitleContainer>
 				</Stack>
 			</Flex>
+			{modal}
 		</Flex>
 	)
 }

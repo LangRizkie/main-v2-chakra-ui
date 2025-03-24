@@ -1,22 +1,20 @@
 import { ButtonProps } from '@chakra-ui/react'
 import React from 'react'
 import { create } from 'zustand'
-import { ButtonData, ButtonKeys, UseButtonProps } from '@/types/default'
-
-type Sizes = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'cover' | 'full'
+import { ButtonData, ButtonKeys, Sizes, UseButtonProps } from '@/types/default'
 
 type ModalContent = {
 	content: React.ReactNode
-	title?: string
 	size?: Sizes
+	title?: string
+	getTitle: () => string | undefined
+	setTitle: (value: string) => void
 	setSize: (value: Sizes) => void
 	setAttribute: (key: ButtonKeys, props: ButtonProps) => void
 	setContent: (children: React.ReactNode) => void
-	setTitle: (value: string) => void
-	getTitle: () => string | undefined
 }
 
-const initial: Partial<ButtonData & ModalContent> = {
+const getInitialState = (): Partial<ButtonData & ModalContent> => ({
 	activate: { colorPalette: 'teal', form: 'activate-form', hidden: true, title: 'Activate' },
 	back: { hidden: true, title: 'Back', variant: 'subtle' },
 	cancel: { hidden: false, title: 'Cancel', variant: 'ghost' },
@@ -36,13 +34,13 @@ const initial: Partial<ButtonData & ModalContent> = {
 	size: 'md',
 	submit: { colorPalette: 'primary', form: 'submit-form', hidden: false, title: 'Submit' },
 	title: ''
-}
+})
 
 const useModalStore = create<UseButtonProps & ModalContent>((set, get) => ({
-	...initial,
+	...getInitialState(),
 	content: <></>,
 	getTitle: () => get().title,
-	reset: () => set(initial),
+	reset: () => set(() => getInitialState()),
 	setActivate: (props) => set((state) => ({ activate: { ...state.activate, ...props } })),
 	setAttribute: (key, props) => set((state) => ({ [key]: { ...state[key], ...props } })),
 	setBack: (props) => set((state) => ({ back: { ...state.back, ...props } })),

@@ -5,6 +5,7 @@ import {
 	Center,
 	Checkbox,
 	createListCollection,
+	EmptyState,
 	Field,
 	For,
 	Grid,
@@ -27,7 +28,7 @@ import {
 	useDisclosure
 } from '@chakra-ui/react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useDebounce, useSelections } from 'ahooks'
+import { useDebounce, useSelections, useSetState } from 'ahooks'
 import { Case } from 'change-case-all'
 import { groupBy, isEmpty } from 'lodash'
 import Link from 'next/link'
@@ -47,7 +48,7 @@ import {
 	GetNavigationScreenDynamicForm
 } from '@/types/user/common'
 import { GetPrivilegeData } from '@/types/user/security-role'
-import { routes } from '@/utilities/constants'
+import { crud_routes } from '@/utilities/constants'
 import { createQueryParams, setQueryParams } from '@/utilities/helper'
 import modal from '@/utilities/modal'
 import { values } from '@/utilities/validation'
@@ -288,8 +289,10 @@ const Toolbar: React.FC<WithFormProps> = ({ form, navigation }) => {
 	const search = useSearchParams()
 	const { open, setOpen } = useDisclosure()
 
-	const [sort, setSort] = useState<string>(search.get('sort') ?? '')
-	const [by, setBy] = useState<string>(search.get('by') ?? '')
+	const [filter, setFilter] = useSetState({
+		by: search.get('by') ?? '',
+		sort: search.get('sort') ?? ''
+	})
 
 	const sorts = useMemo(() => {
 		if (!navigation.map_column) return []
@@ -313,7 +316,7 @@ const Toolbar: React.FC<WithFormProps> = ({ form, navigation }) => {
 	const handleSortChange = () => {
 		setOpen(false)
 
-		const queries = setQueryParams(search.toString(), { by, sort }, { route: pathname })
+		const queries = setQueryParams(search.toString(), filter, { route: pathname })
 		router.replace(queries)
 	}
 
@@ -326,7 +329,7 @@ const Toolbar: React.FC<WithFormProps> = ({ form, navigation }) => {
 	}, [form])
 
 	const customViewRoute = useMemo(() => {
-		return isEmpty(custom) ? '' : [pathname, routes.custom_view].join('')
+		return isEmpty(custom) ? '' : [pathname, crud_routes.custom_view].join('')
 	}, [custom, pathname])
 
 	return (
@@ -357,11 +360,13 @@ const Toolbar: React.FC<WithFormProps> = ({ form, navigation }) => {
 					<Menu.Positioner>
 						<Menu.Content minW="10rem">
 							<Menu.RadioItemGroup
-								value={sort}
-								onValueChange={(item) => {
-									if (isEmpty(item.value)) setBy('DESC')
-									setSort(item.value)
-								}}
+								value={filter.sort}
+								onValueChange={(item) =>
+									setFilter((state) => ({
+										by: isEmpty(item.value) ? 'DESC' : state.by,
+										sort: item.value
+									}))
+								}
 							>
 								<Menu.ItemGroupLabel textStyle="xs">Sort</Menu.ItemGroupLabel>
 								<For each={sorts}>
@@ -373,8 +378,11 @@ const Toolbar: React.FC<WithFormProps> = ({ form, navigation }) => {
 									)}
 								</For>
 							</Menu.RadioItemGroup>
-							<Show when={!isEmpty(sort)}>
-								<Menu.RadioItemGroup value={by} onValueChange={(item) => setBy(item.value)}>
+							<Show when={!isEmpty(filter.sort)}>
+								<Menu.RadioItemGroup
+									value={filter.by}
+									onValueChange={(item) => setFilter({ by: item.value })}
+								>
 									<Menu.ItemGroupLabel textStyle="xs">By</Menu.ItemGroupLabel>
 									<For each={bys}>
 										{(item) => (
@@ -437,9 +445,10 @@ const List: React.FC<WithFormProps> = ({ form, navigation }) => {
 	const screenId = useGetRoute()
 	const params = useSearchParams()
 	const router = useRouter()
+	const pathname = usePathname()
 
-	const { getTitle } = useStaticStore()
 	const { setAttribute } = useModalStore()
+	const { getTitle } = useStaticStore()
 
 	const { data, isPending, mutateAsync } = useMutation<
 		ReglaResponse<never[]>,
@@ -566,16 +575,20 @@ const List: React.FC<WithFormProps> = ({ form, navigation }) => {
 		const data = form(action)
 
 		if (data && data.is_modal) {
+			const title = [Case.capital(data.action), getTitle()].join(' ')
+
 			switch (data.action) {
 				case 'DEACTIVATE':
 				case 'DELETE':
-					return handleDangerousModal(data)
+					return handleDangerousModal(data, title)
+				default:
+					const route = [pathname, '/', data.action.toLowerCase()].join('')
+					return router.push(route)
 			}
 		}
 	}
 
-	const handleDangerousModal = (data: GetNavigationScreenDynamicForm) => {
-		const title = [Case.capital(data.action), getTitle()].join(' ')
+	const handleDangerousModal = (data: GetNavigationScreenDynamicForm, title: string) => {
 		const unique = selected.map((item) => item[data.unique_key])
 
 		modal.create({
@@ -610,7 +623,16 @@ const List: React.FC<WithFormProps> = ({ form, navigation }) => {
 	}, [clearAll, list, mutateAsync, params.size, payload])
 
 	return (
-		<Show when={!isEmpty(columns)}>
+		<Show
+			when={!isEmpty(columns)}
+			fallback={
+				<EmptyState.Root>
+					<EmptyState.Content>
+						<EmptyState.Description>No Data Available</EmptyState.Description>
+					</EmptyState.Content>
+				</EmptyState.Root>
+			}
+		>
 			<Show
 				when={!isPending}
 				fallback={
@@ -650,25 +672,56 @@ const List: React.FC<WithFormProps> = ({ form, navigation }) => {
 										const color = ~index & 1 ? 'bg.muted' : 'bg'
 
 										return (
-											<Table.Row key={key} onClick={() => toggle(row)}>
-												<Table.Cell backgroundColor={color} position="sticky" left="0">
-													<Checkbox.Root
-														colorPalette="primary"
-														checked={isSelected(row)}
-														onClick={() => toggle(row)}
-													>
-														<Checkbox.HiddenInput />
-														<Checkbox.Control />
-													</Checkbox.Root>
-												</Table.Cell>
-												<For each={keys}>
-													{([key]) => (
-														<Table.Cell key={crypto.randomUUID()} whiteSpace="nowrap">
-															{setCustomColumn(row, key)}
+											<Menu.Root
+												key={key}
+												onSelect={({ value }) =>
+													handleButtonClick(value as GetNavigationScreenAction)
+												}
+											>
+												<Menu.ContextTrigger width="full" asChild>
+													<Table.Row onClick={() => toggle(row)}>
+														<Table.Cell backgroundColor={color} position="sticky" left="0">
+															<Checkbox.Root
+																colorPalette="primary"
+																checked={isSelected(row)}
+																onClick={() => toggle(row)}
+															>
+																<Checkbox.HiddenInput />
+																<Checkbox.Control />
+															</Checkbox.Root>
 														</Table.Cell>
-													)}
-												</For>
-											</Table.Row>
+														<For each={keys}>
+															{([key]) => (
+																<Table.Cell key={crypto.randomUUID()} whiteSpace="nowrap">
+																	{setCustomColumn(row, key)}
+																</Table.Cell>
+															)}
+														</For>
+													</Table.Row>
+												</Menu.ContextTrigger>
+												<Portal>
+													<Menu.Positioner>
+														<Menu.Content>
+															<Menu.Item value="VIEW">
+																<Text width="full">View</Text>
+																<Iconify icon="bxs:show" height="16" />
+															</Menu.Item>
+															<Menu.Item value="UPDATE">
+																<Text width="full">Update</Text>
+																<Iconify icon="bxs:edit-alt" height="16" />
+															</Menu.Item>
+															<Menu.Item value="DEACTIVATE">
+																<Text width="full">Deactivate</Text>
+																<Iconify icon="bxs:minus-circle" height="16" />
+															</Menu.Item>
+															<Menu.Item value="DELETE">
+																<Text width="full">Delete</Text>
+																<Iconify icon="bxs:trash" height="16" />
+															</Menu.Item>
+														</Menu.Content>
+													</Menu.Positioner>
+												</Portal>
+											</Menu.Root>
 										)
 									}}
 								</For>
@@ -787,7 +840,7 @@ const Component: React.FC<ComponentProps> = (props) => {
 	}
 
 	useEffect(() => {
-		if (search.size < 5) router.replace(queries)
+		if (search.size <= 0) router.replace(queries)
 	}, [queries, router, search.size])
 
 	return (
@@ -825,14 +878,12 @@ const Component: React.FC<ComponentProps> = (props) => {
 				<List form={form} {...props} />
 			</Card.Body>
 			<Card.Footer alignSelf="end">
-				<Show when={!isEmpty(data)}>
-					<Pagination
-						length={length}
-						start={start}
-						recordsTotal={recordsTotal}
-						onPageChange={handlePaginationChange}
-					/>
-				</Show>
+				<Pagination
+					length={length}
+					start={start}
+					recordsTotal={recordsTotal}
+					onPageChange={handlePaginationChange}
+				/>
 			</Card.Footer>
 		</Card.Root>
 	)

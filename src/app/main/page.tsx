@@ -14,7 +14,6 @@ import {
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
-import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import Iconify from '../../components/ui/iconify'
 import Tooltip from '../../components/ui/tooltip'
@@ -23,8 +22,6 @@ import { GetPlatform } from '../../libraries/mutation/platform-settings/master-a
 import { GenerateIcon } from '../../utilities/helper'
 
 const Page = () => {
-	const router = useRouter()
-
 	const { data, isPending } = useQuery({
 		queryFn: GetPlatform,
 		queryKey: ['get_platform']
@@ -35,7 +32,7 @@ const Page = () => {
 	}, [data])
 
 	const handleCardClick = (url: string) => {
-		router.push(url)
+		location.href = url
 	}
 
 	return (

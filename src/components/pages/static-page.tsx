@@ -1,7 +1,7 @@
-import { Card, Presence, Show } from '@chakra-ui/react'
+import { Card, Center, Presence, Show, Spinner } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
 import { useEffect, useMemo } from 'react'
-import useGetRoute from '@/hooks/use-get-route'
+import useGetCurrentId from '@/hooks/use-get-current-id'
 import useStaticStore from '@/stores/button-static'
 import { GetNavigationScreenData } from '@/types/user/common'
 import { GetPrivilegeData } from '@/types/user/security-role'
@@ -16,17 +16,25 @@ type StaticProps = {
 
 const ErrorComponent = () => <>{messages.component_not_found}</>
 
+const LoadingComponent = () => (
+	<Center marginY="2">
+		<Spinner size="lg" />
+	</Center>
+)
+
 const Static: React.FC<StaticProps> = (props) => {
-	const screenId = useGetRoute()
+	const screenId = useGetCurrentId()
 	const { reset, setBack, setSubmit } = useStaticStore()
 
 	const Component = dynamic<StaticProps>(
 		() => import(`./${screenId}/page.tsx`).catch(() => ErrorComponent),
-		{ ssr: false }
+		{ loading: LoadingComponent, ssr: false }
 	)
 
 	const privilege = useMemo(() => {
-		return props.privilege.find((item) => item.screen_id.toLowerCase() === screenId)
+		return props.privilege.find(
+			(item) => item.screen_id.toLowerCase() === screenId.toLowerCase()
+		)
 	}, [props.privilege, screenId])
 
 	const canInsert = useMemo(() => {

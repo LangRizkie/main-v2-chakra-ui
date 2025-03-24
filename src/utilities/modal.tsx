@@ -1,10 +1,15 @@
 import { mergeWith } from 'lodash'
 import { ModalReference } from '@/app/context'
 import useModalStore from '@/stores/modal-dynamic'
-import { UseButtonProps } from '@/types/default'
+import { Sizes, UseButtonProps } from '@/types/default'
 
 type ModalCreateOptions = UseButtonProps & {
 	title: string
+	size: Sizes
+}
+
+type ModalCloseProps = {
+	shouldBack: boolean
 }
 
 type ModalCreateProps = {
@@ -13,9 +18,15 @@ type ModalCreateProps = {
 }
 
 const modal = {
-	close: () => {
-		ModalReference.setOpen(false)
-		useModalStore.getState().reset()
+	close: (props?: ModalCloseProps) => {
+		new Promise((resolve) => {
+			ModalReference.setOpen(false)
+			setTimeout(() => {
+				resolve(true)
+			}, 200)
+		})
+			.then(() => props && props.shouldBack && history.back())
+			.finally(() => useModalStore.getState().reset())
 	},
 	create: (props: ModalCreateProps) => {
 		ModalReference.setOpen(true)

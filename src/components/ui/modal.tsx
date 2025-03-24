@@ -1,9 +1,12 @@
 import { Button, CloseButton, Dialog, Portal, Stack } from '@chakra-ui/react'
+import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import { useModal } from '@/hooks/use-modal'
 import useModalStore from '@/stores/modal-dynamic'
 import modal from '@/utilities/modal'
 
 const Modal = () => {
+	const isCRUDPath = useIsCRUDPath()
+
 	const { open } = useModal()
 	const { activate, cancel, content, deactivate, reactivate, size, submit, title } =
 		useModalStore()
@@ -15,7 +18,7 @@ const Modal = () => {
 			placement="center"
 			scrollBehavior="inside"
 			motionPreset="slide-in-top"
-			onOpenChange={modal.close}
+			onOpenChange={() => modal.close({ shouldBack: isCRUDPath })}
 			unmountOnExit
 		>
 			<Portal>
