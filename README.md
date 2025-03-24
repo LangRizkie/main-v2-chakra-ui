@@ -2,15 +2,15 @@
 
 # Regla Platform V2
 
-This project is fully dedicated to Regla Project, dealing with back to back requirement sometimes brain hurting. So I decided to remake/revamp this project as long as I'm in the team.
+This project is dedicated to the Regla Project, aimed at addressing complex back-to-back requirements that can sometimes be challenging. The goal is to modernize and revamp this project as long as I remain part of the team.
 
 ## Optimization
 
-> With some improved performance, user experience and cleaner code.
+> The project includes several improvements, such as enhanced performance, an improved user experience, and cleaner code architecture.
 
 ## Environment Variables
 
-To run this project, you will need to add the following environment variables to your .env file
+To run this project locally, you must include the following environment variables in your .env file
 
 ```
 NEXT_PUBLIC_BASE_API=https://webapp-dev.regla.cloud/api
@@ -25,27 +25,28 @@ NEXT_PUBLIC_APP_ID=PLATFORM_CENTER
 
 ## Features
 
-- Theme mode, user can change their theme preference server-sided
-- Parallel, intercepting and dynamic routes based on response
-- RBAC system, all pages and features based on user privilege
-- Sticky Sidebar and Header
-- Animated routing with slide-in and fade-in transition
-- TBD
+- **Theme Mode**: Users can customize their theme preference, which is stored server-side.
+- **Dynamic Routing**: The platform supports parallel, intercepting, and dynamic routes based on API responses.
+- **Role-Based Access Control (RBAC)**: Pages and features are displayed based on user privileges.
+- **Sticky Sidebar and Header**: These elements remain fixed for better user navigation.
+- **Animated Routing**: Page transitions include slide-in and fade-in animations.
+- **TBD**: Additional features will be added in future updates.
 
 ## Installation & Development
 
-This project supposed to be run by internal only, so we have to download Wireguard and request for user credentials.
+This project is intended for internal use only. To set up, you must first download WireGuard and request the necessary user credentials.
 
-use **ONLY** `bun` for better performance
+To ensure better performance, please use `bun` as the package manager.
 
-Install `regla-v2`
+Clone the repository and navigate to the project folder:
 
 ```bash
+    $ git clone git@github.com:LangRizkie/regla-v2.git
     $ cd regla-v2
     $ bun install
 ```
 
-run with
+Run the development server:
 
 ```bash
     $ bun dev
@@ -53,13 +54,15 @@ run with
 
 # Project Structure
 
+The directory structure is as follows:
+
 ```bash
-├───public                                  (public folder to serve local assets)
+├───public                                  (public folder to serve static assets)
 │   ├───login
 │   ├───logo
 │   └───request-unlock
-└───src                                     (source folder)
-    ├───app                                 (app folder for main pages)
+└───src                                     (source folder containing main application code)
+    ├───app                                 (application folder for main pages)
     │   ├───(sidebar)                       (route group)
     │   │   ├───@modal                      (named slot routes)
     │   │   │   └───(.)platform_center      (intercepting routes)
@@ -84,11 +87,11 @@ run with
     │   │   └───user
     │   └───schemas                         (schema validation folder)
     │       └───user
-    ├───stores                              (zustand store)
-    ├───types                               (type interface)
+    ├───stores                              (Zustand store management)
+    ├───types                               (TypeScript type definitions)
     │   ├───platform-settings
     │   └───user
-    └───utilities                           (reusable function/constant)
+    └───utilities                           (utility functions and constants)
 ```
 
 ## Developer
