@@ -32,6 +32,11 @@ NEXT_PUBLIC_APP_ID=PLATFORM_CENTER
 - **Animated Routing**: Page transitions include slide-in and fade-in animations.
 - **TBD**: Additional features will be added in future updates.
 
+## Under Development
+
+- **Websocket**: Real-time silent and noisy updates for live notifications.
+- **Download Toolbar**: Users can download files from toolbar button.
+
 ## Installation & Development
 
 This project is intended for internal use only. To set up, you must first download WireGuard and request the necessary user credentials.
