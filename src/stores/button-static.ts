@@ -32,7 +32,7 @@ const getInitialState = (): Partial<ButtonData & StaticContent> => ({
 const useStaticStore = create<UseButtonProps & StaticContent>((set, get) => ({
 	...getInitialState(),
 	getTitle: () => get().title,
-	reset: () => set(() => getInitialState()),
+	reset: () => set(() => ({ ...getInitialState(), title: '' })),
 	setActivate: (props) => set((state) => ({ activate: { ...state.activate, ...props } })),
 	setAttribute: (key, props) => set((state) => ({ [key]: { ...state[key], ...props } })),
 	setBack: (props) => set((state) => ({ back: { ...state.back, ...props } })),

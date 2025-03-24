@@ -16,6 +16,7 @@ import {
 	InputGroup,
 	Menu,
 	Portal,
+	RadioGroup,
 	Select,
 	SelectValueChangeDetails,
 	Separator,
@@ -33,10 +34,9 @@ import { Case } from 'change-case-all'
 import { groupBy, isEmpty } from 'lodash'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
-import useMutationFetched from '@/hooks/use-mutation-fetched'
 import { CustomEndpoint, CustomEndpointProps } from '@/libraries/mutation/list'
 import { GetLookupCustomView } from '@/libraries/mutation/user/common'
 import useStaticStore from '@/stores/button-static'
@@ -70,6 +70,18 @@ type ComponentProps = {
 
 type WithFormProps = ComponentProps & {
 	form: (action: GetNavigationScreenAction) => GetNavigationScreenDynamicForm | undefined
+}
+
+type ToolbarProps = WithFormProps & {
+	handleButtonClick: (action: GetNavigationScreenAction, row?: never) => void
+}
+
+type ListProps = WithFormProps & {
+	rows: never[]
+	selected: never[]
+	isPending: boolean
+	setSelected: Dispatch<SetStateAction<never[]>>
+	handleButtonClick: (action: GetNavigationScreenAction, row?: never) => void
 }
 
 const Filter: React.FC<ComponentProps> = ({ navigation }) => {
@@ -284,7 +296,7 @@ const Search: React.FC<ComponentProps> = () => {
 	)
 }
 
-const Toolbar: React.FC<WithFormProps> = ({ form, navigation }) => {
+const Toolbar: React.FC<ToolbarProps> = (props) => {
 	const router = useRouter()
 	const pathname = usePathname()
 	const search = useSearchParams()
@@ -296,16 +308,16 @@ const Toolbar: React.FC<WithFormProps> = ({ form, navigation }) => {
 	})
 
 	const sorts = useMemo(() => {
-		if (!navigation.map_column) return []
+		if (!props.navigation.map_column) return []
 
 		return [
 			{ label: 'Default', value: '' },
-			...navigation.map_column.map((item) => ({
+			...props.navigation.map_column.map((item) => ({
 				label: item.value,
 				value: item.object_name
 			}))
 		]
-	}, [navigation])
+	}, [props.navigation])
 
 	const bys = useMemo(() => {
 		return [
@@ -322,12 +334,12 @@ const Toolbar: React.FC<WithFormProps> = ({ form, navigation }) => {
 	}
 
 	const download = useMemo(() => {
-		return form('DOWNLOAD')
-	}, [form])
+		return props.form('DOWNLOAD')
+	}, [props])
 
 	const custom = useMemo(() => {
-		return form('CUSTOM_VIEW')
-	}, [form])
+		return props.form('CUSTOM_VIEW')
+	}, [props])
 
 	const customViewRoute = useMemo(() => {
 		return isEmpty(custom) ? '' : [pathname, crud_routes.custom_view].join('')
@@ -339,6 +351,7 @@ const Toolbar: React.FC<WithFormProps> = ({ form, navigation }) => {
 				<IconButton
 					variant="ghost"
 					size="sm"
+					onClick={() => props.handleButtonClick('DOWNLOAD')}
 					cursor={{ _disabled: 'not-allowed' }}
 					disabled={isEmpty(download)}
 				>
@@ -442,117 +455,43 @@ const ButtonAction: React.FC<WithFormProps> = ({ form }) => {
 	)
 }
 
-const List: React.FC<WithFormProps> = ({ form, navigation }) => {
-	const screenId = useGetRoute()
-	const params = useSearchParams()
-	const router = useRouter()
-	const pathname = usePathname()
-
-	const { setAttribute } = useModalStore()
-	const { getTitle } = useStaticStore()
-
-	const { data, isPending, mutateAsync } = useMutation<
-		ReglaResponse<never[]>,
-		Error,
-		CustomEndpointProps<GetDataPayload>
-	>({
-		mutationFn: CustomEndpoint,
-		mutationKey: ['list', screenId, params.toString()]
-	})
-
-	const list = useMemo(() => {
-		return form('LIST')
-	}, [form])
-
-	const deactivate = useMemo(() => {
-		return form('DEACTIVATE')
-	}, [form])
-
-	const erase = useMemo(() => {
-		return form('DELETE')
-	}, [form])
-
-	const unique = useMemo(() => {
-		return list ? list.unique_key : undefined
-	}, [list])
-
-	const columnSearch = useMemo(() => {
-		const value = params.get('column')
-		if (value === 'All') return []
-		return value ? [value] : []
-	}, [params])
-
-	const customViewId = useMemo(() => {
-		const value = params.get('condition')
-		if (value === 'All') return ''
-		return value ? value : ''
-	}, [params])
-
-	const length = useMemo(() => {
-		const value = params.get('length')
-		return value ? Number(value) : values.length
-	}, [params])
-
-	const start = useMemo(() => {
-		const value = params.get('start')
-		return value ? Number(value) : values.start
-	}, [params])
-
-	const search = useMemo(() => {
-		const value = params.get('search')
-		return value ? value : ''
-	}, [params])
-
-	const sort = useMemo(() => {
-		const sort = params.get('sort')
-		const by = params.get('by')
-		const isDefaultSort = sort === 'Default'
-
-		if (sort && !isDefaultSort && by) {
-			const field = sort === 'Default' ? '' : sort
-			return [{ dir: by, field }]
-		}
-
-		return []
-	}, [params])
-
-	const columns = useMemo(() => {
-		return navigation.map_column ? navigation.map_column : []
-	}, [navigation])
-
-	const keys = Object.entries(groupBy(columns, (item) => item.object_name))
-
-	const rows = useMemo(() => {
-		return (data && data.data) || []
-	}, [data])
-
+const List: React.FC<ListProps> = (props) => {
 	const {
 		allSelected,
-		clearAll,
 		isSelected,
 		noneSelected,
 		partiallySelected,
 		selected,
 		toggle,
 		toggleAll
-	} = useSelections(rows)
+	} = useSelections(props.rows, { defaultSelected: props.selected })
+
+	const list = useMemo(() => {
+		return props.form('LIST')
+	}, [props])
+
+	const deactivate = useMemo(() => {
+		return props.form('DEACTIVATE')
+	}, [props])
+
+	const erase = useMemo(() => {
+		return props.form('DELETE')
+	}, [props])
+
+	const unique = useMemo(() => {
+		return list ? list.unique_key : undefined
+	}, [list])
+
+	const columns = useMemo(() => {
+		return props.navigation.map_column ? props.navigation.map_column : []
+	}, [props.navigation])
+
+	const keys = Object.entries(groupBy(columns, (item) => item.object_name))
 
 	const checked = useMemo(() => {
 		if (partiallySelected) return 'indeterminate'
 		return allSelected
 	}, [allSelected, partiallySelected])
-
-	const payload = useMemo((): GetDataPayload => {
-		return {
-			columnSearch,
-			customViewId,
-			filter: { filters: [] },
-			length,
-			search,
-			sort,
-			start
-		}
-	}, [columnSearch, customViewId, length, search, sort, start])
 
 	const setCustomColumn = (row: never, key: string) => {
 		if (key.toLowerCase() !== 'status') return <Text>{row[key] || '-'}</Text>
@@ -572,72 +511,9 @@ const List: React.FC<WithFormProps> = ({ form, navigation }) => {
 		)
 	}
 
-	const handleButtonClick = (action: GetNavigationScreenAction, row?: never) => {
-		const data = form(action)
-
-		if (data) {
-			const title = [Case.capital(data.action), getTitle()].join(' ')
-			const route = [pathname, '/', data.action.toLowerCase()].join('')
-
-			if (data.is_modal) {
-				switch (data.action) {
-					case 'DEACTIVATE':
-					case 'DELETE':
-						return handleDangerousModal(data, title, row)
-					default:
-						break
-				}
-			}
-
-			if (row) {
-				const queries = createQueryParams(
-					{ [data.unique_key]: row[data.unique_key] },
-					{ route }
-				)
-
-				return router.push(queries)
-			}
-		}
-	}
-
-	const handleDangerousModal = (
-		data: GetNavigationScreenDynamicForm,
-		title: string,
-		row?: never
-	) => {
-		const list = row ? [row] : selected
-		const unique = list.map((item) => item[data.unique_key])
-
-		modal.create({
-			children: (
-				<Center paddingY="12">
-					Are you sure you want to {Case.lower(data.action)} the selected record(s)?
-				</Center>
-			),
-			options: {
-				submit: {
-					colorPalette: 'red',
-					onClick: () => {
-						setAttribute('submit', { loading: true })
-						CustomEndpoint({ [data.unique_key]: unique, ...data })
-							.then(() => router.replace(setQueryParams(params.toString(), { start: '0' })))
-							.catch((error) => error)
-							.finally(() => {
-								setAttribute('submit', { loading: false })
-								modal.close()
-							})
-					},
-					title: Case.capital(data.action)
-				},
-				title
-			}
-		})
-	}
-
 	useEffect(() => {
-		if (!isEmpty(list) && params.size > 4) mutateAsync({ ...payload, ...list })
-		clearAll()
-	}, [clearAll, list, mutateAsync, params.size, payload])
+		props.setSelected(selected)
+	}, [props, selected])
 
 	return (
 		<Show
@@ -651,7 +527,7 @@ const List: React.FC<WithFormProps> = ({ form, navigation }) => {
 			}
 		>
 			<Show
-				when={!isPending}
+				when={!props.isPending}
 				fallback={
 					<Center marginY="12">
 						<Spinner size="xl" />
@@ -682,8 +558,8 @@ const List: React.FC<WithFormProps> = ({ form, navigation }) => {
 							</Table.Row>
 						</Table.Header>
 						<Table.Body>
-							<Show when={!isEmpty(rows)}>
-								<For each={rows}>
+							<Show when={!isEmpty(props.rows)}>
+								<For each={props.rows}>
 									{(row, index) => {
 										const key = unique ? row[unique] : index
 										const color = ~index & 1 ? 'bg.muted' : 'bg'
@@ -692,7 +568,7 @@ const List: React.FC<WithFormProps> = ({ form, navigation }) => {
 											<Menu.Root
 												key={key}
 												onSelect={({ value }) =>
-													handleButtonClick(value as GetNavigationScreenAction, row)
+													props.handleButtonClick(value as GetNavigationScreenAction, row)
 												}
 											>
 												<Menu.ContextTrigger width="full" asChild>
@@ -756,28 +632,40 @@ const List: React.FC<WithFormProps> = ({ form, navigation }) => {
 								<ActionBar.Separator />
 								<Show when={selected.length === 1}>
 									<Tooltip content="view" showArrow>
-										<IconButton variant="ghost" onClick={() => handleButtonClick('VIEW')}>
+										<IconButton
+											variant="ghost"
+											onClick={() => props.handleButtonClick('VIEW', selected[0])}
+										>
 											<Iconify icon="bxs:show" height="20" />
 										</IconButton>
 									</Tooltip>
 								</Show>
 								<Show when={selected.length === 1}>
 									<Tooltip content="update" showArrow>
-										<IconButton variant="ghost" onClick={() => handleButtonClick('UPDATE')}>
+										<IconButton
+											variant="ghost"
+											onClick={() => props.handleButtonClick('UPDATE', selected[0])}
+										>
 											<Iconify icon="bxs:edit-alt" height="20" />
 										</IconButton>
 									</Tooltip>
 								</Show>
 								<Show when={deactivate}>
 									<Tooltip content="deactivate" showArrow>
-										<IconButton variant="ghost" onClick={() => handleButtonClick('DEACTIVATE')}>
+										<IconButton
+											variant="ghost"
+											onClick={() => props.handleButtonClick('DEACTIVATE')}
+										>
 											<Iconify icon="bxs:minus-circle" height="20" />
 										</IconButton>
 									</Tooltip>
 								</Show>
 								<Show when={erase}>
 									<Tooltip content="delete" showArrow>
-										<IconButton variant="ghost" onClick={() => handleButtonClick('DELETE')}>
+										<IconButton
+											variant="ghost"
+											onClick={() => props.handleButtonClick('DELETE')}
+										>
 											<Iconify icon="bxs:trash" height="20" />
 										</IconButton>
 									</Tooltip>
@@ -794,12 +682,20 @@ const List: React.FC<WithFormProps> = ({ form, navigation }) => {
 const Component: React.FC<ComponentProps> = (props) => {
 	const router = useRouter()
 	const pathname = usePathname()
-	const search = useSearchParams()
+	const params = useSearchParams()
 	const screenId = useGetRoute()
 	const isCRUDPath = useIsCRUDPath()
 
-	const data = useMutationFetched<ReglaResponse>({
-		mutationKey: ['list', screenId, search.toString()]
+	const { setAttribute } = useModalStore()
+	const { getTitle } = useStaticStore()
+
+	const { data, isPending, mutateAsync } = useMutation<
+		ReglaResponse<never[]>,
+		Error,
+		CustomEndpointProps<GetDataPayload>
+	>({
+		mutationFn: CustomEndpoint,
+		mutationKey: ['list', screenId, params.toString()]
 	})
 
 	const queries = createQueryParams(
@@ -814,19 +710,55 @@ const Component: React.FC<ComponentProps> = (props) => {
 		{ route: pathname }
 	)
 
-	const start = useMemo(() => {
-		const value = search.get('start')
-		return value ? Number(value) : 0
-	}, [search])
+	const columnSearch = useMemo(() => {
+		const value = params.get('column')
+		if (value === 'All') return []
+		return value ? [value] : []
+	}, [params])
+
+	const customViewId = useMemo(() => {
+		const value = params.get('condition')
+		if (value === 'All') return ''
+		return value ? value : ''
+	}, [params])
 
 	const length = useMemo(() => {
-		const value = search.get('length')
-		return value ? Number(value) : 0
-	}, [search])
+		const value = params.get('length')
+		return value ? Number(value) : values.length
+	}, [params])
+
+	const start = useMemo(() => {
+		const value = params.get('start')
+		return value ? Number(value) : values.start
+	}, [params])
+
+	const search = useMemo(() => {
+		const value = params.get('search')
+		return value ? value : ''
+	}, [params])
+
+	const sort = useMemo(() => {
+		const sort = params.get('sort')
+		const by = params.get('by')
+		const isDefaultSort = sort === 'Default'
+
+		if (sort && !isDefaultSort && by) {
+			const field = sort === 'Default' ? '' : sort
+			return [{ dir: by, field }]
+		}
+
+		return []
+	}, [params])
 
 	const recordsTotal = useMemo(() => {
 		return data ? data.recordsTotal : 0
 	}, [data])
+
+	const rows = useMemo(() => {
+		return (data && data.data) || []
+	}, [data])
+
+	const { clearAll, selected, setSelected } = useSelections(rows)
 
 	const handleAnimationDuration = (index: number) => {
 		return (index + 1) * 200 + 'ms'
@@ -844,6 +776,106 @@ const Component: React.FC<ComponentProps> = (props) => {
 		[props.navigation.dynamic_form]
 	)
 
+	const list = useMemo(() => {
+		return form('LIST')
+	}, [form])
+
+	const handleButtonClick = (action: GetNavigationScreenAction, row?: never) => {
+		const data = form(action)
+
+		if (data) {
+			const title = [Case.capital(data.action), getTitle()].join(' ')
+			const route = [pathname, '/', data.action.toLowerCase()].join('')
+
+			if (data.is_modal) {
+				switch (data.action) {
+					case 'DOWNLOAD':
+						return handleDownloadModal(data, title)
+					case 'DEACTIVATE':
+					case 'DELETE':
+						return handleDangerousModal(data, title, row)
+				}
+			}
+
+			if (row) {
+				const queries = createQueryParams(
+					{ [data.unique_key]: row[data.unique_key] },
+					{ route }
+				)
+
+				return router.push(queries)
+			}
+		}
+	}
+
+	const handleDownloadModal = (
+		data: GetNavigationScreenDynamicForm,
+		title: string,
+		row?: never
+	) => {
+		const list = row ? [row] : selected
+		const unique = list.map((item) => item[data.unique_key])
+
+		modal.create({
+			children: (
+				<RadioGroup.Root>
+					<Stack gap="2">
+						<RadioGroup.Item key="all" value="all">
+							<RadioGroup.ItemHiddenInput />
+							<RadioGroup.ItemIndicator />
+							<RadioGroup.ItemText>All data</RadioGroup.ItemText>
+						</RadioGroup.Item>
+						<RadioGroup.Item key="selected" value="selected" disabled={!unique.length}>
+							<RadioGroup.ItemHiddenInput />
+							<RadioGroup.ItemIndicator />
+							<RadioGroup.ItemText>Selected ({unique.length})</RadioGroup.ItemText>
+						</RadioGroup.Item>
+						<RadioGroup.Item key="filtered" value="filtered">
+							<RadioGroup.ItemHiddenInput />
+							<RadioGroup.ItemIndicator />
+							<RadioGroup.ItemText>Filtered data</RadioGroup.ItemText>
+						</RadioGroup.Item>
+					</Stack>
+				</RadioGroup.Root>
+			),
+			options: { submit: { title: 'Download' }, title }
+		})
+	}
+
+	const handleDangerousModal = (
+		data: GetNavigationScreenDynamicForm,
+		title: string,
+		row?: never
+	) => {
+		const list = row ? [row] : selected
+		const unique = list.map((item) => item[data.unique_key])
+
+		modal.create({
+			children: (
+				<Center paddingY="12">
+					Are you sure you want to {Case.lower(data.action)} the selected record(s)?
+				</Center>
+			),
+			options: {
+				submit: {
+					colorPalette: 'red',
+					onClick: () => {
+						setAttribute('submit', { loading: true })
+						CustomEndpoint({ [data.unique_key]: unique, ...data })
+							.then(() => router.replace(setQueryParams(search.toString(), { start: '0' })))
+							.catch((error) => error)
+							.finally(() => {
+								setAttribute('submit', { loading: false })
+								modal.close()
+							})
+					},
+					title: Case.capital(data.action)
+				},
+				title
+			}
+		})
+	}
+
 	const handlePaginationChange = (value: PageChangeDetails) => {
 		const queries = setQueryParams(
 			search.toString(),
@@ -857,9 +889,26 @@ const Component: React.FC<ComponentProps> = (props) => {
 		router.replace(queries)
 	}
 
+	const payload = useMemo((): GetDataPayload => {
+		return {
+			columnSearch,
+			customViewId,
+			filter: { filters: [] },
+			length,
+			search,
+			sort,
+			start
+		}
+	}, [columnSearch, customViewId, length, search, sort, start])
+
 	useEffect(() => {
-		if (search.size <= 0 && !isCRUDPath) router.replace(queries)
-	}, [isCRUDPath, queries, router, search.size])
+		if (params.size <= 0 && !isCRUDPath) router.replace(queries)
+	}, [isCRUDPath, queries, router, params.size])
+
+	useEffect(() => {
+		if (!isEmpty(list) && params.size > 4) mutateAsync({ ...payload, ...list })
+		clearAll()
+	}, [clearAll, list, mutateAsync, params.size, payload])
 
 	return (
 		<Card.Root
@@ -885,7 +934,7 @@ const Component: React.FC<ComponentProps> = (props) => {
 						</Stack>
 					</GridItem>
 					<GridItem colSpan={1} rowStart={{ base: 2, xl: 'auto' }}>
-						<Toolbar form={form} {...props} />
+						<Toolbar form={form} handleButtonClick={handleButtonClick} {...props} />
 					</GridItem>
 					<GridItem colSpan={{ base: 3, xl: 1 }} rowStart={{ base: 2, xl: 'auto' }}>
 						<ButtonAction form={form} {...props} />
@@ -893,7 +942,15 @@ const Component: React.FC<ComponentProps> = (props) => {
 				</Grid>
 			</Card.Header>
 			<Card.Body>
-				<List form={form} {...props} />
+				<List
+					form={form}
+					rows={rows}
+					selected={selected}
+					setSelected={setSelected}
+					handleButtonClick={handleButtonClick}
+					isPending={isPending}
+					{...props}
+				/>
 			</Card.Body>
 			<Card.Footer alignSelf="end">
 				<Pagination

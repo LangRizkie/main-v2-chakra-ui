@@ -12,6 +12,7 @@ import Iconify from '@/components/ui/iconify'
 import Sidebar from '@/components/ui/sidebar'
 import TitleContainer from '@/components/ui/title-container'
 import useCustomViewId from '@/hooks/use-custom-view-id'
+import useGetAction from '@/hooks/use-get-action'
 import useGetCurrentId from '@/hooks/use-get-current-id'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import { GetPrivilege } from '@/libraries/mutation/user/security-role'
@@ -29,6 +30,7 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 	const pathname = usePathname()
 	const customViewId = useCustomViewId()
 	const currentId = useGetCurrentId()
+	const action = useGetAction()
 	const isCRUDPath = useIsCRUDPath()
 
 	const { isSidebarOpen } = usePreference()
@@ -48,7 +50,7 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 	})
 
 	// Dynamic menu
-	useQuery({
+	const { data: menu } = useQuery({
 		queryFn: () => GetNavigationScreen({ customViewId, parentId: currentId }),
 		queryKey: ['get_navigation_screen', customViewId, currentId],
 		refetchOnWindowFocus: false
@@ -63,8 +65,8 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 
 	// Breadcrumb and title
 	const { data } = useQuery({
-		queryFn: () => GetPathUrlScreen({ screenId: Case.upper(currentId ?? '') }),
-		queryKey: ['get_path_url_screen', currentId],
+		queryFn: () => GetPathUrlScreen({ screenId: currentId || route }),
+		queryKey: ['get_path_url_screen', currentId, route],
 		refetchOnWindowFocus: false
 	})
 
@@ -84,9 +86,11 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 
 	const title = useMemo(() => {
 		const title = breadcrumb[breadcrumb.length - 1].title
-		if (!isCRUDPath) return title
-		return [Case.capital(route), title].join(' ')
-	}, [breadcrumb, isCRUDPath, route])
+		if (isCRUDPath && action && !action.is_modal) return [Case.capital(route), title].join(' ')
+		return title
+	}, [action, breadcrumb, isCRUDPath, route])
+
+	console.log({ action, menu })
 
 	return (
 		<Flex width="full" height="100vh">

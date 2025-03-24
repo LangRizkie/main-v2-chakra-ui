@@ -1,6 +1,5 @@
 import { Button, Flex, Stack, Text } from '@chakra-ui/react'
 import { Case } from 'change-case-all'
-import { isEmpty } from 'lodash'
 import { useEffect } from 'react'
 import useStaticStore from '@/stores/button-static'
 import useGetRoute from '../../hooks/use-get-route'
@@ -14,6 +13,7 @@ const TitleContainer: React.FC<TitleContainerProps> = ({ children, ...props }) =
 	const { activate, back, deactivate, reactivate, setTitle, submit, title } = useStaticStore()
 
 	const path = useGetRoute()
+
 	const main = props.title || Case.capital(path)
 
 	const handleBackClick = () => {
@@ -21,7 +21,7 @@ const TitleContainer: React.FC<TitleContainerProps> = ({ children, ...props }) =
 	}
 
 	useEffect(() => {
-		if (isEmpty(title)) setTitle(main)
+		setTitle(main)
 	}, [main, setTitle, title])
 
 	return (
