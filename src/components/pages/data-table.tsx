@@ -35,6 +35,7 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import useGetRoute from '@/hooks/use-get-route'
+import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import useMutationFetched from '@/hooks/use-mutation-fetched'
 import { CustomEndpoint, CustomEndpointProps } from '@/libraries/mutation/list'
 import { GetLookupCustomView } from '@/libraries/mutation/user/common'
@@ -571,25 +572,41 @@ const List: React.FC<WithFormProps> = ({ form, navigation }) => {
 		)
 	}
 
-	const handleButtonClick = (action: GetNavigationScreenAction) => {
+	const handleButtonClick = (action: GetNavigationScreenAction, row?: never) => {
 		const data = form(action)
 
-		if (data && data.is_modal) {
+		if (data) {
 			const title = [Case.capital(data.action), getTitle()].join(' ')
+			const route = [pathname, '/', data.action.toLowerCase()].join('')
 
-			switch (data.action) {
-				case 'DEACTIVATE':
-				case 'DELETE':
-					return handleDangerousModal(data, title)
-				default:
-					const route = [pathname, '/', data.action.toLowerCase()].join('')
-					return router.push(route)
+			if (data.is_modal) {
+				switch (data.action) {
+					case 'DEACTIVATE':
+					case 'DELETE':
+						return handleDangerousModal(data, title, row)
+					default:
+						break
+				}
+			}
+
+			if (row) {
+				const queries = createQueryParams(
+					{ [data.unique_key]: row[data.unique_key] },
+					{ route }
+				)
+
+				return router.push(queries)
 			}
 		}
 	}
 
-	const handleDangerousModal = (data: GetNavigationScreenDynamicForm, title: string) => {
-		const unique = selected.map((item) => item[data.unique_key])
+	const handleDangerousModal = (
+		data: GetNavigationScreenDynamicForm,
+		title: string,
+		row?: never
+	) => {
+		const list = row ? [row] : selected
+		const unique = list.map((item) => item[data.unique_key])
 
 		modal.create({
 			children: (
@@ -675,7 +692,7 @@ const List: React.FC<WithFormProps> = ({ form, navigation }) => {
 											<Menu.Root
 												key={key}
 												onSelect={({ value }) =>
-													handleButtonClick(value as GetNavigationScreenAction)
+													handleButtonClick(value as GetNavigationScreenAction, row)
 												}
 											>
 												<Menu.ContextTrigger width="full" asChild>
@@ -779,6 +796,7 @@ const Component: React.FC<ComponentProps> = (props) => {
 	const pathname = usePathname()
 	const search = useSearchParams()
 	const screenId = useGetRoute()
+	const isCRUDPath = useIsCRUDPath()
 
 	const data = useMutationFetched<ReglaResponse>({
 		mutationKey: ['list', screenId, search.toString()]
@@ -840,8 +858,8 @@ const Component: React.FC<ComponentProps> = (props) => {
 	}
 
 	useEffect(() => {
-		if (search.size <= 0) router.replace(queries)
-	}, [queries, router, search.size])
+		if (search.size <= 0 && !isCRUDPath) router.replace(queries)
+	}, [isCRUDPath, queries, router, search.size])
 
 	return (
 		<Card.Root

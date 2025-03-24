@@ -31,6 +31,10 @@ const Page = () => {
 		return (data && data.data) || []
 	}, [data])
 
+	const handleAnimationDuration = (index: number) => {
+		return (index + 1) * 200 + 'ms'
+	}
+
 	const handleCardClick = (url: string) => {
 		location.href = url
 	}
@@ -122,6 +126,8 @@ const Page = () => {
 								key={index}
 								cursor={cursor}
 								onClick={() => item.is_active_menu && handleCardClick(item.url)}
+								animationName="slide-from-top, fade-in"
+								animationDuration={handleAnimationDuration(index)}
 								hidden={isPending}
 							>
 								<Card.Header alignItems="center" flexDirection="row" gap="4">

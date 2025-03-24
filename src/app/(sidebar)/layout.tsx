@@ -13,6 +13,7 @@ import Sidebar from '@/components/ui/sidebar'
 import TitleContainer from '@/components/ui/title-container'
 import useCustomViewId from '@/hooks/use-custom-view-id'
 import useGetCurrentId from '@/hooks/use-get-current-id'
+import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import { GetPrivilege } from '@/libraries/mutation/user/security-role'
 import useGetRoute from '../../hooks/use-get-route'
 import {
@@ -28,6 +29,7 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 	const pathname = usePathname()
 	const customViewId = useCustomViewId()
 	const currentId = useGetCurrentId()
+	const isCRUDPath = useIsCRUDPath()
 
 	const { isSidebarOpen } = usePreference()
 
@@ -61,7 +63,7 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 
 	// Breadcrumb and title
 	const { data } = useQuery({
-		queryFn: () => GetPathUrlScreen({ screenId: Case.upper(currentId) }),
+		queryFn: () => GetPathUrlScreen({ screenId: Case.upper(currentId ?? '') }),
 		queryKey: ['get_path_url_screen', currentId],
 		refetchOnWindowFocus: false
 	})
@@ -81,8 +83,10 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 	}, [data, pathname, route])
 
 	const title = useMemo(() => {
-		return breadcrumb[breadcrumb.length - 1].title
-	}, [breadcrumb])
+		const title = breadcrumb[breadcrumb.length - 1].title
+		if (!isCRUDPath) return title
+		return [Case.capital(route), title].join(' ')
+	}, [breadcrumb, isCRUDPath, route])
 
 	return (
 		<Flex width="full" height="100vh">

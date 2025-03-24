@@ -92,7 +92,7 @@ const Page = () => {
 					if (status === 'unmounted') {
 						const callback = search.get('callback')
 						setColorMode(res.is_dark_mode ? 'dark' : 'light')
-						router.replace(callback ? callback : routes.main)
+						location.href = callback ? callback : routes.main
 					}
 				},
 				title: `Welcome, ${res.username}!`
