@@ -1,36 +1,94 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+![Logo](https://webapp-dev.regla.cloud/ifrs9/logo.svg)
 
-## Getting Started
+# Regla Platform V2
 
-First, run the development server:
+This project is fully dedicated to Regla Project, dealing with back to back requirement sometimes brain hurting. So I decided to remake/revamp this project as long as I'm in the team.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Optimization
+
+> With some improved performance, user experience and cleaner code.
+
+## Environment Variables
+
+To run this project, you will need to add the following environment variables to your .env file
+
+```
+NEXT_PUBLIC_BASE_API=https://webapp-dev.regla.cloud/api
+NEXT_PUBLIC_APP_ID=PLATFORM_CENTER
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Client:** React + NextJS, Chakra UI
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+**Server:** NodeJS
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+- Theme mode, user can change their theme preference server-sided
+- Parallel, intercepting and dynamic routes based on response
+- RBAC system, all pages and features based on user privilege
+- Sticky Sidebar and Header
+- Animated routing with slide-in and fade-in transition
+- TBD
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Installation & Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+use **ONLY** `bun` for better performance
 
-## Deploy on Vercel
+Install `regla-v2`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+    $ cd regla-v2
+    $ bun install
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+run with
+
+```bash
+    $ bun dev
+```
+
+# Project Structure
+
+```bash
+├───public                                  (public folder to serve local assets)
+│   ├───login
+│   ├───logo
+│   └───request-unlock
+└───src                                     (source folder)
+    ├───app                                 (app folder for main pages)
+    │   ├───(sidebar)                       (route group)
+    │   │   ├───@modal                      (named slot routes)
+    │   │   │   └───(.)platform_center      (intercepting routes)
+    │   │   │       └───[[...slug]]         (optional catch-all routes)
+    │   │   └───platform_center             (platform_center route)
+    │   │       └───[[...slug]]             (intercepted optional catch-all routes)
+    │   ├───forgot-password                 (static forgot-password route)
+    │   │   └───[token]                     (dynamic route)
+    │   ├───main                            (static main route)
+    │   └───request-unlock                  (static request-unlock route)
+    │       └───otp                         (static request-unlock/otp route)
+    ├───components                          (components folder)
+    │   ├───pages                           (component for page UI)
+    │   │   ├───general_security
+    │   │   └───notification_setting
+    │   └───ui                              (component for reusable UI)
+    ├───config                              (base configuration library)
+    ├───hooks                               (reusable hook helper)
+    ├───libraries                           (repeat usability library)
+    │   ├───mutation                        (mutation folder)
+    │   │   ├───platform-settings
+    │   │   └───user
+    │   └───schemas                         (schema validation folder)
+    │       └───user
+    ├───stores                              (zustand store)
+    ├───types                               (type interface)
+    │   ├───platform-settings
+    │   └───user
+    └───utilities                           (reusable function/constant)
+```
+
+## Developer
+
+- [@langrizkie](https://github.com/LangRizkie)
