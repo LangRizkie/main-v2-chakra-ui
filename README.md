@@ -34,6 +34,8 @@ NEXT_PUBLIC_APP_ID=PLATFORM_CENTER
 
 ## Installation & Development
 
+This project supposed to be run by internal only, so we have to download Wireguard and request for user credentials.
+
 use **ONLY** `bun` for better performance
 
 Install `regla-v2`
