@@ -35,7 +35,7 @@ NEXT_PUBLIC_APP_ID=PLATFORM_CENTER
 ## Under Development
 
 - **Websocket**: Real-time silent and noisy updates for live notifications.
-- **Download Toolbar**: **50% Current Progress**, Users can download files from toolbar button.
+- **Download Toolbar**: **80% Current Progress**, Users can download files from toolbar button.
 
 ## Installation & Development
 
