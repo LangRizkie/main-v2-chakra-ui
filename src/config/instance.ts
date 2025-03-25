@@ -21,7 +21,6 @@ export const instance = axios.create({
 
 const request = async (config: InternalAxiosRequestConfig) => {
 	const { credential } = await getCredential()
-	await mutex.waitForUnlock()
 
 	if (credential) {
 		config.headers.Authorization = ['Bearer', credential].join(' ')

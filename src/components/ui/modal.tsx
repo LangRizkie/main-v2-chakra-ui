@@ -1,4 +1,4 @@
-import { Button, CloseButton, Dialog, Portal, Stack } from '@chakra-ui/react'
+import { Button, CloseButton, Dialog, HStack, Portal } from '@chakra-ui/react'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import { useModal } from '@/hooks/use-modal'
 import useModalStore from '@/stores/modal-dynamic'
@@ -30,16 +30,16 @@ const Modal = () => {
 						</Dialog.Header>
 						<Dialog.Body>{content}</Dialog.Body>
 						<Dialog.Footer>
-							<Stack direction="row" width="full">
-								<Button {...activate}>{activate?.title}</Button>
-								<Button {...deactivate}>{deactivate?.title}</Button>
-								<Button {...reactivate}>{reactivate?.title}</Button>
-							</Stack>
+							<HStack width="full">
+								<Button {...activate}>{activate?.children || activate?.title}</Button>
+								<Button {...deactivate}>{deactivate?.children || deactivate?.title}</Button>
+								<Button {...reactivate}>{reactivate?.children || reactivate?.title}</Button>
+							</HStack>
 							<Dialog.ActionTrigger asChild>
-								<Button {...cancel}>{cancel?.title}</Button>
+								<Button {...cancel}>{cancel?.children || cancel?.title}</Button>
 							</Dialog.ActionTrigger>
 							<Button colorPalette="primary" {...submit}>
-								{submit?.title}
+								{submit?.children || submit?.title}
 							</Button>
 						</Dialog.Footer>
 						<Dialog.CloseTrigger asChild>

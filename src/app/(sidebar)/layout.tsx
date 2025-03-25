@@ -1,6 +1,6 @@
 'use client'
 
-import { Flex, IconButton, Stack } from '@chakra-ui/react'
+import { Flex, HStack, IconButton, Stack } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { Case } from 'change-case-all'
 import { isEmpty } from 'lodash'
@@ -50,7 +50,7 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 	})
 
 	// Dynamic menu
-	const { data: menu } = useQuery({
+	useQuery({
 		queryFn: () => GetNavigationScreen({ customViewId, parentId: currentId }),
 		queryKey: ['get_navigation_screen', customViewId, currentId],
 		refetchOnWindowFocus: false
@@ -90,8 +90,6 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 		return title
 	}, [action, breadcrumb, isCRUDPath, route])
 
-	console.log({ action, menu })
-
 	return (
 		<Flex width="full" height="100vh">
 			<Sidebar isOpen={isSidebarOpen} />
@@ -105,7 +103,7 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 					paddingY={{ base: 2, md: 6 }}
 					backgroundColor={{ _light: 'gray.100' }}
 				>
-					<Stack direction="row" alignItems="center">
+					<HStack alignItems="center">
 						<IconButton size="xs" variant="subtle" onClick={() => history.back()}>
 							<Iconify icon="bx:arrow-back" height="14" />
 						</IconButton>
@@ -116,7 +114,7 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 							fontWeight="semibold"
 							hideBelow="md"
 						/>
-					</Stack>
+					</HStack>
 					<TitleContainer title={title}>{children}</TitleContainer>
 				</Stack>
 			</Flex>

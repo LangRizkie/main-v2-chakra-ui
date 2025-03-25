@@ -1,4 +1,10 @@
 const endpoints = {
+	parameter: {
+		dropdown: {
+			get_format_export_file: '/parameter/Dropdown/GetFormatExportFile',
+			get_type_export_file: '/parameter/Dropdown/GetTypeExportFile'
+		}
+	},
 	platform_settings: {
 		master_application: {
 			get_platform: '/platform-settings/MasterApplication/GetPlatform'

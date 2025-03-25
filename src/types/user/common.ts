@@ -1,3 +1,4 @@
+import { Key } from 'react'
 import { ReglaResponse } from '../default'
 
 export type FormType = 'TABLE' | 'TREE' | 'STATIC'
@@ -25,6 +26,11 @@ export type GetNavigationScreenAction =
 	| 'UPDATE_EOM'
 	| 'CUSTOM_VIEW'
 	| 'CHECKBOX'
+
+export type GetLookupData = {
+	id: Key
+	desc: string
+}
 
 export type ResponseUserData = {
 	is_user_locked: boolean
@@ -124,11 +130,9 @@ export type GetLookupCustomViewPayload = {
 	screenId?: string | null
 }
 
-export type GetLookupCustomViewData = {
+export type GetLookupCustomViewData = GetLookupData & {
 	is_standard_view: boolean
 	is_pin: boolean
-	id: string
-	desc: string
 }
 
 export type RefreshTokenPayload = {

@@ -1,8 +1,8 @@
 import {
 	ButtonGroup,
 	createListCollection,
-	Flex,
 	For,
+	HStack,
 	IconButton,
 	Pagination as ChakraPagination,
 	Portal,
@@ -35,7 +35,7 @@ const Pagination: React.FC<PaginationProps> = (props) => {
 	})
 
 	return (
-		<Flex direction="row" gap="8" alignItems="center">
+		<HStack gap="8" alignItems="center">
 			<Text>Items per page:</Text>
 			<Select.Root
 				key={crypto.randomUUID()}
@@ -93,7 +93,7 @@ const Pagination: React.FC<PaginationProps> = (props) => {
 					</ChakraPagination.NextTrigger>
 				</ButtonGroup>
 			</ChakraPagination.Root>
-		</Flex>
+		</HStack>
 	)
 }
 

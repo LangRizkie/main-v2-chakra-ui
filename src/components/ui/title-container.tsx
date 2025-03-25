@@ -1,4 +1,4 @@
-import { Button, Flex, Stack, Text } from '@chakra-ui/react'
+import { Button, Flex, HStack, Stack, Text } from '@chakra-ui/react'
 import { Case } from 'change-case-all'
 import { useEffect } from 'react'
 import useStaticStore from '@/stores/button-static'
@@ -30,7 +30,7 @@ const TitleContainer: React.FC<TitleContainerProps> = ({ children, ...props }) =
 				<Text textStyle="2xl" fontWeight="bold">
 					{main}
 				</Text>
-				<Stack direction="row">
+				<HStack>
 					<Button {...activate}>{activate?.title}</Button>
 					<Button {...deactivate}>{deactivate?.title}</Button>
 					<Button {...reactivate}>{reactivate?.title}</Button>
@@ -38,7 +38,7 @@ const TitleContainer: React.FC<TitleContainerProps> = ({ children, ...props }) =
 						{back?.title}
 					</Button>
 					<Button {...submit}>{submit?.title}</Button>
-				</Stack>
+				</HStack>
 			</Flex>
 			{children}
 		</Stack>

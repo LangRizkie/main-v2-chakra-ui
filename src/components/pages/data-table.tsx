@@ -11,12 +11,13 @@ import {
 	Grid,
 	GridItem,
 	Group,
+	HStack,
 	IconButton,
 	Input,
 	InputGroup,
 	Menu,
 	Portal,
-	RadioGroup,
+	RadioCard,
 	Select,
 	SelectValueChangeDetails,
 	Separator,
@@ -38,6 +39,7 @@ import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } f
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import { CustomEndpoint, CustomEndpointProps } from '@/libraries/mutation/list'
+import { GetFormatExportFile, GetTypeExportFile } from '@/libraries/mutation/parameter/dropdown'
 import { GetLookupCustomView } from '@/libraries/mutation/user/common'
 import useStaticStore from '@/stores/button-static'
 import useModalStore from '@/stores/modal-dynamic'
@@ -146,10 +148,10 @@ const Filter: React.FC<ComponentProps> = ({ navigation }) => {
 			<Select.HiddenSelect />
 			<Select.Control>
 				<Select.Trigger>
-					<Stack direction="row" alignItems="center">
+					<HStack alignItems="center">
 						<Iconify icon="bx:customize" height={16} />
 						<Select.ValueText width="fit" />
-					</Stack>
+					</HStack>
 				</Select.Trigger>
 				<Select.IndicatorGroup>
 					<Select.Indicator />
@@ -346,7 +348,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 	}, [custom, pathname])
 
 	return (
-		<Stack direction="row">
+		<HStack>
 			<Tooltip content="Download" showArrow>
 				<IconButton
 					variant="ghost"
@@ -434,7 +436,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 					</Link>
 				</IconButton>
 			</Tooltip>
-		</Stack>
+		</HStack>
 	)
 }
 
@@ -444,14 +446,14 @@ const ButtonAction: React.FC<WithFormProps> = ({ form }) => {
 	}, [form])
 
 	return (
-		<Stack direction="row" flexDirection="row-reverse" justifyContent="space-between">
+		<HStack flexDirection="row-reverse" justifyContent="space-between">
 			<Show when={!isEmpty(create)}>
 				<Button colorPalette="primary">
 					<Iconify icon="bx:plus" height={20} style={{ color: 'white' }} />
 					Create
 				</Button>
 			</Show>
-		</Stack>
+		</HStack>
 	)
 }
 
@@ -698,6 +700,16 @@ const Component: React.FC<ComponentProps> = (props) => {
 		mutationKey: ['list', screenId, params.toString()]
 	})
 
+	const type = useMutation({
+		mutationFn: GetTypeExportFile,
+		mutationKey: ['get_type_export_file']
+	})
+
+	const format = useMutation({
+		mutationFn: GetFormatExportFile,
+		mutationKey: ['get_format_export_file']
+	})
+
 	const queries = createQueryParams(
 		{
 			by: 'ASC',
@@ -816,29 +828,56 @@ const Component: React.FC<ComponentProps> = (props) => {
 		const list = row ? [row] : selected
 		const unique = list.map((item) => item[data.unique_key])
 
-		modal.create({
-			children: (
-				<RadioGroup.Root>
-					<Stack gap="2">
-						<RadioGroup.Item key="all" value="all">
-							<RadioGroup.ItemHiddenInput />
-							<RadioGroup.ItemIndicator />
-							<RadioGroup.ItemText>All data</RadioGroup.ItemText>
-						</RadioGroup.Item>
-						<RadioGroup.Item key="selected" value="selected" disabled={!unique.length}>
-							<RadioGroup.ItemHiddenInput />
-							<RadioGroup.ItemIndicator />
-							<RadioGroup.ItemText>Selected ({unique.length})</RadioGroup.ItemText>
-						</RadioGroup.Item>
-						<RadioGroup.Item key="filtered" value="filtered">
-							<RadioGroup.ItemHiddenInput />
-							<RadioGroup.ItemIndicator />
-							<RadioGroup.ItemText>Filtered data</RadioGroup.ItemText>
-						</RadioGroup.Item>
+		Promise.all([type.mutateAsync(), format.mutateAsync()]).then(([type, format]) => {
+			modal.create({
+				children: (
+					<Stack gap="8">
+						<RadioCard.Root colorPalette="primary">
+							<RadioCard.Label>File Type</RadioCard.Label>
+							<Stack align="stretch">
+								<For each={type.data}>
+									{(item) => (
+										<RadioCard.Item
+											key={item.id}
+											value={item.id.toString()}
+											disabled={item.id === 'Selected' && unique.length < 1}
+										>
+											<RadioCard.ItemHiddenInput />
+											<RadioCard.ItemControl>
+												<RadioCard.ItemText>
+													{item.desc} {item.id === 'Selected' && `(${unique.length})`}
+												</RadioCard.ItemText>
+												<RadioCard.ItemIndicator />
+											</RadioCard.ItemControl>
+										</RadioCard.Item>
+									)}
+								</For>
+							</Stack>
+						</RadioCard.Root>
+						<RadioCard.Root
+							colorPalette="primary"
+							orientation="horizontal"
+							align="center"
+							justify="center"
+						>
+							<RadioCard.Label>File Format</RadioCard.Label>
+							<HStack align="stretch">
+								<For each={format.data}>
+									{(item) => (
+										<RadioCard.Item key={item.id} value={item.id.toString()}>
+											<RadioCard.ItemHiddenInput />
+											<RadioCard.ItemControl>
+												<RadioCard.ItemText>{item.desc}</RadioCard.ItemText>
+											</RadioCard.ItemControl>
+										</RadioCard.Item>
+									)}
+								</For>
+							</HStack>
+						</RadioCard.Root>
 					</Stack>
-				</RadioGroup.Root>
-			),
-			options: { submit: { title: 'Download' }, title }
+				),
+				options: { size: 'lg', submit: { disabled: true, title: 'Download' }, title }
+			})
 		})
 	}
 
@@ -878,7 +917,7 @@ const Component: React.FC<ComponentProps> = (props) => {
 
 	const handlePaginationChange = (value: PageChangeDetails) => {
 		const queries = setQueryParams(
-			search.toString(),
+			params.toString(),
 			{
 				length: value.pageSize.toString(),
 				start: (value.page - 1).toString()
@@ -906,7 +945,7 @@ const Component: React.FC<ComponentProps> = (props) => {
 	}, [isCRUDPath, queries, router, params.size])
 
 	useEffect(() => {
-		if (!isEmpty(list) && params.size > 4) mutateAsync({ ...payload, ...list })
+		if (!isEmpty(list) && params.size > 0) mutateAsync({ ...payload, ...list })
 		clearAll()
 	}, [clearAll, list, mutateAsync, params.size, payload])
 
@@ -925,13 +964,13 @@ const Component: React.FC<ComponentProps> = (props) => {
 					gap="4"
 				>
 					<GridItem colSpan={{ base: 4, xl: 1 }}>
-						<Stack direction="row">
+						<HStack>
 							<Filter {...props} />
 							<Group width="full" attached>
 								<By {...props} />
 								<Search {...props} />
 							</Group>
-						</Stack>
+						</HStack>
 					</GridItem>
 					<GridItem colSpan={1} rowStart={{ base: 2, xl: 'auto' }}>
 						<Toolbar form={form} handleButtonClick={handleButtonClick} {...props} />
@@ -943,6 +982,7 @@ const Component: React.FC<ComponentProps> = (props) => {
 			</Card.Header>
 			<Card.Body>
 				<List
+					key={rows.toString()}
 					form={form}
 					rows={rows}
 					selected={selected}
