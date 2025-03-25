@@ -15,7 +15,13 @@ type ModalContent = {
 }
 
 const getInitialState = (): Partial<ButtonData & ModalContent> => ({
-	activate: { colorPalette: 'teal', form: 'activate-form', hidden: true, title: 'Activate' },
+	activate: {
+		colorPalette: 'teal',
+		form: 'activate-form',
+		hidden: true,
+		title: 'Activate',
+		type: 'submit'
+	},
 	back: { hidden: true, title: 'Back', variant: 'subtle' },
 	cancel: { hidden: false, title: 'Cancel', variant: 'ghost' },
 	content: <></>,
@@ -23,16 +29,24 @@ const getInitialState = (): Partial<ButtonData & ModalContent> => ({
 		colorPalette: 'red',
 		form: 'deactivate-form',
 		hidden: true,
-		title: 'Deactivate'
+		title: 'Deactivate',
+		type: 'submit'
 	},
 	reactivate: {
 		colorPalette: 'teal',
 		form: 'reactivate-form',
 		hidden: true,
-		title: 'Reactivate'
+		title: 'Reactivate',
+		type: 'submit'
 	},
 	size: 'md',
-	submit: { colorPalette: 'primary', form: 'submit-form', hidden: false, title: 'Submit' },
+	submit: {
+		colorPalette: 'primary',
+		form: 'submit-form',
+		hidden: false,
+		title: 'Submit',
+		type: 'submit'
+	},
 	title: ''
 })
 

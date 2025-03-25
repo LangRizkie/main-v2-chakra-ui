@@ -26,6 +26,12 @@ export type GetDataPayload = {
 	length: Key
 }
 
+export type DownloadDataPayload = GetDataPayload & {
+	format: string
+	type: string
+	[key: string]: unknown
+}
+
 export type DeleteDataPayload = {
 	pkid: Key[]
 }

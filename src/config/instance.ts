@@ -19,6 +19,19 @@ export const instance = axios.create({
 	}
 })
 
+const disposition = (content: string) => {
+	if (isEmpty(content)) return ''
+	if (!content.includes('filename')) return content
+
+	const key = 'filename'
+	const disposition = content
+	const split = disposition && disposition.split(';')
+	const filename = split && split.length > 0 && split[1]
+	const name = filename ? filename.slice(key.length + 2, filename.length) : ''
+
+	return name
+}
+
 const request = async (config: InternalAxiosRequestConfig) => {
 	const { credential } = await getCredential()
 
@@ -79,6 +92,20 @@ instance.interceptors.response.use(
 		if (!useToast && !isEmpty(redirect.url)) {
 			if (redirect.replace) location.replace(redirect.url)
 			else location.href = redirect.url
+		}
+
+		if (response.headers['content-disposition']) {
+			const blob = new Blob([JSON.stringify(response.data)], { type: 'plain/text' })
+
+			const dispose = disposition(response.headers['content-disposition'])
+			const link = document.createElement('a')
+			const url = URL.createObjectURL(blob)
+
+			link.href = url
+			link.download = dispose
+			link.click()
+
+			toast.success({ title: 'File downloaded successfully' })
 		}
 
 		return Promise.resolve(response)

@@ -35,7 +35,14 @@ import { Case } from 'change-case-all'
 import { groupBy, isEmpty } from 'lodash'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import React, {
+	Dispatch,
+	SetStateAction,
+	useCallback,
+	useEffect,
+	useMemo,
+	useState
+} from 'react'
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import { CustomEndpoint, CustomEndpointProps } from '@/libraries/mutation/list'
@@ -44,7 +51,7 @@ import { GetLookupCustomView } from '@/libraries/mutation/user/common'
 import useStaticStore from '@/stores/button-static'
 import useModalStore from '@/stores/modal-dynamic'
 import { ReglaResponse } from '@/types/default'
-import { GetDataPayload } from '@/types/list'
+import { DownloadDataPayload, GetDataPayload } from '@/types/list'
 import {
 	GetNavigationScreenAction,
 	GetNavigationScreenData,
@@ -76,6 +83,13 @@ type WithFormProps = ComponentProps & {
 
 type ToolbarProps = WithFormProps & {
 	handleButtonClick: (action: GetNavigationScreenAction, row?: never) => void
+}
+
+type StaticModalProps = {
+	data: GetNavigationScreenDynamicForm
+	title: string
+	row: never[]
+	unique: string
 }
 
 type ListProps = WithFormProps & {
@@ -681,6 +695,152 @@ const List: React.FC<ListProps> = (props) => {
 	)
 }
 
+const Download: React.FC<StaticModalProps> = (props) => {
+	const screenId = useGetRoute()
+	const params = useSearchParams()
+
+	const { setAttribute } = useModalStore()
+
+	const [download, setDownload] = useSetState({ format: '', type: '' })
+
+	const columnSearch = useMemo(() => {
+		const column = params.get('column') ?? ''
+		return column ? [column] : []
+	}, [params])
+
+	const customViewId = useMemo(() => {
+		return params.get('condition') ?? ''
+	}, [params])
+
+	const length = useMemo(() => {
+		return params.get('length') ?? '5'
+	}, [params])
+
+	const start = useMemo(() => {
+		return params.get('start') ?? '0'
+	}, [params])
+
+	const sort = useMemo(() => {
+		const sort = params.get('sort')
+		const by = params.get('by')
+		const isDefaultSort = sort === 'Default'
+
+		if (sort && !isDefaultSort && by) {
+			const field = sort === 'Default' ? '' : sort
+			return [{ dir: by, field }]
+		}
+
+		return []
+	}, [params])
+
+	const search = useMemo(() => {
+		return params.get('search') ?? ''
+	}, [params])
+
+	const queries = useMemo(
+		() => ({
+			columnSearch,
+			customViewId,
+			filter: { filters: [] },
+			length,
+			search,
+			sort,
+			start
+		}),
+		[columnSearch, customViewId, length, search, sort, start]
+	)
+
+	const type = useQuery({
+		queryFn: GetTypeExportFile,
+		queryKey: ['get_type_export_file']
+	})
+
+	const format = useQuery({
+		queryFn: GetFormatExportFile,
+		queryKey: ['get_format_export_file']
+	})
+
+	const { mutateAsync } = useMutation<
+		ReglaResponse,
+		Error,
+		CustomEndpointProps<DownloadDataPayload>
+	>({
+		mutationFn: CustomEndpoint,
+		mutationKey: ['list_export', screenId, search.toString()]
+	})
+
+	const handleSubmit = (event: React.FormEvent) => {
+		event.preventDefault()
+
+		mutateAsync({
+			...props.data,
+			...queries,
+			[props.unique]: download.type === 'Selected' ? props.row : [],
+			format: download.format,
+			type: download.type
+		}).finally(() => modal.close())
+	}
+
+	useEffect(() => {
+		setAttribute('submit', { disabled: isEmpty(download.format) || isEmpty(download.type) })
+	}, [download.format, download.type, setAttribute])
+
+	return (
+		<Stack id="submit-form" as="form" gap="8" onSubmit={handleSubmit}>
+			<RadioCard.Root
+				colorPalette="primary"
+				onValueChange={({ value }) => setDownload({ type: value })}
+			>
+				<RadioCard.Label>File Type</RadioCard.Label>
+				<Stack align="stretch">
+					<Show when={!type.isPending}>
+						<For each={type.data?.data}>
+							{(item) => (
+								<RadioCard.Item
+									key={item.id}
+									value={item.id.toString()}
+									disabled={item.id === 'Selected' && props.row.length < 1}
+								>
+									<RadioCard.ItemHiddenInput />
+									<RadioCard.ItemControl>
+										<RadioCard.ItemText>
+											{item.desc} {item.id === 'Selected' && `(${props.row.length})`}
+										</RadioCard.ItemText>
+										<RadioCard.ItemIndicator />
+									</RadioCard.ItemControl>
+								</RadioCard.Item>
+							)}
+						</For>
+					</Show>
+				</Stack>
+			</RadioCard.Root>
+			<RadioCard.Root
+				colorPalette="primary"
+				orientation="horizontal"
+				align="center"
+				justify="center"
+				onValueChange={({ value }) => setDownload({ format: value })}
+			>
+				<RadioCard.Label>File Format</RadioCard.Label>
+				<HStack>
+					<Show when={!format.isPending}>
+						<For each={format.data?.data}>
+							{(item) => (
+								<RadioCard.Item key={item.id} value={item.id.toString()}>
+									<RadioCard.ItemHiddenInput />
+									<RadioCard.ItemControl>
+										<RadioCard.ItemText>{item.desc}</RadioCard.ItemText>
+									</RadioCard.ItemControl>
+								</RadioCard.Item>
+							)}
+						</For>
+					</Show>
+				</HStack>
+			</RadioCard.Root>
+		</Stack>
+	)
+}
+
 const Component: React.FC<ComponentProps> = (props) => {
 	const router = useRouter()
 	const pathname = usePathname()
@@ -698,16 +858,6 @@ const Component: React.FC<ComponentProps> = (props) => {
 	>({
 		mutationFn: CustomEndpoint,
 		mutationKey: ['list', screenId, params.toString()]
-	})
-
-	const type = useMutation({
-		mutationFn: GetTypeExportFile,
-		mutationKey: ['get_type_export_file']
-	})
-
-	const format = useMutation({
-		mutationFn: GetFormatExportFile,
-		mutationKey: ['get_format_export_file']
 	})
 
 	const queries = createQueryParams(
@@ -828,56 +978,9 @@ const Component: React.FC<ComponentProps> = (props) => {
 		const list = row ? [row] : selected
 		const unique = list.map((item) => item[data.unique_key])
 
-		Promise.all([type.mutateAsync(), format.mutateAsync()]).then(([type, format]) => {
-			modal.create({
-				children: (
-					<Stack gap="8">
-						<RadioCard.Root colorPalette="primary">
-							<RadioCard.Label>File Type</RadioCard.Label>
-							<Stack align="stretch">
-								<For each={type.data}>
-									{(item) => (
-										<RadioCard.Item
-											key={item.id}
-											value={item.id.toString()}
-											disabled={item.id === 'Selected' && unique.length < 1}
-										>
-											<RadioCard.ItemHiddenInput />
-											<RadioCard.ItemControl>
-												<RadioCard.ItemText>
-													{item.desc} {item.id === 'Selected' && `(${unique.length})`}
-												</RadioCard.ItemText>
-												<RadioCard.ItemIndicator />
-											</RadioCard.ItemControl>
-										</RadioCard.Item>
-									)}
-								</For>
-							</Stack>
-						</RadioCard.Root>
-						<RadioCard.Root
-							colorPalette="primary"
-							orientation="horizontal"
-							align="center"
-							justify="center"
-						>
-							<RadioCard.Label>File Format</RadioCard.Label>
-							<HStack align="stretch">
-								<For each={format.data}>
-									{(item) => (
-										<RadioCard.Item key={item.id} value={item.id.toString()}>
-											<RadioCard.ItemHiddenInput />
-											<RadioCard.ItemControl>
-												<RadioCard.ItemText>{item.desc}</RadioCard.ItemText>
-											</RadioCard.ItemControl>
-										</RadioCard.Item>
-									)}
-								</For>
-							</HStack>
-						</RadioCard.Root>
-					</Stack>
-				),
-				options: { size: 'lg', submit: { disabled: true, title: 'Download' }, title }
-			})
+		modal.create({
+			children: <Download data={data} title={title} row={unique} unique={data.unique_key} />,
+			options: { size: 'lg', submit: { disabled: true, title: 'Download' }, title }
 		})
 	}
 
