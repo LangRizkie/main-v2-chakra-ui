@@ -58,7 +58,7 @@ Run the development server:
     $ bun dev
 ```
 
-# Project Structure
+## Project Structure
 
 The directory structure is as follows:
 
