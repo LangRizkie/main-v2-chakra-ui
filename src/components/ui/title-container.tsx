@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Flex, Stack, Text } from '@chakra-ui/react'
+import { Button, ButtonGroup, Flex, Heading, Stack } from '@chakra-ui/react'
 import { Case } from 'change-case-all'
 import { useEffect, useMemo } from 'react'
 import useStaticStore from '@/stores/button-static'
@@ -26,9 +26,7 @@ const TitleContainer: React.FC<TitleContainerProps> = ({ children, ...props }) =
 	return (
 		<Stack gap="4" width="full">
 			<Flex justifyContent="space-between" width="full">
-				<Text fontWeight="bold" textStyle="2xl">
-					{main}
-				</Text>
+				<Heading size="2xl">{main}</Heading>
 				<ButtonGroup>
 					<Button {...activate} disabled={activate?.disabled || isGroupLoading}>
 						{activate?.children || activate?.title}

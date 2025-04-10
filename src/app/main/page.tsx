@@ -7,6 +7,7 @@ import {
 	Flex,
 	For,
 	Grid,
+	Heading,
 	IconButton,
 	Skeleton,
 	Stack,
@@ -46,14 +47,9 @@ const Page = () => {
 				width="full"
 			>
 				<Stack gap="4">
-					<Text
-						color="gray"
-						fontWeight="bold"
-						textAlign={{ base: 'center', lg: 'left' }}
-						textStyle="3xl"
-					>
+					<Heading color="gray" size="3xl" textAlign={{ base: 'center', lg: 'left' }}>
 						Welcome To Regla Platform
-					</Text>
+					</Heading>
 					<Text
 						color="gray"
 						maxWidth="breakpoint-md"

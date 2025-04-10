@@ -4,6 +4,7 @@ import {
 	For,
 	Grid,
 	GridItem,
+	Heading,
 	NumberInput,
 	Portal,
 	Select,
@@ -98,9 +99,7 @@ const Page = () => {
 
 	return (
 		<Stack gap="8">
-			<Text fontWeight="semibold" textStyle="lg">
-				Password
-			</Text>
+			<Heading size="lg">Password</Heading>
 			<Grid
 				alignItems="center"
 				gapX="16"
@@ -213,10 +212,9 @@ const Page = () => {
 				</Grid>
 			</Grid>
 			<Separator />
-			<Text fontWeight="semibold" textStyle="lg">
-				Account Lockout
-			</Text>
+			<Heading size="lg">Account Lockout</Heading>
 			<Grid
+				alignItems="center"
 				gapX="16"
 				gapY="8"
 				templateColumns={{ base: '1fr', md: '20rem 1fr' }}
@@ -251,10 +249,9 @@ const Page = () => {
 				</Grid>
 			</Grid>
 			<Separator />
-			<Text fontWeight="semibold" textStyle="lg">
-				Timeout
-			</Text>
+			<Heading size="lg">Timeout</Heading>
 			<Grid
+				alignItems="center"
 				gapX="16"
 				gapY="8"
 				templateColumns={{ base: '1fr', md: '20rem 1fr' }}

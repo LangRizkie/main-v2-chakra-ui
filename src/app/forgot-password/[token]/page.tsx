@@ -1,6 +1,6 @@
 'use client'
 
-import { Button, Card, Center, Field, Link, Stack, Text } from '@chakra-ui/react'
+import { Button, Card, Center, Field, Heading, Link, Stack, Text } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { isEmpty } from 'lodash'
@@ -110,9 +110,7 @@ const Page = () => {
 						width={40}
 						priority
 					/>
-					<Text fontWeight="semibold" textStyle="3xl">
-						Create New Password
-					</Text>
+					<Heading size="3xl">Create New Password</Heading>
 				</Card.Header>
 				<Card.Body alignItems="center" gap="6" justifyContent="center">
 					<Card.Description maxWidth="lg" textAlign="center" textWrap="pretty">

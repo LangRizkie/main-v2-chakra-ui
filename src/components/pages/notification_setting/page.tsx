@@ -1,4 +1,14 @@
-import { Field, For, Grid, HStack, NumberInput, Stack, Switch, Text } from '@chakra-ui/react'
+import {
+	Field,
+	For,
+	Grid,
+	Heading,
+	HStack,
+	NumberInput,
+	Stack,
+	Switch,
+	Text
+} from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { Case } from 'change-case-all'
@@ -104,9 +114,7 @@ const Page = () => {
 
 	return (
 		<Stack gap="8">
-			<Text fontWeight="semibold" textStyle="lg">
-				In-app notification
-			</Text>
+			<Heading size="lg">In-app notification</Heading>
 			<Grid
 				gap="6"
 				placeItems="start"
@@ -148,9 +156,7 @@ const Page = () => {
 					)}
 				</For>
 			</Grid>
-			<Text fontWeight="semibold" textStyle="lg">
-				Email notification
-			</Text>
+			<Heading size="lg">Email notification</Heading>
 			<Grid
 				gap="6"
 				placeItems="start"

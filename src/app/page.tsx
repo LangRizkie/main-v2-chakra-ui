@@ -6,6 +6,7 @@ import {
 	Flex,
 	Grid,
 	GridItem,
+	Heading,
 	Input,
 	Link,
 	Presence,
@@ -172,7 +173,7 @@ const Page = () => {
 						priority
 					/>
 					<Stack alignItems="center" gap="1">
-						<Text textStyle="xl">Hello Again!</Text>
+						<Heading size="xl">Hello Again!</Heading>
 						<Presence present={Boolean(username.data)}>
 							<Text textStyle="2xs">{username.data?.message}</Text>
 						</Presence>

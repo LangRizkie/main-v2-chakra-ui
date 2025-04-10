@@ -3,6 +3,7 @@ import {
 	Field,
 	For,
 	Grid,
+	Heading,
 	Input,
 	Select,
 	type SelectValueChangeDetails,
@@ -76,9 +77,7 @@ const GeneralInformation: React.FC<GeneralInformationProps> = ({ onSuccess }) =>
 	return (
 		<Stack alignItems="flex-start" as="form" gap="8" id="general-form" paddingBottom="4">
 			<Stack>
-				<Text fontWeight="bold" textStyle="xl">
-					General Information
-				</Text>
+				<Heading size="xl">General Information</Heading>
 				<Text>
 					First Name and Last Name will define how system represent your display name. Username
 					and Password will be used every time you sign in to Regla.

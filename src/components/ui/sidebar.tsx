@@ -1,4 +1,5 @@
 import {
+	Accordion,
 	Box,
 	Button,
 	Center,
@@ -10,6 +11,7 @@ import {
 	Stack,
 	Text
 } from '@chakra-ui/react'
+import { isEmpty } from 'lodash'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
@@ -65,6 +67,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 				backgroundColor={{ _dark: 'gray.900', _light: 'bg' }}
 				height="100vh"
 				left={{ base: isOpen ? '0' : '-24', xl: '0' }}
+				maxWidth={width}
+				minWidth={width}
 				position={{ base: 'fixed', xl: 'sticky' }}
 				top="0"
 				transition="all"
@@ -92,7 +96,67 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 					paddingY="2"
 					textStyle="sm"
 				>
-					<For each={menu}>
+					<Accordion.Root
+						display="flex"
+						flexDirection="column"
+						gap="2"
+						size="lg"
+						variant="plain"
+						collapsible
+					>
+						<For each={menu}>
+							{(item, index) => (
+								<Accordion.Item key={index} value={item.title}>
+									<Tooltip content={item.title} positioning={{ placement: 'right' }} showArrow>
+										<Accordion.ItemTrigger
+											_hover={{ bg: 'gray.subtle' }}
+											cursor="pointer"
+											paddingX="3.5"
+											paddingY="3"
+											onClick={() => isEmpty(item.items) && router.push(item.url)}
+										>
+											<GenerateIcon icon={item.image_url} size={20} />
+											<Text textStyle="sm" width="full" truncate>
+												{item.title}
+											</Text>
+											<Accordion.ItemIndicator hidden={!isOpen || isEmpty(item.items)} />
+										</Accordion.ItemTrigger>
+									</Tooltip>
+									<Presence present={!isEmpty(item.items)}>
+										<Accordion.ItemContent>
+											<Accordion.ItemBody>
+												<For each={item.items}>
+													{(sub, id) => (
+														<Tooltip
+															key={id}
+															content={sub.title}
+															positioning={{ placement: 'right' }}
+															showArrow
+														>
+															<Button
+																gap="3"
+																justifyContent="start"
+																paddingY="3"
+																variant="ghost"
+																width="full"
+																onClick={() => router.push(item.url)}
+															>
+																<GenerateIcon icon={sub.image_url} size={16} />
+																<Text textAlign="left" truncate>
+																	{sub.title}
+																</Text>
+															</Button>
+														</Tooltip>
+													)}
+												</For>
+											</Accordion.ItemBody>
+										</Accordion.ItemContent>
+									</Presence>
+								</Accordion.Item>
+							)}
+						</For>
+					</Accordion.Root>
+					{/* <For each={menu}>
 						{(item, index) => (
 							<Tooltip
 								key={index}
@@ -109,18 +173,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 									onClick={() => router.push(item.url)}
 								>
 									<GenerateIcon icon={item.image_url} size={20} />
-									<Text
-										overflow="hidden"
-										textAlign="left"
-										textOverflow="ellipsis"
-										whiteSpace="nowrap"
-									>
+									<Text textAlign="left" truncate>
 										{item.title}
 									</Text>
 								</Button>
 							</Tooltip>
 						)}
-					</For>
+					</For> */}
 				</Stack>
 				<Center padding="4">
 					<Menu.Root onSelect={handleOnMenuSelect}>
