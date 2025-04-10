@@ -20,7 +20,6 @@ NEXT_PUBLIC_APP_ID=PLATFORM_CENTER
 ## Tech Stack
 
 **Client:** React + NextJS, Chakra UI
-
 **Server:** NodeJS
 
 ## Features
