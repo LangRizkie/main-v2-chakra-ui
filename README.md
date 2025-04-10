@@ -63,6 +63,8 @@ Run the development server:
 The directory structure is as follows:
 
 ```bash
+├───.husky                                  (configuration git commits helper)
+├───.vscode                                 (internal project settings.json)
 ├───public                                  (public folder to serve static assets)
 └───src                                     (source folder containing main application code)
     ├───app                                 (application folder for main pages)
