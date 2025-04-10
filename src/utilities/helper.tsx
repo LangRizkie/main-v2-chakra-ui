@@ -1,6 +1,6 @@
 import { isEmpty } from 'lodash'
 import Image from 'next/image'
-import { CSSProperties } from 'react'
+import type { CSSProperties } from 'react'
 import Iconify from '../components/ui/iconify'
 
 type CreateQueryParamsOption = {
@@ -18,7 +18,7 @@ const createQueryParams = (
 	option?: Partial<CreateQueryParamsOption>
 ) => {
 	const search = new URLSearchParams(data)
-	const route = option && option.route ? option.route : ''
+	const route = option?.route ? option.route : ''
 	return route + '?' + search.toString()
 }
 
@@ -30,9 +30,9 @@ const setQueryParams = (
 	const search = new URLSearchParams(data)
 	const keys = Object.keys(value)
 	const values = Object.values(value)
-	const route = option && option.route ? option.route : ''
+	const route = option?.route ? option.route : ''
 
-	keys.map((key, index) => {
+	keys.forEach((key, index) => {
 		if (isEmpty(values[index])) return search.delete(key)
 		search.set(key, values[index])
 	})
@@ -42,15 +42,15 @@ const setQueryParams = (
 
 const GenerateIcon = ({ size = 14, ...props }: GenerateIconProps) => {
 	if (!props.icon.startsWith('https://'))
-		return <Iconify icon={props.icon} height={size} style={props.style} />
+		return <Iconify height={size} icon={props.icon} style={props.style} />
 
 	return (
 		<Image
-			src={props.icon}
 			alt={crypto.randomUUID()}
-			width={size}
 			height={size}
+			src={props.icon}
 			style={{ height: size, minHeight: size, minWidth: size, width: size }}
+			width={size}
 		/>
 	)
 }

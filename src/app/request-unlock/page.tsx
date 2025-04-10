@@ -9,7 +9,7 @@ import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { RequestUnlockAccount } from '../../libraries/mutation/user/user'
 import {
-	RequestUnlockAccountPayload,
+	type RequestUnlockAccountPayload,
 	RequestUnlockAccountSchema
 } from '../../libraries/schemas/user/user'
 import { routes, storages } from '../../utilities/constants'
@@ -52,23 +52,23 @@ const Page = () => {
 			>
 				<Card.Root
 					as="form"
-					width="2xl"
 					gap="4"
+					width="2xl"
 					onSubmit={form.handleSubmit(handleRequestUnlockSubmit)}
 				>
 					<Card.Header>
 						<Image
-							src="/request-unlock/request.svg"
 							alt="request unlock"
-							width={192}
 							height={192}
+							src="/request-unlock/request.svg"
 							style={{ height: 192, width: 'auto' }}
+							width={192}
 							priority
 						/>
 					</Card.Header>
-					<Card.Body justifyContent="center" alignItems="center" gap="4">
+					<Card.Body alignItems="center" gap="4" justifyContent="center">
 						<Card.Title textStyle="2xl">Request Unlock Account</Card.Title>
-						<Card.Description textAlign="center" textWrap="pretty" maxWidth="lg">
+						<Card.Description maxWidth="lg" textAlign="center" textWrap="pretty">
 							Please input your email to notify the administrator to unlock the account
 						</Card.Description>
 						<Controller
@@ -76,30 +76,30 @@ const Page = () => {
 							name="email"
 							render={(attribute) => (
 								<Field.Root
-									maxWidth="md"
 									invalid={attribute.fieldState.invalid}
+									maxWidth="md"
 									readOnly={requestUnlockAccount.isPending}
 								>
 									<Field.Label>Email</Field.Label>
 									<Input
-										type="email"
-										placeholder="Input email"
 										autoComplete="email"
-										onChange={attribute.field.onChange}
+										placeholder="Input email"
+										type="email"
 										autoFocus
+										onChange={attribute.field.onChange}
 									/>
 									<Field.ErrorText>{attribute.fieldState.error?.message}</Field.ErrorText>
 								</Field.Root>
 							)}
 						/>
 					</Card.Body>
-					<Card.Footer justifyContent="center" alignItems="center">
+					<Card.Footer alignItems="center" justifyContent="center">
 						<Button
-							type="submit"
 							colorPalette="primary"
-							width="full"
-							maxWidth="md"
 							loading={requestUnlockAccount.isPending}
+							maxWidth="md"
+							type="submit"
+							width="full"
 						>
 							Submit
 						</Button>
@@ -113,30 +113,30 @@ const Page = () => {
 					animationName: 'slide-from-top, fade-in'
 				}}
 			>
-				<Card.Root width="2xl" gap="4">
+				<Card.Root gap="4" width="2xl">
 					<Card.Header>
 						<Image
-							src="/email.svg"
 							alt="email"
-							width={192}
 							height={192}
+							src="/email.svg"
 							style={{ height: 192, width: 'auto' }}
+							width={192}
 							priority
 						/>
 					</Card.Header>
-					<Card.Body justifyContent="center" alignItems="center" gap="4">
+					<Card.Body alignItems="center" gap="4" justifyContent="center">
 						<Card.Title textStyle="2xl">Request Email Has Been Sent</Card.Title>
-						<Card.Description textAlign="center" maxWidth="lg" textWrap="pretty">
+						<Card.Description maxWidth="lg" textAlign="center" textWrap="pretty">
 							Thank you for submitting your account unlock request. An email notification has
 							been sent to the administrator. Please allow some time for them to review and
 							process your request. We appreciate your patience
 						</Card.Description>
 					</Card.Body>
 					<Card.Footer
-						flexDirection="column"
-						justifyContent="center"
 						alignItems="center"
+						flexDirection="column"
 						gap="6"
+						justifyContent="center"
 					>
 						<Button
 							colorPalette="primary"

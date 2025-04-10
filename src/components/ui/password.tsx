@@ -51,17 +51,17 @@ const PasswordMeter = forwardRef<HTMLDivElement, PasswordStrengthMeterProps>(
 		const { colorPalette, label } = getColorPalette(percent)
 
 		return (
-			<Stack align="flex-end" gap="1" ref={ref} {...props}>
-				<HStack width="full" ref={ref} {...props}>
+			<Stack ref={ref} align="flex-end" gap="2" {...props}>
+				<HStack ref={ref} width="full" {...props}>
 					{Array.from({ length: max }).map((_, index) => (
 						<Box
-							key={index}
-							height="1"
-							flex="1"
-							rounded="sm"
-							data-selected={index < value ? '' : undefined}
-							layerStyle="fill.subtle"
+							key={crypto.randomUUID()}
 							colorPalette="gray"
+							data-selected={index < value ? '' : undefined}
+							flex="1"
+							height="1"
+							layerStyle="fill.subtle"
+							rounded="sm"
 							_selected={{
 								colorPalette,
 								layerStyle: 'fill.solid'
@@ -81,14 +81,16 @@ const VisibilityTrigger = forwardRef<HTMLButtonElement, ButtonProps>(
 	function VisibilityTrigger(properties, ref) {
 		return (
 			<IconButton
-				tabIndex={-1}
 				ref={ref}
-				me="-2"
-				aspectRatio="square"
-				size="sm"
-				variant="ghost"
-				height="calc(full - {spacing.2})"
 				aria-label="Toggle Password visibility"
+				aspectRatio="square"
+				colorPalette="gray"
+				height="calc(full - {spacing.2})"
+				me="-2"
+				rounded="full"
+				size="sm"
+				tabIndex={-1}
+				variant="ghost"
 				{...properties}
 			/>
 		)

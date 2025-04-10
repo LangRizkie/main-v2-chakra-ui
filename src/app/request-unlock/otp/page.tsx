@@ -9,7 +9,7 @@ import { useEffect, useMemo } from 'react'
 import Countdown from 'react-countdown'
 import { Controller, useForm } from 'react-hook-form'
 import { CheckOTP, ResendOTP } from '@/libraries/mutation/user/user'
-import { CheckOTPPayload, CheckOTPSchema } from '@/libraries/schemas/user/user'
+import { type CheckOTPPayload, CheckOTPSchema } from '@/libraries/schemas/user/user'
 import { routes } from '@/utilities/constants'
 
 const Page = () => {
@@ -81,23 +81,23 @@ const Page = () => {
 			>
 				<Card.Root
 					as="form"
-					width="2xl"
 					gap="4"
+					width="2xl"
 					onSubmit={form.handleSubmit(handleCheckOTPSubmit)}
 				>
 					<Card.Header>
 						<Image
-							src="/request-unlock/otp.svg"
 							alt="otp"
-							width={192}
 							height={192}
+							src="/request-unlock/otp.svg"
 							style={{ height: 192, width: 'auto' }}
+							width={192}
 							priority
 						/>
 					</Card.Header>
-					<Card.Body justifyContent="center" alignItems="center" gap="4">
+					<Card.Body alignItems="center" gap="4" justifyContent="center">
 						<Card.Title textStyle="2xl">Request Unlock Account</Card.Title>
-						<Card.Description textAlign="center" textWrap="pretty" maxWidth="lg">
+						<Card.Description maxWidth="lg" textAlign="center" textWrap="pretty">
 							Please input your OTP from them email we sent to you
 						</Card.Description>
 						<Controller
@@ -105,16 +105,16 @@ const Page = () => {
 							name="otp"
 							render={(attribute) => (
 								<Field.Root
-									maxWidth="md"
 									invalid={attribute.fieldState.invalid}
+									maxWidth="md"
 									readOnly={checkOTP.isPending}
 								>
 									<Field.Label>Email</Field.Label>
 									<Input
-										placeholder="Input OTP"
 										autoComplete="one-time-code"
-										onChange={attribute.field.onChange}
+										placeholder="Input OTP"
 										autoFocus
+										onChange={attribute.field.onChange}
 									/>
 									<Field.ErrorText>{attribute.fieldState.error?.message}</Field.ErrorText>
 								</Field.Root>
@@ -122,17 +122,17 @@ const Page = () => {
 						/>
 					</Card.Body>
 					<Card.Footer
-						flexDirection="column"
-						justifyContent="center"
 						alignItems="center"
+						flexDirection="column"
 						gap="4"
+						justifyContent="center"
 					>
 						<Button
-							type="submit"
 							colorPalette="primary"
-							width="full"
-							maxWidth="md"
 							loading={checkOTP.isPending}
+							maxWidth="md"
+							type="submit"
+							width="full"
 						>
 							Submit
 						</Button>

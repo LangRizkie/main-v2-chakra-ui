@@ -1,10 +1,12 @@
-import { Card, Center, Presence, Show, Spinner } from '@chakra-ui/react'
+import { Card, Center, Show, Spinner } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
 import { useEffect, useMemo } from 'react'
 import useGetCurrentId from '@/hooks/use-get-current-id'
+import useGetRoute from '@/hooks/use-get-route'
+import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import useStaticStore from '@/stores/button-static'
-import { GetNavigationScreenData } from '@/types/user/common'
-import { GetPrivilegeData } from '@/types/user/security-role'
+import type { GetNavigationScreenData } from '@/types/user/common'
+import type { GetPrivilegeData } from '@/types/user/security-role'
 import { messages } from '@/utilities/validation'
 import Forbidden from './forbidden'
 
@@ -23,17 +25,25 @@ const LoadingComponent = () => (
 )
 
 const Static: React.FC<StaticProps> = (props) => {
+	const route = useGetRoute()
 	const screenId = useGetCurrentId()
-	const { reset, setBack, setSubmit } = useStaticStore()
+	const isCRUDPath = useIsCRUDPath()
+	const routes = `./${isCRUDPath ? screenId + '/' + route : screenId?.toLowerCase()}/page.tsx`
 
-	const Component = dynamic<StaticProps>(
-		() => import(`./${screenId}/page.tsx`).catch(() => ErrorComponent),
-		{ loading: LoadingComponent, ssr: false }
+	const { card, reset, setBack, setSubmit } = useStaticStore()
+
+	const Component = useMemo(
+		() =>
+			dynamic<StaticProps>(() => import(routes).catch(() => ErrorComponent), {
+				loading: LoadingComponent,
+				ssr: false
+			}),
+		[routes]
 	)
 
 	const privilege = useMemo(() => {
 		return props.privilege.find(
-			(item) => item.screen_id.toLowerCase() === screenId.toLowerCase()
+			(item) => item.screen_id.toLowerCase() === screenId?.toLowerCase()
 		)
 	}, [props.privilege, screenId])
 
@@ -58,31 +68,26 @@ const Static: React.FC<StaticProps> = (props) => {
 	}, [canSubmit, canView, props.isCard])
 
 	useEffect(() => {
-		setBack({ hidden: props.isCard ? false : true })
+		setBack({ hidden: !props.isCard })
 		setSubmit({ hidden: !canInteractWithSubmit })
 
 		return () => reset()
 	}, [setBack, setSubmit, reset, canInteractWithSubmit, props.isCard])
 
 	return (
-		<Show when={canView} fallback={<Forbidden />}>
-			<Presence present={props.isCard}>
-				<Card.Root
-					width="full"
-					size="sm"
-					animationName="slide-from-top, fade-in"
-					animationDuration="200ms"
-				>
-					<Card.Header></Card.Header>
+		<Show fallback={<Forbidden />} when={canView}>
+			<Show when={props.isCard}>
+				<Card.Root {...card}>
+					<Card.Header />
 					<Card.Body paddingX="8">
 						<Component {...props} />
 					</Card.Body>
-					<Card.Footer></Card.Footer>
+					<Card.Footer />
 				</Card.Root>
-			</Presence>
-			<Presence present={!props.isCard}>
+			</Show>
+			<Show when={!props.isCard}>
 				<Component {...props} />
-			</Presence>
+			</Show>
 		</Show>
 	)
 }

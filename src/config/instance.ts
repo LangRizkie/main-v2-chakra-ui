@@ -1,8 +1,8 @@
 import { Mutex } from 'async-mutex'
-import axios, { AxiosResponse, InternalAxiosRequestConfig } from 'axios'
+import axios, { type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 import { isEmpty } from 'lodash'
-import { ReglaResponse } from '@/types/default'
-import { AuthenticateResponse } from '@/types/user/common'
+import type { ReglaResponse } from '@/types/default'
+import type { AuthenticateResponse } from '@/types/user/common'
 import endpoints from '@/utilities/endpoints'
 import useUserProperty from '../stores/user-property'
 import { routes } from '../utilities/constants'
@@ -25,7 +25,7 @@ const disposition = (content: string) => {
 
 	const key = 'filename'
 	const disposition = content
-	const split = disposition && disposition.split(';')
+	const split = disposition?.split(';')
 	const filename = split && split.length > 0 && split[1]
 	const name = filename ? filename.slice(key.length + 2, filename.length) : ''
 
@@ -49,7 +49,7 @@ export const logout = async () => {
 	const headers = new Headers()
 
 	headers.append('content-type', 'application/json')
-	headers.append('x-appid', process.env.NEXT_PUBLIC_APP_ID || '')
+	headers.append('x-appid', process.env.NEXT_PUBLIC_APP_ID ?? '')
 	headers.append('Authorization', credential ? credential.toString() : '')
 
 	await fetch(process.env.NEXT_PUBLIC_BASE_API + endpoints.user.common.logout, {
@@ -127,7 +127,7 @@ instance.interceptors.response.use(
 					const headers = new Headers()
 
 					headers.append('content-type', 'application/json')
-					headers.append('x-appid', process.env.NEXT_PUBLIC_APP_ID || '')
+					headers.append('x-appid', process.env.NEXT_PUBLIC_APP_ID ?? '')
 					headers.append('Authorization', credential.toString())
 
 					await mutex.runExclusive(async () => {
@@ -148,18 +148,25 @@ instance.interceptors.response.use(
 						mutex.release()
 						return await instance(error.config)
 					})
+
+					return
 				}
+
+				return logout()
 			} catch (error) {
 				mutex.release()
 
 				await logout()
-				return Promise.reject(error)
+				return Promise.reject(new Error('Unauthorized', { cause: error }))
 			}
 		} else {
 			toast.error({ title: message })
 		}
 
-		if (error.response) return Promise.reject(error.response.data)
-		return Promise.reject(error)
+		if (error.response)
+			return Promise.reject(
+				new Error(error.response.data?.message, { cause: error.response.data })
+			)
+		return Promise.reject(new Error(error.message, { cause: error }))
 	}
 )

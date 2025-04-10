@@ -28,7 +28,7 @@ const Tooltip = forwardRef<HTMLDivElement, TooltipProps>(function Tooltip(props,
 	return (
 		<ChakraTooltip.Root openDelay={openDelay} {...rest}>
 			<ChakraTooltip.Trigger asChild>{children}</ChakraTooltip.Trigger>
-			<Portal disabled={!portalled} container={portalRef}>
+			<Portal container={portalRef} disabled={!portalled}>
 				<ChakraTooltip.Positioner>
 					<ChakraTooltip.Content ref={ref} {...contentProps}>
 						<Show when={showArrow}>

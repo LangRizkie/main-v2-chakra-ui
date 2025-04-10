@@ -14,6 +14,7 @@ import {
 } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
+import Link from 'next/link'
 import { useMemo } from 'react'
 import Iconify from '../../components/ui/iconify'
 import Tooltip from '../../components/ui/tooltip'
@@ -28,41 +29,37 @@ const Page = () => {
 	})
 
 	const menu = useMemo(() => {
-		return (data && data.data) || []
+		return data?.data || []
 	}, [data])
 
 	const handleAnimationDuration = (index: number) => {
 		return (index + 1) * 200 + 'ms'
 	}
 
-	const handleCardClick = (url: string) => {
-		location.href = url
-	}
-
 	return (
-		<Center padding="16" minHeight="100vh" flexDirection="column" gap="16">
+		<Center flexDirection="column" gap="16" minHeight="100vh" padding="16">
 			<Flex
-				width="full"
-				flexDirection={{ base: 'column', lg: 'row' }}
 				alignItems="center"
-				justifyContent="space-between"
+				flexDirection={{ base: 'column', lg: 'row' }}
 				gap="12"
+				justifyContent="space-between"
+				width="full"
 			>
 				<Stack gap="4">
 					<Text
 						color="gray"
-						textStyle="3xl"
 						fontWeight="bold"
 						textAlign={{ base: 'center', lg: 'left' }}
+						textStyle="3xl"
 					>
 						Welcome To Regla Platform
 					</Text>
 					<Text
 						color="gray"
-						textStyle="lg"
 						maxWidth="breakpoint-md"
-						textWrap="pretty"
 						textAlign={{ base: 'center', lg: 'left' }}
+						textStyle="lg"
+						textWrap="pretty"
 					>
 						Regla platform is a robust solution that leverages advanced technologies to
 						streamline regulatory processes, improve data accuracy, and minimize compliance
@@ -71,32 +68,34 @@ const Page = () => {
 				</Stack>
 				<Flex alignItems="center" gap="6">
 					<Tooltip content="Chatbot AI" showArrow>
-						<IconButton colorPalette="gray" variant="surface" rounded="full">
-							<Image src="/bam.svg" alt="bot" width={20} height={20} draggable={false} />
+						<IconButton colorPalette="gray" rounded="full" variant="surface">
+							<Image alt="bot" draggable={false} height={20} src="/bam.svg" width={20} />
 						</IconButton>
 					</Tooltip>
 					<Tooltip content="Notification" showArrow>
-						<IconButton variant="ghost" rounded="full">
-							<Iconify icon="bxs:bell" height={20} />
+						<IconButton rounded="full" variant="ghost">
+							<Iconify height={20} icon="bxs:bell" />
 						</IconButton>
 					</Tooltip>
 					<Tooltip content="Logout" showArrow>
-						<IconButton variant="ghost" rounded="full" onClick={logout}>
-							<Iconify icon="bx:log-out" height={20} />
+						<IconButton rounded="full" variant="ghost" onClick={logout}>
+							<Iconify height={20} icon="bx:log-out" />
 						</IconButton>
 					</Tooltip>
 					<Image
-						src="/logo/full.svg"
 						alt="logo"
-						width={192}
-						height={192}
-						style={{ height: 'auto', width: 'auto' }}
 						draggable={false}
+						height={192}
+						src="/logo/full.svg"
+						style={{ height: 'auto', width: 'auto' }}
+						width={192}
 						priority
 					/>
 				</Flex>
 			</Flex>
 			<Grid
+				autoRows="1fr"
+				gap="8"
 				width="full"
 				templateColumns={{
 					'2xl': 'repeat(4, 1fr)',
@@ -104,57 +103,58 @@ const Page = () => {
 					lg: 'repeat(3, 1fr)',
 					md: 'repeat(2, 1fr)'
 				}}
-				gap="8"
 			>
 				<For each={Array.from(Array(8))}>
 					{(item, index) => (
-						<Skeleton key={index} width="full" minHeight={48} hidden={!isPending}>
+						<Skeleton key={index} hidden={!isPending} minHeight={48} width="full">
 							{item}
 						</Skeleton>
 					)}
 				</For>
 				<For each={menu}>
 					{(item, index) => {
-						const variant = item.is_active_menu ? 'outline' : 'subtle'
-						const cursor = item.is_active_menu ? 'pointer' : 'default'
-						const filter = item.is_active_menu ? '' : 'grayscale(80%)'
-						const color = item.is_active_menu ? 'primary.fg' : 'gray'
-
 						return (
-							<Card.Root
-								variant={variant}
-								key={index}
-								cursor={cursor}
-								onClick={() => item.is_active_menu && handleCardClick(item.url)}
-								animationName="slide-from-top, fade-in"
-								animationDuration={handleAnimationDuration(index)}
-								hidden={isPending}
-							>
-								<Card.Header alignItems="center" flexDirection="row" gap="4">
-									<Box
-										borderWidth="thin"
-										borderColor="gray.300"
-										borderStyle="solid"
-										borderRadius="sm"
-										padding="2"
-										filter={filter}
-									>
-										<GenerateIcon
-											icon={item.image_url}
-											size={28}
-											style={{ color: 'var(--chakra-colors-primary-fg)' }}
-										/>
-									</Box>
-									<Text color={color} fontWeight="semibold">
-										{item.applicationName}
-									</Text>
-								</Card.Header>
-								<Card.Body>
-									<Text color="gray" textStyle="xs" textWrap="pretty">
-										{item.description}
-									</Text>
-								</Card.Body>
-							</Card.Root>
+							<Link key={index} href={item.url} passHref>
+								<Card.Root
+									animationDuration={handleAnimationDuration(index)}
+									animationName="slide-from-top, fade-in"
+									aria-disabled={!item.is_active_menu}
+									cursor={{ _disabled: 'not-allowed', base: 'pointer' }}
+									height="full"
+									hidden={isPending}
+									variant={{ _disabled: 'subtle', base: 'outline' }}
+								>
+									<Card.Header alignItems="center" flexDirection="row" gap="4">
+										<Box
+											aria-disabled={!item.is_active_menu}
+											borderColor="gray.300"
+											borderRadius="sm"
+											borderStyle="solid"
+											borderWidth="thin"
+											filter={{ _disabled: 'grayscale(80%)', base: '' }}
+											padding="2"
+										>
+											<GenerateIcon
+												icon={item.image_url}
+												size={28}
+												style={{ color: 'var(--chakra-colors-primary-fg)' }}
+											/>
+										</Box>
+										<Text
+											aria-disabled={!item.is_active_menu}
+											color={{ _disabled: 'gray', base: 'primary.fg' }}
+											fontWeight="semibold"
+										>
+											{item.applicationName}
+										</Text>
+									</Card.Header>
+									<Card.Body>
+										<Text color="gray" textStyle="xs" textWrap="pretty">
+											{item.description}
+										</Text>
+									</Card.Body>
+								</Card.Root>
+							</Link>
 						)
 					}}
 				</For>

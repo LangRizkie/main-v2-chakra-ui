@@ -12,10 +12,10 @@ import { Password, PasswordMeter } from '@/components/ui/password'
 import { ResetPasswordWithToken } from '@/libraries/mutation/user/common'
 import { UnlockAccount } from '@/libraries/mutation/user/user'
 import {
-	ResetPasswordWithTokenPayload,
+	type ResetPasswordWithTokenPayload,
 	ResetPasswordWithTokenSchema
 } from '@/libraries/schemas/user/common'
-import { UnlockAccountPayload, UnlockAccountSchema } from '@/libraries/schemas/user/user'
+import { type UnlockAccountPayload, UnlockAccountSchema } from '@/libraries/schemas/user/user'
 import { routes } from '@/utilities/constants'
 import { getPasswordScore, isJSON } from '@/utilities/validation'
 
@@ -88,9 +88,9 @@ const Page = () => {
 		<Center height="100vh">
 			<Card.Root
 				as="form"
-				width="2xl"
-				gap="4"
 				data-state="open"
+				gap="4"
+				width="2xl"
 				_open={{
 					animationDuration: '300ms',
 					animationName: 'slide-from-top, fade-in'
@@ -101,21 +101,21 @@ const Page = () => {
 						: resetPasswordForm.handleSubmit(handleResetPasswordFormSubmit)
 				}
 			>
-				<Card.Header justifyContent="center" flexDirection="row" alignItems="center" gap="4">
+				<Card.Header alignItems="center" flexDirection="row" gap="4" justifyContent="center">
 					<Image
-						src="/logo/compact.svg"
 						alt="logo"
-						width={40}
 						height={40}
+						src="/logo/compact.svg"
 						style={{ height: 40, width: 'auto' }}
+						width={40}
 						priority
 					/>
-					<Text textStyle="3xl" fontWeight="semibold">
+					<Text fontWeight="semibold" textStyle="3xl">
 						Create New Password
 					</Text>
 				</Card.Header>
-				<Card.Body justifyContent="center" alignItems="center" gap="6">
-					<Card.Description textAlign="center" maxWidth="lg" textWrap="pretty">
+				<Card.Body alignItems="center" gap="6" justifyContent="center">
+					<Card.Description maxWidth="lg" textAlign="center" textWrap="pretty">
 						Your new password must be different from previous used password
 					</Card.Description>
 					<Stack width="sm">
@@ -133,8 +133,9 @@ const Page = () => {
 										New Password
 									</Field.Label>
 									<Password
-										placeholder="Input new password"
 										autoComplete="new-password"
+										placeholder="Input new password"
+										autoFocus
 										onChange={(e) => {
 											resetPasswordForm.setValue(attribute.field.name, e.target.value, {
 												shouldDirty: true
@@ -155,7 +156,6 @@ const Page = () => {
 												unlockAccountForm.trigger('confirmationPassword')
 											}
 										}}
-										autoFocus
 									/>
 									<Field.ErrorText>{attribute.fieldState.error?.message}</Field.ErrorText>
 								</Field.Root>
@@ -168,8 +168,8 @@ const Page = () => {
 						name="confirmationPassword"
 						render={(attribute) => (
 							<Field.Root
-								maxWidth="sm"
 								invalid={attribute.fieldState.invalid}
+								maxWidth="sm"
 								readOnly={resetPassword.isPending || unlockAccount.isPending}
 								required
 							>
@@ -178,8 +178,9 @@ const Page = () => {
 									Confirmation Password
 								</Field.Label>
 								<Password
-									placeholder="Input confirmation password"
 									autoComplete="new-password"
+									placeholder="Input confirmation password"
+									autoFocus
 									onChange={(e) => {
 										resetPasswordForm.setValue(attribute.field.name, e.target.value, {
 											shouldDirty: true
@@ -192,19 +193,18 @@ const Page = () => {
 										resetPasswordForm.trigger(attribute.field.name)
 										unlockAccountForm.trigger(attribute.field.name)
 									}}
-									autoFocus
 								/>
 								<Field.ErrorText>{attribute.fieldState.error?.message}</Field.ErrorText>
 							</Field.Root>
 						)}
 					/>
 				</Card.Body>
-				<Card.Footer flexDirection="column" justifyContent="center" alignItems="center" gap="6">
+				<Card.Footer alignItems="center" flexDirection="column" gap="6" justifyContent="center">
 					<Button
-						type="submit"
 						colorPalette="primary"
-						minWidth="56"
 						loading={resetPassword.isPending || unlockAccount.isPending}
+						minWidth="56"
+						type="submit"
 					>
 						Reset Password
 					</Button>

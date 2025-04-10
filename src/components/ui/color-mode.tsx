@@ -22,9 +22,9 @@ const ColorModeButton = forwardRef<HTMLLabelElement, ColorSwitchProps>(
 		return (
 			<Switch.Root
 				ref={ref}
-				colorPalette="primary"
 				aria-label="Toggle color mode"
 				checked={colorMode === 'dark'}
+				colorPalette="primary"
 				onCheckedChange={toggleColorMode}
 				{...props}
 			>
@@ -38,12 +38,12 @@ const ColorModeButton = forwardRef<HTMLLabelElement, ColorSwitchProps>(
 const LightMode = forwardRef<HTMLSpanElement, SpanProps>(function LightMode(props, ref) {
 	return (
 		<Span
-			color="fg"
-			display="contents"
+			ref={ref}
 			className="chakra-theme light"
+			color="fg"
 			colorPalette="gray"
 			colorScheme="light"
-			ref={ref}
+			display="contents"
 			{...props}
 		/>
 	)
@@ -52,12 +52,12 @@ const LightMode = forwardRef<HTMLSpanElement, SpanProps>(function LightMode(prop
 const DarkMode = forwardRef<HTMLSpanElement, SpanProps>(function DarkMode(props, ref) {
 	return (
 		<Span
-			color="fg"
-			display="contents"
+			ref={ref}
 			className="chakra-theme dark"
+			color="fg"
 			colorPalette="gray"
 			colorScheme="dark"
-			ref={ref}
+			display="contents"
 			{...props}
 		/>
 	)

@@ -1,10 +1,10 @@
-import {
+import type {
 	AuthenticatePayload,
 	CheckUsernamePayload,
 	ResetPasswordWithTokenPayload
 } from '@/libraries/schemas/user/common'
-import { ReglaResponse } from '@/types/default'
-import {
+import type { ReglaResponse } from '@/types/default'
+import type {
 	AuthenticateResponse,
 	CheckUsernameResponse,
 	ForgotPasswordPayload,

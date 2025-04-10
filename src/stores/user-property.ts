@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { GetUserPropertyData, GetUserPropertyResponse } from '../types/user/common'
+import type { GetUserPropertyData, GetUserPropertyResponse } from '../types/user/common'
 
 type UseUserPropertyProps = Partial<GetUserPropertyData> & {
 	setUserProperty: (value: GetUserPropertyResponse) => void

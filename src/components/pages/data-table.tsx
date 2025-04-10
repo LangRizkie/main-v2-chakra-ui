@@ -19,7 +19,7 @@ import {
 	Portal,
 	RadioCard,
 	Select,
-	SelectValueChangeDetails,
+	type SelectValueChangeDetails,
 	Separator,
 	Show,
 	Spinner,
@@ -30,14 +30,15 @@ import {
 	useDisclosure
 } from '@chakra-ui/react'
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { useDebounce, useSelections, useSetState } from 'ahooks'
+import { useDebounceFn, useSelections, useSetState } from 'ahooks'
 import { Case } from 'change-case-all'
 import { groupBy, isEmpty } from 'lodash'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
-import React, {
-	Dispatch,
-	SetStateAction,
+import type React from 'react'
+import {
+	type Dispatch,
+	type SetStateAction,
 	useCallback,
 	useEffect,
 	useMemo,
@@ -45,25 +46,25 @@ import React, {
 } from 'react'
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
-import { CustomEndpoint, CustomEndpointProps } from '@/libraries/mutation/list'
+import { CustomEndpoint, type CustomEndpointProps } from '@/libraries/mutation/list'
 import { GetFormatExportFile, GetTypeExportFile } from '@/libraries/mutation/parameter/dropdown'
 import { GetLookupCustomView } from '@/libraries/mutation/user/common'
 import useStaticStore from '@/stores/button-static'
 import useModalStore from '@/stores/modal-dynamic'
-import { ReglaResponse } from '@/types/default'
-import { DownloadDataPayload, GetDataPayload } from '@/types/list'
-import {
+import type { ReglaResponse } from '@/types/default'
+import type { DownloadDataPayload, GetDataPayload } from '@/types/list'
+import type {
 	GetNavigationScreenAction,
 	GetNavigationScreenData,
 	GetNavigationScreenDynamicForm
 } from '@/types/user/common'
-import { GetPrivilegeData } from '@/types/user/security-role'
+import type { GetPrivilegeData } from '@/types/user/security-role'
 import { crud_routes } from '@/utilities/constants'
 import { createQueryParams, setQueryParams } from '@/utilities/helper'
 import modal from '@/utilities/modal'
 import { values } from '@/utilities/validation'
 import Iconify from '../ui/iconify'
-import Pagination, { PageChangeDetails } from '../ui/pagination'
+import Pagination, { type PageChangeDetails } from '../ui/pagination'
 import Tooltip from '../ui/tooltip'
 
 type DataTableProps = {
@@ -81,18 +82,17 @@ type WithFormProps = ComponentProps & {
 	form: (action: GetNavigationScreenAction) => GetNavigationScreenDynamicForm | undefined
 }
 
-type ToolbarProps = WithFormProps & {
+type ToolbarProps = Omit<WithFormProps, 'index'> & {
 	handleButtonClick: (action: GetNavigationScreenAction, row?: never) => void
 }
 
 type StaticModalProps = {
 	data: GetNavigationScreenDynamicForm
-	title: string
 	row: never[]
 	unique: string
 }
 
-type ListProps = WithFormProps & {
+type ListProps = Omit<WithFormProps, 'index'> & {
 	rows: never[]
 	selected: never[]
 	isPending: boolean
@@ -100,7 +100,7 @@ type ListProps = WithFormProps & {
 	handleButtonClick: (action: GetNavigationScreenAction, row?: never) => void
 }
 
-const Filter: React.FC<ComponentProps> = ({ navigation }) => {
+const Filter: React.FC<Pick<ComponentProps, 'navigation'>> = ({ navigation }) => {
 	const router = useRouter()
 	const screenId = useGetRoute()
 	const pathname = usePathname()
@@ -112,7 +112,7 @@ const Filter: React.FC<ComponentProps> = ({ navigation }) => {
 	})
 
 	const custom = useMemo(() => {
-		return (data && data.data) || []
+		return data?.data || []
 	}, [data])
 
 	const selected = useMemo(() => {
@@ -143,7 +143,7 @@ const Filter: React.FC<ComponentProps> = ({ navigation }) => {
 		const value = item.value.find((v) => !!v)
 		const queries = setQueryParams(
 			search.toString(),
-			{ condition: value ?? 'All' },
+			{ condition: value ?? 'All', start: '0' },
 			{ route: pathname }
 		)
 
@@ -152,18 +152,18 @@ const Filter: React.FC<ComponentProps> = ({ navigation }) => {
 
 	return (
 		<Select.Root
-			size="sm"
-			minWidth={{ base: 16, xl: 32 }}
-			maxWidth="48"
 			collection={filter}
 			defaultValue={[selected]}
+			maxWidth="48"
+			minWidth={{ base: 16, xl: 32 }}
+			size="sm"
 			onValueChange={handleValueChange}
 		>
 			<Select.HiddenSelect />
 			<Select.Control>
 				<Select.Trigger>
 					<HStack alignItems="center">
-						<Iconify icon="bx:customize" height={16} />
+						<Iconify height={16} icon="bx:customize" />
 						<Select.ValueText width="fit" />
 					</HStack>
 				</Select.Trigger>
@@ -180,7 +180,7 @@ const Filter: React.FC<ComponentProps> = ({ navigation }) => {
 									<Select.ItemGroupLabel textStyle="xs">{category}</Select.ItemGroupLabel>
 									<For each={items}>
 										{(item) => (
-											<Select.Item item={item} key={item.value}>
+											<Select.Item key={item.value} item={item}>
 												{item.label}
 												<Select.ItemIndicator />
 											</Select.Item>
@@ -199,7 +199,7 @@ const Filter: React.FC<ComponentProps> = ({ navigation }) => {
 	)
 }
 
-const By: React.FC<ComponentProps> = ({ navigation }) => {
+const By: React.FC<Pick<ComponentProps, 'navigation'>> = ({ navigation }) => {
 	const router = useRouter()
 	const pathname = usePathname()
 	const search = useSearchParams()
@@ -224,7 +224,7 @@ const By: React.FC<ComponentProps> = ({ navigation }) => {
 		const value = item.value.find((v) => !!v)
 		const queries = setQueryParams(
 			search.toString(),
-			{ column: value ?? 'All' },
+			{ column: value ?? 'All', start: '0' },
 			{ route: pathname }
 		)
 
@@ -237,19 +237,19 @@ const By: React.FC<ComponentProps> = ({ navigation }) => {
 
 	return (
 		<Select.Root
-			size="sm"
-			minWidth={{ base: 16, xl: 32 }}
-			maxWidth="48"
 			collection={filter}
 			defaultValue={[selected]}
+			maxWidth="48"
+			minWidth={{ base: 16, xl: 32 }}
+			size="sm"
 			onValueChange={handleValueChange}
 		>
 			<Select.HiddenSelect />
 			<Select.Control>
 				<Select.Trigger
+					borderBottomRightRadius="none"
 					borderRight="none"
 					borderTopRightRadius="none"
-					borderBottomRightRadius="none"
 				>
 					<Select.ValueText />
 				</Select.Trigger>
@@ -262,7 +262,7 @@ const By: React.FC<ComponentProps> = ({ navigation }) => {
 					<Select.Content>
 						<For each={filter.items}>
 							{(item) => (
-								<Select.Item item={item} key={item.value}>
+								<Select.Item key={item.value} item={item}>
 									{item.label}
 									<Select.ItemIndicator />
 								</Select.Item>
@@ -275,37 +275,36 @@ const By: React.FC<ComponentProps> = ({ navigation }) => {
 	)
 }
 
-const Search: React.FC<ComponentProps> = () => {
+const Search = () => {
 	const router = useRouter()
 	const pathname = usePathname()
 	const search = useSearchParams()
 
 	const [value, setValue] = useState<string>(search.get('search') ?? '')
-	const debounce = useDebounce(value, { wait: 500 })
+	const { run } = useDebounceFn(() => router.replace(queries), { wait: 500 })
 
 	const queries = setQueryParams(
 		search.toString(),
-		{ search: debounce ?? '' },
+		{ search: value, start: '0' },
 		{ route: pathname }
 	)
 
-	useEffect(() => {
-		router.replace(queries)
-	}, [queries, router])
-
 	return (
 		<Field.Root>
-			<InputGroup startElement={<Iconify icon="bx:search" height={16} />}>
+			<InputGroup startElement={<Iconify height={16} icon="bx:search" />}>
 				<Input
-					width="full"
+					autoComplete="off"
+					borderBottomLeftRadius="none"
+					borderTopLeftRadius="none"
 					minWidth={{ base: 32, xl: 56 }}
 					placeholder="Search..."
 					size="sm"
-					borderTopLeftRadius="none"
-					borderBottomLeftRadius="none"
-					autoComplete="off"
 					value={value}
-					onChange={(e) => setValue(e.target.value)}
+					width="full"
+					onChange={(e) => {
+						setValue(e.target.value)
+						run()
+					}}
 				/>
 			</InputGroup>
 		</Field.Root>
@@ -365,25 +364,25 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 		<HStack>
 			<Tooltip content="Download" showArrow>
 				<IconButton
-					variant="ghost"
-					size="sm"
-					onClick={() => props.handleButtonClick('DOWNLOAD')}
 					cursor={{ _disabled: 'not-allowed' }}
 					disabled={isEmpty(download)}
+					size="sm"
+					variant="ghost"
+					onClick={() => props.handleButtonClick('DOWNLOAD')}
 				>
-					<Iconify icon="bxs:download" height="20" />
+					<Iconify height="20" icon="bxs:download" />
 				</IconButton>
 			</Tooltip>
 			<Menu.Root
-				open={open}
 				closeOnSelect={false}
-				onOpenChange={(item) => setOpen(item.open)}
+				open={open}
 				onEscapeKeyDown={() => setOpen(false)}
 				onInteractOutside={() => setOpen(false)}
+				onOpenChange={(item) => setOpen(item.open)}
 			>
 				<Menu.Trigger asChild>
-					<IconButton variant="ghost" size="sm">
-						<Iconify icon="bx:filter" height="20" />
+					<IconButton size="sm" variant="ghost">
+						<Iconify height="20" icon="bx:filter" />
 					</IconButton>
 				</Menu.Trigger>
 				<Portal>
@@ -425,9 +424,9 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 								</Menu.RadioItemGroup>
 							</Show>
 							<Button
-								size="sm"
-								marginTop="4"
 								colorPalette="primary"
+								marginTop="4"
+								size="sm"
 								width="full"
 								onClick={handleSortChange}
 							>
@@ -439,14 +438,14 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 			</Menu.Root>
 			<Tooltip content="Custom View" showArrow>
 				<IconButton
-					asChild
-					variant="ghost"
-					size="sm"
 					cursor={{ _disabled: 'not-allowed' }}
 					disabled={isEmpty(custom)}
+					size="sm"
+					variant="ghost"
+					asChild
 				>
-					<Link href={customViewRoute} aria-disabled={isEmpty(custom)}>
-						<Iconify icon="fluent:data-usage-settings-24-regular" height="20" />
+					<Link aria-disabled={isEmpty(custom)} href={customViewRoute} passHref>
+						<Iconify height="20" icon="fluent:data-usage-settings-24-regular" />
 					</Link>
 				</IconButton>
 			</Tooltip>
@@ -454,17 +453,25 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 	)
 }
 
-const ButtonAction: React.FC<WithFormProps> = ({ form }) => {
+const ButtonAction: React.FC<Pick<WithFormProps, 'form'>> = ({ form }) => {
+	const pathname = usePathname()
+
 	const create = useMemo(() => {
 		return form('CREATE')
 	}, [form])
 
+	const createRoute = useMemo(() => {
+		return [pathname, crud_routes.create].join('')
+	}, [pathname])
+
 	return (
 		<HStack flexDirection="row-reverse" justifyContent="space-between">
 			<Show when={!isEmpty(create)}>
-				<Button colorPalette="primary">
-					<Iconify icon="bx:plus" height={20} style={{ color: 'white' }} />
-					Create
+				<Button colorPalette="primary" asChild>
+					<Link href={createRoute} passHref shallow>
+						<Iconify height={20} icon="bx:plus" style={{ color: 'white' }} />
+						Create
+					</Link>
 				</Button>
 			</Show>
 		</HStack>
@@ -554,10 +561,10 @@ const List: React.FC<ListProps> = (props) => {
 					<Table.Root striped>
 						<Table.Header>
 							<Table.Row>
-								<Table.ColumnHeader backgroundColor="bg" position="sticky" left="0">
+								<Table.ColumnHeader backgroundColor="bg" left="0" position="sticky">
 									<Checkbox.Root
-										colorPalette="primary"
 										checked={checked}
+										colorPalette="primary"
 										onCheckedChange={() => toggleAll()}
 									>
 										<Checkbox.HiddenInput />
@@ -589,10 +596,10 @@ const List: React.FC<ListProps> = (props) => {
 											>
 												<Menu.ContextTrigger width="full" asChild>
 													<Table.Row onClick={() => toggle(row)}>
-														<Table.Cell backgroundColor={color} position="sticky" left="0">
+														<Table.Cell backgroundColor={color} left="0" position="sticky">
 															<Checkbox.Root
-																colorPalette="primary"
 																checked={isSelected(row)}
+																colorPalette="primary"
 																onClick={() => toggle(row)}
 															>
 																<Checkbox.HiddenInput />
@@ -613,19 +620,19 @@ const List: React.FC<ListProps> = (props) => {
 														<Menu.Content>
 															<Menu.Item value="VIEW">
 																<Text width="full">View</Text>
-																<Iconify icon="bxs:show" height="16" />
+																<Iconify height="16" icon="bxs:show" />
 															</Menu.Item>
 															<Menu.Item value="UPDATE">
 																<Text width="full">Update</Text>
-																<Iconify icon="bxs:edit-alt" height="16" />
+																<Iconify height="16" icon="bxs:edit-alt" />
 															</Menu.Item>
 															<Menu.Item value="DEACTIVATE">
 																<Text width="full">Deactivate</Text>
-																<Iconify icon="bxs:minus-circle" height="16" />
+																<Iconify height="16" icon="bxs:minus-circle" />
 															</Menu.Item>
 															<Menu.Item value="DELETE">
 																<Text width="full">Delete</Text>
-																<Iconify icon="bxs:trash" height="16" />
+																<Iconify height="16" icon="bxs:trash" />
 															</Menu.Item>
 														</Menu.Content>
 													</Menu.Positioner>
@@ -652,7 +659,7 @@ const List: React.FC<ListProps> = (props) => {
 											variant="ghost"
 											onClick={() => props.handleButtonClick('VIEW', selected[0])}
 										>
-											<Iconify icon="bxs:show" height="20" />
+											<Iconify height="20" icon="bxs:show" />
 										</IconButton>
 									</Tooltip>
 								</Show>
@@ -662,7 +669,7 @@ const List: React.FC<ListProps> = (props) => {
 											variant="ghost"
 											onClick={() => props.handleButtonClick('UPDATE', selected[0])}
 										>
-											<Iconify icon="bxs:edit-alt" height="20" />
+											<Iconify height="20" icon="bxs:edit-alt" />
 										</IconButton>
 									</Tooltip>
 								</Show>
@@ -672,7 +679,7 @@ const List: React.FC<ListProps> = (props) => {
 											variant="ghost"
 											onClick={() => props.handleButtonClick('DEACTIVATE')}
 										>
-											<Iconify icon="bxs:minus-circle" height="20" />
+											<Iconify height="20" icon="bxs:minus-circle" />
 										</IconButton>
 									</Tooltip>
 								</Show>
@@ -682,7 +689,7 @@ const List: React.FC<ListProps> = (props) => {
 											variant="ghost"
 											onClick={() => props.handleButtonClick('DELETE')}
 										>
-											<Iconify icon="bxs:trash" height="20" />
+											<Iconify height="20" icon="bxs:trash" />
 										</IconButton>
 									</Tooltip>
 								</Show>
@@ -786,10 +793,10 @@ const Download: React.FC<StaticModalProps> = (props) => {
 	}, [download.format, download.type, setAttribute])
 
 	return (
-		<Stack id="submit-form" as="form" gap="8" onSubmit={handleSubmit}>
+		<Stack as="form" gap="8" id="submit-form" onSubmit={handleSubmit}>
 			<RadioCard.Root
 				colorPalette="primary"
-				onValueChange={({ value }) => setDownload({ type: value })}
+				onValueChange={({ value }) => setDownload({ type: value ?? '' })}
 			>
 				<RadioCard.Label>File Type</RadioCard.Label>
 				<Stack align="stretch">
@@ -798,8 +805,8 @@ const Download: React.FC<StaticModalProps> = (props) => {
 							{(item) => (
 								<RadioCard.Item
 									key={item.id}
-									value={item.id.toString()}
 									disabled={item.id === 'Selected' && props.row.length < 1}
+									value={item.id.toString()}
 								>
 									<RadioCard.ItemHiddenInput />
 									<RadioCard.ItemControl>
@@ -815,11 +822,11 @@ const Download: React.FC<StaticModalProps> = (props) => {
 				</Stack>
 			</RadioCard.Root>
 			<RadioCard.Root
-				colorPalette="primary"
-				orientation="horizontal"
 				align="center"
+				colorPalette="primary"
 				justify="center"
-				onValueChange={({ value }) => setDownload({ format: value })}
+				orientation="horizontal"
+				onValueChange={({ value }) => setDownload({ format: value ?? '' })}
 			>
 				<RadioCard.Label>File Format</RadioCard.Label>
 				<HStack>
@@ -841,7 +848,7 @@ const Download: React.FC<StaticModalProps> = (props) => {
 	)
 }
 
-const Component: React.FC<ComponentProps> = (props) => {
+const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 	const router = useRouter()
 	const pathname = usePathname()
 	const params = useSearchParams()
@@ -881,7 +888,7 @@ const Component: React.FC<ComponentProps> = (props) => {
 	const customViewId = useMemo(() => {
 		const value = params.get('condition')
 		if (value === 'All') return ''
-		return value ? value : ''
+		return value ?? ''
 	}, [params])
 
 	const length = useMemo(() => {
@@ -896,7 +903,7 @@ const Component: React.FC<ComponentProps> = (props) => {
 
 	const search = useMemo(() => {
 		const value = params.get('search')
-		return value ? value : ''
+		return value ?? ''
 	}, [params])
 
 	const sort = useMemo(() => {
@@ -917,7 +924,7 @@ const Component: React.FC<ComponentProps> = (props) => {
 	}, [data])
 
 	const rows = useMemo(() => {
-		return (data && data.data) || []
+		return data?.data || []
 	}, [data])
 
 	const { clearAll, selected, setSelected } = useSelections(rows)
@@ -979,7 +986,7 @@ const Component: React.FC<ComponentProps> = (props) => {
 		const unique = list.map((item) => item[data.unique_key])
 
 		modal.create({
-			children: <Download data={data} title={title} row={unique} unique={data.unique_key} />,
+			children: <Download data={data} row={unique} unique={data.unique_key} />,
 			options: { size: 'lg', submit: { disabled: true, title: 'Download' }, title }
 		})
 	}
@@ -1054,24 +1061,24 @@ const Component: React.FC<ComponentProps> = (props) => {
 
 	return (
 		<Card.Root
-			width="full"
+			animationDuration={handleAnimationDuration(index)}
 			animationName="slide-from-top, fade-in"
-			animationDuration={handleAnimationDuration(props.index)}
+			width="full"
 		>
 			<Card.Header>
 				<Grid
-					width="full"
 					autoColumns={{ base: 'auto', xl: 'min-content' }}
-					templateColumns={{ xl: 'min-content min-content auto' }}
 					autoFlow={{ base: 'row', xl: 'column' }}
 					gap="4"
+					templateColumns={{ xl: 'min-content min-content auto' }}
+					width="full"
 				>
 					<GridItem colSpan={{ base: 4, xl: 1 }}>
 						<HStack>
 							<Filter {...props} />
 							<Group width="full" attached>
 								<By {...props} />
-								<Search {...props} />
+								<Search />
 							</Group>
 						</HStack>
 					</GridItem>
@@ -1087,19 +1094,19 @@ const Component: React.FC<ComponentProps> = (props) => {
 				<List
 					key={rows.toString()}
 					form={form}
+					handleButtonClick={handleButtonClick}
+					isPending={isPending}
 					rows={rows}
 					selected={selected}
 					setSelected={setSelected}
-					handleButtonClick={handleButtonClick}
-					isPending={isPending}
 					{...props}
 				/>
 			</Card.Body>
 			<Card.Footer alignSelf="end">
 				<Pagination
 					length={length}
-					start={start}
 					recordsTotal={recordsTotal}
+					start={start}
 					onPageChange={handlePaginationChange}
 				/>
 			</Card.Footer>

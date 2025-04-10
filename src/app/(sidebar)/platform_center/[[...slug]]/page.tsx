@@ -10,8 +10,8 @@ import useGetAction from '@/hooks/use-get-action'
 import useGetCurrentId from '@/hooks/use-get-current-id'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import useQueryFetched from '@/hooks/use-query-fetched'
-import { GetNavigationScreenResponse } from '@/types/user/common'
-import { GetPrivilegeResponse } from '@/types/user/security-role'
+import type { GetNavigationScreenResponse } from '@/types/user/common'
+import type { GetPrivilegeResponse } from '@/types/user/security-role'
 
 const Page = () => {
 	const customViewId = useCustomViewId()
@@ -31,11 +31,11 @@ const Page = () => {
 	})
 
 	const navigation = useMemo(() => {
-		return (getNavigationScreen && getNavigationScreen.data) || []
+		return getNavigationScreen?.data || []
 	}, [getNavigationScreen])
 
 	const privilege = useMemo(() => {
-		return (getPrivilege && getPrivilege.data) || []
+		return getPrivilege?.data || []
 	}, [getPrivilege])
 
 	const isTable = useMemo(() => {

@@ -35,6 +35,8 @@ NEXT_PUBLIC_APP_ID=PLATFORM_CENTER
 ## To do
 
 - **Websocket**: Real-time silent and noisy updates for live notifications.
+- **Password Rules**: Provides users with clear guidance on password strength and complexity requirements to enhance security.
+- **Route Change Prevention**: Prevents users from navigating away from a page if there are unsaved changes, thereby safeguarding data integrity.
 
 ## Installation & Development
 
@@ -62,9 +64,6 @@ The directory structure is as follows:
 
 ```bash
 ├───public                                  (public folder to serve static assets)
-│   ├───login
-│   ├───logo
-│   └───request-unlock
 └───src                                     (source folder containing main application code)
     ├───app                                 (application folder for main pages)
     │   ├───(sidebar)                       (route group)
@@ -80,21 +79,14 @@ The directory structure is as follows:
     │       └───otp                         (static request-unlock/otp route)
     ├───components                          (components folder)
     │   ├───pages                           (component for page UI)
-    │   │   ├───general_security
-    │   │   └───notification_setting
     │   └───ui                              (component for reusable UI)
     ├───config                              (base configuration library)
     ├───hooks                               (reusable hook helper)
     ├───libraries                           (repeat usability library)
     │   ├───mutation                        (mutation folder)
-    │   │   ├───platform-settings
-    │   │   └───user
     │   └───schemas                         (schema validation folder)
-    │       └───user
     ├───stores                              (Zustand store management)
     ├───types                               (TypeScript type definitions)
-    │   ├───platform-settings
-    │   └───user
     └───utilities                           (utility functions and constants)
 ```
 

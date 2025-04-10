@@ -9,8 +9,8 @@ import useGetCurrentId from '@/hooks/use-get-current-id'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import useQueryFetched from '@/hooks/use-query-fetched'
 import useStaticStore from '@/stores/button-static'
-import { GetNavigationScreenResponse } from '@/types/user/common'
-import { GetPrivilegeResponse } from '@/types/user/security-role'
+import type { GetNavigationScreenResponse } from '@/types/user/common'
+import type { GetPrivilegeResponse } from '@/types/user/security-role'
 import modal from '@/utilities/modal'
 
 const Page = () => {
@@ -29,19 +29,17 @@ const Page = () => {
 	})
 
 	const navigation = useMemo(() => {
-		return (getNavigationScreen && getNavigationScreen.data) || []
+		return getNavigationScreen?.data || []
 	}, [getNavigationScreen])
 
 	const privilege = useMemo(() => {
-		return (getPrivilege && getPrivilege.data) || []
+		return getPrivilege?.data || []
 	}, [getPrivilege])
 
-	const title = useMemo(() => {
-		return form && [Case.capital(form.action), getTitle()].join(' ')
-	}, [form, getTitle])
+	const title = form && [Case.capital(form.action), getTitle()].join(' ')
 
 	useEffect(() => {
-		if (isCRUDPath && form && form.is_modal) {
+		if (isCRUDPath && form?.is_modal) {
 			modal.create({
 				children: <Static navigation={navigation} privilege={privilege} />,
 				options: { title }

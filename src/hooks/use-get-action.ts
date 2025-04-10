@@ -1,6 +1,9 @@
 import { useIsFetching } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import { GetNavigationScreenAction, GetNavigationScreenResponse } from '@/types/user/common'
+import type {
+	GetNavigationScreenAction,
+	GetNavigationScreenResponse
+} from '@/types/user/common'
 import useCustomViewId from './use-custom-view-id'
 import useGetCurrentId from './use-get-current-id'
 import useGetParentId from './use-get-parent-id'
@@ -18,7 +21,7 @@ const useGetAction = (action?: GetNavigationScreenAction) => {
 	})
 
 	const form = useMemo(() => {
-		if (getNavigationScreen && getNavigationScreen.data) {
+		if (getNavigationScreen?.data) {
 			const map = getNavigationScreen.data.map((item) => {
 				if (item.dynamic_form) {
 					return item.dynamic_form.find((form) => {
@@ -29,7 +32,7 @@ const useGetAction = (action?: GetNavigationScreenAction) => {
 				}
 			})
 
-			return map && map[0] ? map[0] : undefined
+			return map?.[0] ? map[0] : undefined
 		}
 
 		return undefined

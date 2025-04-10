@@ -29,14 +29,14 @@ import {
 	GetUserProperty
 } from '@/libraries/mutation/user/common'
 import {
-	AuthenticatePayload,
+	type AuthenticatePayload,
 	AuthenticateSchema,
-	CheckUsernamePayload,
+	type CheckUsernamePayload,
 	CheckUsernameSchema
 } from '@/libraries/schemas/user/common'
-import { ReglaResponse } from '@/types/default'
+import type { ReglaResponse } from '@/types/default'
 import useUserProperty from '../stores/user-property'
-import { ResponseUserData } from '../types/user/common'
+import type { ResponseUserData } from '../types/user/common'
 import { routes, storages } from '../utilities/constants'
 import { setCredential } from '../utilities/credentials'
 import toast from '../utilities/toast'
@@ -92,7 +92,7 @@ const Page = () => {
 					if (status === 'unmounted') {
 						const callback = search.get('callback')
 						setColorMode(res.is_dark_mode ? 'dark' : 'light')
-						location.href = callback ? callback : routes.main
+						location.href = callback ?? routes.main
 					}
 				},
 				title: `Welcome, ${res.username}!`
@@ -104,7 +104,7 @@ const Page = () => {
 		username
 			.mutateAsync({ username: data.username })
 			.then((res) => {
-				const isLocked = (res.data && res.data.is_user_locked) || false
+				const isLocked = res.data?.is_user_locked || false
 				authenticateForm.reset({ isLocked, username: data.username })
 			})
 			.catch((error: ReglaResponse) => {
@@ -118,7 +118,7 @@ const Page = () => {
 			.then(setCredential)
 			.then(handleGetUserProperty)
 			.catch((error: ReglaResponse<ResponseUserData>) => {
-				const isLocked = (error.data && error.data.is_user_locked) || false
+				const isLocked = error.data?.is_user_locked || false
 
 				authenticateForm.setValue('isLocked', isLocked)
 				authenticateForm.setError('password', { message: error.message })
@@ -151,45 +151,45 @@ const Page = () => {
 
 	return (
 		<chakra.main
-			width="full"
-			height="100vh"
-			maxWidth="none"
-			padding="0"
-			backgroundSize="cover"
 			backgroundImage="url('/login/background.svg')"
 			backgroundPosition="left"
 			backgroundRepeat="no-repeat"
+			backgroundSize="cover"
+			height="100vh"
+			maxWidth="none"
+			padding="0"
+			width="full"
 		>
-			<Stack maxWidth={{ base: 'full', xl: '40%' }} height="full" alignItems="center">
-				<Stack gap="6" width="xs" marginTop={{ base: '30%', xl: '24%' }} alignItems="center">
+			<Stack alignItems="center" height="full" maxWidth={{ base: 'full', xl: '40%' }}>
+				<Stack alignItems="center" gap="6" marginTop={{ base: '30%', xl: '24%' }} width="xs">
 					<Image
-						src="/logo/full.svg"
 						alt="logo"
-						width={192}
-						height={192}
-						style={{ height: 'auto', width: 'auto' }}
 						draggable={false}
+						height={192}
+						src="/logo/full.svg"
+						style={{ height: 'auto', width: 'auto' }}
+						width={192}
 						priority
 					/>
-					<Stack gap="1" alignItems="center">
+					<Stack alignItems="center" gap="1">
 						<Text textStyle="xl">Hello Again!</Text>
 						<Presence present={Boolean(username.data)}>
 							<Text textStyle="2xs">{username.data?.message}</Text>
 						</Presence>
 					</Stack>
 					<Presence
-						width="full"
 						present={!username.isSuccess}
+						width="full"
 						_open={{
 							animationDuration: '300ms',
 							animationName: 'slide-from-left, fade-in'
 						}}
 					>
 						<Stack
+							alignItems="center"
 							as="form"
 							gap="4"
 							width="full"
-							alignItems="center"
 							onSubmit={usernameForm.handleSubmit(handleUsernameFormSubmit)}
 						>
 							<Controller
@@ -202,9 +202,9 @@ const Page = () => {
 									>
 										<Input
 											{...attribute.field}
-											variant="subtle"
 											placeholder="Username or Email"
 											textAlign="center"
+											variant="subtle"
 											autoFocus
 										/>
 										<Field.ErrorText>{attribute.fieldState.error?.message}</Field.ErrorText>
@@ -212,11 +212,11 @@ const Page = () => {
 								)}
 							/>
 							<Button
-								type="submit"
 								colorPalette="primary"
-								width="full"
-								size="sm"
 								loading={username.isPending}
+								size="sm"
+								type="submit"
+								width="full"
 							>
 								Next
 							</Button>
@@ -224,11 +224,11 @@ const Page = () => {
 					</Presence>
 					<Show when={username.isSuccess}>
 						<Stack
+							alignItems="center"
 							as="form"
+							data-state="open"
 							gap="4"
 							width="full"
-							alignItems="center"
-							data-state="open"
 							_open={{
 								animationDuration: '300ms',
 								animationName: 'slide-from-left, fade-in'
@@ -243,50 +243,50 @@ const Page = () => {
 								name="password"
 								render={(attribute) => (
 									<Field.Root
+										disabled={authenticateForm.getValues('isLocked')}
 										invalid={attribute.fieldState.invalid}
 										readOnly={authenticate.isPending}
-										disabled={authenticateForm.getValues('isLocked')}
 									>
 										<Field.Label>{authenticateForm.getValues('username')}</Field.Label>
 										<Password
-											variant="subtle"
+											autoComplete="current-password"
 											placeholder="Password"
 											textAlign="center"
-											autoComplete="current-password"
-											onChange={attribute.field.onChange}
+											variant="subtle"
 											autoFocus
+											onChange={attribute.field.onChange}
 										/>
 										<Field.ErrorText>{attribute.fieldState.error?.message}</Field.ErrorText>
 									</Field.Root>
 								)}
 							/>
 							<Link
+								alignSelf="end"
 								colorPalette="primary"
 								textStyle="xs"
-								alignSelf="end"
 								onClick={handleForgotPassword}
 							>
 								Forgot Password
 							</Link>
-							<Grid templateColumns="repeat(2, 1fr)" width="full" gap="4">
+							<Grid gap="4" templateColumns="repeat(2, 1fr)" width="full">
 								<GridItem>
 									<Button
+										disabled={authenticate.isPending}
+										size="sm"
 										variant="subtle"
 										width="full"
-										size="sm"
 										onClick={handleBack}
-										disabled={authenticate.isPending}
 									>
 										Back
 									</Button>
 								</GridItem>
 								<GridItem hidden={authenticateForm.getValues('isLocked')}>
 									<Button
-										type="submit"
 										colorPalette="primary"
-										width="full"
-										size="sm"
 										loading={authenticate.isPending}
+										size="sm"
+										type="submit"
+										width="full"
 									>
 										Next
 									</Button>
@@ -294,8 +294,8 @@ const Page = () => {
 								<GridItem hidden={!authenticateForm.getValues('isLocked')}>
 									<Button
 										colorPalette="primary"
-										width="full"
 										size="sm"
+										width="full"
 										onClick={handleRequestUnlock}
 									>
 										Unlock Account
@@ -305,7 +305,7 @@ const Page = () => {
 						</Stack>
 					</Show>
 					<Flex gap="2" marginTop="12">
-						<Iconify icon="bxs:info-circle" height={14} />
+						<Iconify height={14} icon="bxs:info-circle" />
 						<Text textStyle="xs" textWrap="pretty">
 							You are authorized to use this system, and those to which it grants access, for
 							approved business purposes only. Use for any other purpose is prohibited.

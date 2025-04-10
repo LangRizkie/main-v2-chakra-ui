@@ -1,5 +1,5 @@
-import { Key } from 'react'
-import { ReglaResponse } from '../default'
+import type { Key } from 'react'
+import type { ReglaResponse } from '../default'
 
 export type FormType = 'TABLE' | 'TREE' | 'STATIC'
 export type MethodType = 'GET' | 'POST' | 'PUT' | 'DELETE'

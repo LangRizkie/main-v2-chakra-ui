@@ -21,6 +21,7 @@ const cookies = {
 }
 
 const storages = {
+	histories: 'histories',
 	username: 'username'
 }
 

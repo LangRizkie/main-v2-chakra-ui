@@ -11,9 +11,9 @@ const Page = () => {
 	return (
 		<Center height="100vh">
 			<Card.Root
-				width="2xl"
-				gap="4"
 				data-state="open"
+				gap="4"
+				width="2xl"
 				_open={{
 					animationDuration: '300ms',
 					animationName: 'slide-from-top, fade-in'
@@ -21,22 +21,22 @@ const Page = () => {
 			>
 				<Card.Header>
 					<Image
-						src="/email.svg"
 						alt="email"
-						width={192}
 						height={192}
+						src="/email.svg"
 						style={{ height: 192, width: 'auto' }}
+						width={192}
 						priority
 					/>
 				</Card.Header>
-				<Card.Body justifyContent="center" alignItems="center" gap="4">
+				<Card.Body alignItems="center" gap="4" justifyContent="center">
 					<Card.Title textStyle="2xl">Check Your Email</Card.Title>
-					<Card.Description textAlign="center" maxWidth="lg" textWrap="pretty">
+					<Card.Description maxWidth="lg" textAlign="center" textWrap="pretty">
 						A password recovery link has been sent to your registered email when you receive it
 						click the link to open a window where you can enter a new password
 					</Card.Description>
 				</Card.Body>
-				<Card.Footer flexDirection="column" justifyContent="center" alignItems="center" gap="6">
+				<Card.Footer alignItems="center" flexDirection="column" gap="6" justifyContent="center">
 					<Button
 						colorPalette="primary"
 						minWidth="56"

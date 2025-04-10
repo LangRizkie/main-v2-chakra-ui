@@ -1,4 +1,4 @@
-import { GetPrivilegePayload, GetPrivilegeResponse } from '@/types/user/security-role'
+import type { GetPrivilegePayload, GetPrivilegeResponse } from '@/types/user/security-role'
 import endpoints from '@/utilities/endpoints'
 import { get } from '@/utilities/mutation'
 

@@ -35,7 +35,7 @@ const Pagination: React.FC<PaginationProps> = (props) => {
 	})
 
 	return (
-		<HStack gap="8" alignItems="center">
+		<HStack alignItems="center" gap="8">
 			<Text>Items per page:</Text>
 			<Select.Root
 				key={crypto.randomUUID()}
@@ -62,7 +62,7 @@ const Pagination: React.FC<PaginationProps> = (props) => {
 						<Select.Content>
 							<For each={list.items}>
 								{(item) => (
-									<Select.Item item={item} key={item.value}>
+									<Select.Item key={item.value} item={item}>
 										{item.value}
 										<Select.ItemIndicator />
 									</Select.Item>
@@ -75,20 +75,20 @@ const Pagination: React.FC<PaginationProps> = (props) => {
 			<ChakraPagination.Root
 				key={props.start}
 				count={props.recordsTotal}
-				pageSize={props.length}
 				defaultPage={props.start + 1}
+				pageSize={props.length}
 				onPageChange={props.onPageChange}
 			>
-				<ButtonGroup variant="ghost" size="sm" w="full">
-					<ChakraPagination.PageText format="long" flex="1" />
+				<ButtonGroup size="sm" variant="ghost" w="full">
+					<ChakraPagination.PageText flex="1" format="long" />
 					<ChakraPagination.PrevTrigger asChild>
 						<IconButton>
-							<Iconify icon="bx:chevron-left" height="20" />
+							<Iconify height="20" icon="bx:chevron-left" />
 						</IconButton>
 					</ChakraPagination.PrevTrigger>
 					<ChakraPagination.NextTrigger asChild>
 						<IconButton>
-							<Iconify icon="bx:chevron-right" height="20" />
+							<Iconify height="20" icon="bx:chevron-right" />
 						</IconButton>
 					</ChakraPagination.NextTrigger>
 				</ButtonGroup>

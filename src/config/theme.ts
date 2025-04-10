@@ -16,7 +16,7 @@ const config = defineConfig({
 						}
 					},
 					focusRing: { value: '{colors.primary.500}' },
-					muted: { value: '{colors.primary.100}' },
+					muted: { value: '{colors.primary.50}' },
 					solid: { value: '{colors.primary.500}' },
 					subtle: { value: '{colors.primary.200}' }
 				},

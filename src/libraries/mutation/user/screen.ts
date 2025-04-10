@@ -1,4 +1,4 @@
-import { GetPathUrlScreenPayload, GetPathUrlScreenResponse } from '@/types/user/screen'
+import type { GetPathUrlScreenPayload, GetPathUrlScreenResponse } from '@/types/user/screen'
 import endpoints from '@/utilities/endpoints'
 import { get } from '@/utilities/mutation'
 

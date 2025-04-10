@@ -1,4 +1,4 @@
-import { GetPlatformResponse } from '@/types/platform-settings/master-application'
+import type { GetPlatformResponse } from '@/types/platform-settings/master-application'
 import endpoints from '@/utilities/endpoints'
 import { get } from '@/utilities/mutation'
 

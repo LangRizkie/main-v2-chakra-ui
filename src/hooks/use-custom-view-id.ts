@@ -7,7 +7,7 @@ const useCustomViewId = () => {
 	const customViewId = useMemo(() => {
 		const condition = search.get('condition')
 		if (condition === 'All') return undefined
-		return condition ? condition : undefined
+		return condition ?? undefined
 	}, [search])
 
 	return customViewId

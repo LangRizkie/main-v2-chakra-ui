@@ -1,4 +1,4 @@
-import { ReglaResponse } from '../default'
+import type { ReglaResponse } from '../default'
 
 export type GetPrivilegePayload = {
 	screenId?: string | null

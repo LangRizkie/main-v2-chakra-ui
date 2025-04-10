@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { messages } from '@/utilities/validation'
+import { messages, regex } from '@/utilities/validation'
 
 export const RequestUnlockAccountSchema = z.object({
 	email: z.string().email().min(1, { message: messages.required }),
@@ -14,7 +14,20 @@ export const CheckOTPSchema = z.object({
 export const UnlockAccountSchema = CheckOTPSchema.merge(
 	z.object({
 		confirmationPassword: z.string().min(1, { message: messages.required }),
-		newPassword: z.string().min(1, { message: messages.required })
+		newPassword: z
+			.string()
+			.min(1, { message: messages.required })
+			.regex(regex.uppercase, { message: messages.uppercase })
+			.regex(regex.lowercase, { message: messages.lowercase })
+			.regex(regex.number, { message: messages.number })
+			.regex(regex.special, { message: messages.special })
+			.regex(regex.length, { message: messages.length })
+			.refine((value) => !regex.repeat.test(value), {
+				message: messages.repeat
+			})
+			.refine((value) => !regex.sequential.test(value), {
+				message: messages.sequential
+			})
 	})
 )
 

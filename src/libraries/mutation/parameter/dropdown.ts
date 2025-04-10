@@ -1,5 +1,5 @@
-import { ReglaResponse } from '@/types/default'
-import { GetLookupData } from '@/types/user/common'
+import type { ReglaResponse } from '@/types/default'
+import type { GetLookupData } from '@/types/user/common'
 import endpoints from '@/utilities/endpoints'
 import { get } from '@/utilities/mutation'
 

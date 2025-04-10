@@ -1,14 +1,36 @@
 const endpoints = {
+	email: {
+		notification_setting_user: {
+			get_user_settings_notification: '/email/GetUserSettingsNotification',
+			update_user_settings_notification: '/email/UpdateUserSettingsNotification'
+		}
+	},
 	parameter: {
 		dropdown: {
 			get_format_export_file: '/parameter/Dropdown/GetFormatExportFile',
 			get_type_export_file: '/parameter/Dropdown/GetTypeExportFile'
+		},
+		general_application_setting: {
+			add_update_general_app_setting: '/parameter/AddUpdateGeneralAppSetting',
+			get_detail_general_app_setting: '/parameter/GetDetailGeneralAppSetting',
+			get_lookup_measurement_app_setting: '/parameter/GetLookUpMeasurementAppSetting',
+			get_lookup_measurement_hour_minute: '/parameter/GetLookUpMeasurementHourMinute'
 		}
 	},
 	platform_settings: {
+		add_account_active_user: '/platform-settings/AddAccountActiveUser',
+		generate_random: '/platform-settings/GenerateRandomPassword',
+		license: {
+			get_by_subscription_id: '/platform-settings/License/GetBySubscriptionId/'
+		},
 		master_application: {
 			get_platform: '/platform-settings/MasterApplication/GetPlatform'
-		}
+		},
+		master_subscription_package: {
+			get_application_by_subs_id:
+				'/platform-settings/MasterSubscriptionPackage/GetApplicationBySubsId/'
+		},
+		update_account_active_user: '/platform-settings/UpdateAccountActiveUser'
 	},
 	user: {
 		check_otp: '/user/CheckOTP',

@@ -1,7 +1,7 @@
-import { ButtonProps } from '@chakra-ui/react'
-import React from 'react'
+import type { ButtonProps } from '@chakra-ui/react'
+import type React from 'react'
 import { create } from 'zustand'
-import { ButtonData, ButtonKeys, Sizes, UseButtonProps } from '@/types/default'
+import type { ButtonData, ButtonKeys, Sizes, UseButtonProps } from '@/types/default'
 
 type ModalContent = {
 	content: React.ReactNode

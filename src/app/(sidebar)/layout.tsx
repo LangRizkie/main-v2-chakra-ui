@@ -23,7 +23,7 @@ import {
 } from '../../libraries/mutation/user/common'
 import { GetPathUrlScreen } from '../../libraries/mutation/user/screen'
 import usePreference from '../../stores/preference'
-import { Layout } from '../../types/default'
+import type { Layout } from '../../types/default'
 
 const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 	const route = useGetRoute()
@@ -65,7 +65,7 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 
 	// Breadcrumb and title
 	const { data } = useQuery({
-		queryFn: () => GetPathUrlScreen({ screenId: currentId || route }),
+		queryFn: () => GetPathUrlScreen({ screenId: currentId ?? route }),
 		queryKey: ['get_path_url_screen', currentId, route],
 		refetchOnWindowFocus: false
 	})
@@ -91,28 +91,28 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 	}, [action, breadcrumb, isCRUDPath, route])
 
 	return (
-		<Flex width="full" height="100vh">
+		<Flex height="100vh" width="full">
 			<Sidebar isOpen={isSidebarOpen} />
-			<Flex as="main" width="full" flexDirection="column" overflow="hidden">
+			<Flex as="main" flexDirection="column" overflow="hidden" width="full">
 				<Header />
 				<Stack
+					backgroundColor={{ _light: 'gray.100' }}
 					gap="6"
 					height="full"
 					overflowY="auto"
-					paddingX={{ base: 2, md: 8 }}
-					paddingY={{ base: 2, md: 6 }}
-					backgroundColor={{ _light: 'gray.100' }}
+					paddingX={{ base: 4, md: 8 }}
+					paddingY={{ base: 4, md: 6 }}
 				>
 					<HStack alignItems="center">
 						<IconButton size="xs" variant="subtle" onClick={() => history.back()}>
-							<Iconify icon="bx:arrow-back" height="14" />
+							<Iconify height="14" icon="bx:arrow-back" />
 						</IconButton>
 						<Breadcrumb
-							separator="/"
-							gap="2"
-							items={breadcrumb}
 							fontWeight="semibold"
+							gap="2"
 							hideBelow="md"
+							items={breadcrumb}
+							separator="/"
 						/>
 					</HStack>
 					<TitleContainer title={title}>{children}</TitleContainer>

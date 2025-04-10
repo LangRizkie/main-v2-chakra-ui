@@ -5,21 +5,21 @@ const Forbidden = () => (
 	<Card.Root size="lg">
 		<Card.Header></Card.Header>
 		<Card.Body>
-			<Center gap="12" flexDirection="column">
+			<Center flexDirection="column" gap="12">
 				<Image
-					src="/forbidden.svg"
 					alt="forbidden"
-					width={384}
-					height={384}
-					style={{ height: 'auto', width: 'auto' }}
 					draggable={false}
+					height={384}
+					src="/forbidden.svg"
+					style={{ height: 'auto', width: 'auto' }}
+					width={384}
 					priority
 				/>
 				<Stack textAlign="center">
-					<Text color="primary.fg" textStyle="lg" fontWeight="semibold">
+					<Text color="primary.fg" fontWeight="semibold" textStyle="lg">
 						Error 403
 					</Text>
-					<Text color="primary.fg" textStyle="xs" fontWeight="semibold">
+					<Text color="primary.fg" fontWeight="semibold" textStyle="xs">
 						Forbidden
 					</Text>
 				</Stack>

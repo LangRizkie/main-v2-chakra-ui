@@ -4,7 +4,7 @@ import {
 	Center,
 	For,
 	Menu,
-	MenuSelectionDetails,
+	type MenuSelectionDetails,
 	Portal,
 	Presence,
 	Stack,
@@ -14,16 +14,17 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import useGetParentId from '@/hooks/use-get-parent-id'
-import { Layout } from '@/types/default'
+import type { Layout } from '@/types/default'
 import useQueryFetched from '../../hooks/use-query-fetched'
 import usePreference from '../../stores/preference'
-import {
+import type {
 	GetAllNavigationScreenResponse,
 	GetNavigationScreenData,
 	GetNavigationScreenResponse
 } from '../../types/user/common'
 import { GenerateIcon } from '../../utilities/helper'
 import Iconify from './iconify'
+import Tooltip from './tooltip'
 
 type SidebarProps = Layout & {
 	isOpen?: boolean
@@ -43,16 +44,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 		queryKey: ['get_navigation_screen']
 	})
 
-	const width = isOpen ? '64' : '20'
-	const justifyContent = isOpen ? 'start' : 'center'
-
 	const menu = useMemo(() => {
-		return (getAllNavigationScreen && getAllNavigationScreen.data) || []
+		return getAllNavigationScreen?.data || []
 	}, [getAllNavigationScreen])
 
 	const root = useMemo(() => {
-		return (getNavigationScreen && getNavigationScreen.data) || []
+		return getNavigationScreen?.data || []
 	}, [getNavigationScreen])
+
+	const width = isOpen ? '64' : '20'
 
 	const handleOnMenuSelect = (selected: MenuSelectionDetails) => {
 		const data: GetNavigationScreenData = JSON.parse(selected.value)
@@ -62,58 +62,71 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 	return (
 		<>
 			<Stack
-				top="0"
-				width={width}
-				height="100vh"
-				position={{ base: 'fixed', xl: 'sticky' }}
-				left={{ base: isOpen ? '0' : '-24', xl: '0' }}
 				backgroundColor={{ _dark: 'gray.900', _light: 'bg' }}
+				height="100vh"
+				left={{ base: isOpen ? '0' : '-24', xl: '0' }}
+				position={{ base: 'fixed', xl: 'sticky' }}
+				top="0"
 				transition="all"
+				width={width}
 				zIndex="15"
 			>
-				<Center height="24" minHeight="24" maxHeight="24" alignItems="center" gap="2">
-					<Image src="/logo/compact.svg" alt="bot" width={40} height={40} draggable={false} />
+				<Center alignItems="center" gap="2" height="24" maxHeight="24" minHeight="24">
+					<Image alt="bot" draggable={false} height={40} src="/logo/compact.svg" width={40} />
 					<Image
+						alt="bot"
+						draggable={false}
+						height={80}
 						hidden={!isOpen}
 						src="/logo/wordmark.svg"
-						alt="bot"
-						width={80}
-						height={80}
-						draggable={false}
 						style={{ height: 80, width: 80 }}
+						width={80}
 					/>
 				</Center>
 				<Stack
-					textStyle="sm"
+					alignItems="start"
+					height="full"
+					overflowX="hidden"
+					overflowY="auto"
 					padding="4"
 					paddingY="2"
-					height="full"
-					overflowY="auto"
-					overflowX="hidden"
-					alignItems="start"
+					textStyle="sm"
 				>
 					<For each={menu}>
 						{(item, index) => (
-							<Button
+							<Tooltip
 								key={index}
-								width="full"
-								variant="ghost"
-								justifyContent={justifyContent}
-								onClick={() => router.push(item.url)}
+								content={item.title}
+								positioning={{ placement: 'right' }}
+								showArrow
 							>
-								<GenerateIcon icon={item.image_url} size={20} />
-								<Text textWrap="pretty" textAlign="left" hidden={!isOpen}>
-									{item.title}
-								</Text>
-							</Button>
+								<Button
+									justifyContent="start"
+									paddingX="3"
+									paddingY="1"
+									variant="ghost"
+									width="full"
+									onClick={() => router.push(item.url)}
+								>
+									<GenerateIcon icon={item.image_url} size={20} />
+									<Text
+										overflow="hidden"
+										textAlign="left"
+										textOverflow="ellipsis"
+										whiteSpace="nowrap"
+									>
+										{item.title}
+									</Text>
+								</Button>
+							</Tooltip>
 						)}
 					</For>
 				</Stack>
 				<Center padding="4">
 					<Menu.Root onSelect={handleOnMenuSelect}>
 						<Menu.Trigger asChild>
-							<Button justifyContent="start" variant="outline" width="full" size="sm">
-								<Iconify icon="bxs:grid-alt" height={20} />
+							<Button justifyContent="start" size="sm" variant="outline" width="full">
+								<Iconify height={20} icon="bxs:grid-alt" />
 								<Text hidden={!isOpen}>Menu</Text>
 							</Button>
 						</Menu.Trigger>
@@ -137,13 +150,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 			<Portal>
 				<Presence present={isOpen}>
 					<Box
+						background="gray.900/60"
+						height="100vh"
 						hideFrom="xl"
+						left="0"
 						position="fixed"
 						top="0"
-						left="0"
 						width="100vw"
-						height="100vh"
-						background="gray.900/60"
 						zIndex="10"
 						onClick={() => setOpen(!isOpen)}
 					/>

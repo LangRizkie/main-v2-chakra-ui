@@ -16,7 +16,20 @@ const compat = new FlatCompat({
 })
 
 const eslintConfig = [
-	...compat.extends('next/core-web-vitals', 'next/typescript'),
+	...compat.config({
+		extends: ['next/core-web-vitals', 'next/typescript', 'prettier'],
+		rules: {
+			'react/jsx-sort-props': [
+				'error',
+				{
+					callbacksLast: true,
+					multiline: 'last',
+					reservedFirst: ['key', 'ref'],
+					shorthandLast: true
+				}
+			]
+		}
+	}),
 	...pluginQuery.configs['flat/recommended'],
 	{
 		plugins: {

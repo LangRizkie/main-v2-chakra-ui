@@ -1,5 +1,5 @@
-import { ReglaResponse } from '@/types/default'
-import { GetNavigationScreenDynamicForm } from '@/types/user/common'
+import type { ReglaResponse } from '@/types/default'
+import type { GetNavigationScreenDynamicForm } from '@/types/user/common'
 import { erase, get, post, put } from '@/utilities/mutation'
 
 export type CustomEndpointProps<P> = P & GetNavigationScreenDynamicForm

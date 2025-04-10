@@ -2,6 +2,7 @@ const messages = {
 	component_not_found: 'Component not found',
 	does_not_match: 'Confirmation password does not match',
 	length: 'Password must contain 8-50 characters long',
+	less_than_zero: 'The value cannot be less than 0',
 	lowercase: 'Password must contain lowercase letter (a-z)',
 	number: 'Password must contain number (0-9)',
 	repeat: 'Password must not repeating characters',
@@ -18,6 +19,12 @@ const values = {
 	start: 0
 }
 
+const letters = 'abcdefghijklmnopqrstuvwxyz'
+const digits = '0123456789'
+
+const letterSequences = Array.from({ length: 24 }, (_, i) => letters.slice(i, i + 3))
+const digitSequences = Array.from({ length: 8 }, (_, i) => digits.slice(i, i + 3))
+
 const regex = {
 	alphabet: /^[A-Za-z]+$/,
 	date: /^\d{4}\/\d{2}\/\d{2}$/,
@@ -26,8 +33,8 @@ const regex = {
 	lowercase: /[a-z]/,
 	number: /\d/,
 	repeat: /(.+)\1+\1+/,
-	sequential: /(?:abcdefghijklmnopqrstuvwxyz|0123456789)/i,
-	special: /[`!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?~]/,
+	sequential: new RegExp(`(${[...letterSequences, ...digitSequences].join('|')})`, 'i'),
+	special: /[`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/,
 	symbol: /[\W_]/,
 	uppercase: /[A-Z]/
 }
@@ -43,10 +50,12 @@ const getPasswordScore = (value: string) => {
 	const positive = check.filter(Boolean).length
 
 	const length = !regex.length.test(value) ? -1 : 0
-	const repeat = regex.repeat.test(value) ? -1 : 0
-	const sequential = regex.sequential.test(value) ? -1 : 0
+	const repeat = regex.repeat.test(value) ? -2 : 0
+	const sequential = regex.sequential.test(value) ? -2 : 0
 
-	return Math.max(0, Math.min(positive + length + repeat + sequential, 4))
+	const result = positive + length + repeat + sequential
+
+	return Math.max(0, Math.min(result, 4))
 }
 
 const isJSON = (value: string) => {

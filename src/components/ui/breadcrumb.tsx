@@ -1,5 +1,6 @@
 import { Breadcrumb as ChakraBreadcrumb, Show, type SystemStyleObject } from '@chakra-ui/react'
-import React, { forwardRef, Fragment } from 'react'
+import type React from 'react'
+import { forwardRef, Fragment } from 'react'
 
 type BreadcrumbItems = {
 	title: React.ReactNode
@@ -24,7 +25,7 @@ const Breadcrumb = forwardRef<HTMLDivElement, BreadcrumbProps>(
 						const Component = last ? ChakraBreadcrumb.CurrentLink : ChakraBreadcrumb.Link
 
 						return (
-							<Fragment key={index}>
+							<Fragment key={item.url}>
 								<ChakraBreadcrumb.Item>
 									<Component href={item.url}>{item.title}</Component>
 								</ChakraBreadcrumb.Item>
