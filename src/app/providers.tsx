@@ -7,7 +7,6 @@ import { ThemeProvider } from 'next-themes'
 import Modal from '@/components/ui/modal'
 import Notification from '@/components/ui/notification'
 import { system } from '@/config/theme'
-import type { Layout } from '@/types/default'
 import Context from './context'
 
 const queryClient = new QueryClient()

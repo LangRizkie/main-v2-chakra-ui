@@ -4,7 +4,7 @@ import { ModalReference } from '@/app/context'
 import useModalStore from '@/stores/modal-dynamic'
 import type { Sizes, UseButtonProps } from '@/types/default'
 
-type ModalCreateOptions = UseButtonProps & {
+type ModalCreateOptions = Omit<UseButtonProps, 'setBack' | 'back'> & {
 	title: string
 	size: Sizes
 }
@@ -22,7 +22,6 @@ const modal = {
 	close: (props?: ModalCloseProps) => {
 		const pathname = location.pathname
 		const parent = pathname.slice(0, pathname.lastIndexOf('/'))
-		const last = document.referrer.startsWith(origin) ? history.back() : redirect(parent)
 
 		new Promise((resolve) => {
 			ModalReference.setOpen(false)
@@ -30,7 +29,12 @@ const modal = {
 				resolve(true)
 			}, 200)
 		})
-			.then(() => props && props.shouldBack && last)
+			.then(() => {
+				if (props?.shouldBack) {
+					if (document.referrer.startsWith(origin)) return history.back()
+					redirect(parent)
+				}
+			})
 			.finally(() => useModalStore.getState().reset())
 	},
 	create: (props: ModalCreateProps) => {

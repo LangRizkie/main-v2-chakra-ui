@@ -1,31 +1,25 @@
 'use client'
 
-import { Flex, HStack, IconButton, Stack } from '@chakra-ui/react'
 import { useQuery } from '@tanstack/react-query'
 import { Case } from 'change-case-all'
 import { isEmpty } from 'lodash'
 import { usePathname } from 'next/navigation'
 import { useMemo } from 'react'
-import Breadcrumb from '@/components/ui/breadcrumb'
-import Header from '@/components/ui/header'
-import Iconify from '@/components/ui/iconify'
-import Sidebar from '@/components/ui/sidebar'
-import TitleContainer from '@/components/ui/title-container'
+import { SidebarContent, SidebarMenu } from '@/components/ui/sidebar'
 import useCustomViewId from '@/hooks/use-custom-view-id'
 import useGetAction from '@/hooks/use-get-action'
 import useGetCurrentId from '@/hooks/use-get-current-id'
+import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
+import { GetAllNavigationScreen, GetNavigationScreen } from '@/libraries/mutation/user/common'
+import { GetPathUrlScreen } from '@/libraries/mutation/user/screen'
 import { GetPrivilege } from '@/libraries/mutation/user/security-role'
-import useGetRoute from '../../hooks/use-get-route'
-import {
-	GetAllNavigationScreen,
-	GetNavigationScreen
-} from '../../libraries/mutation/user/common'
-import { GetPathUrlScreen } from '../../libraries/mutation/user/screen'
-import usePreference from '../../stores/preference'
-import type { Layout } from '../../types/default'
+import useStaticStore from '@/stores/button-static'
+import usePreference from '@/stores/preference'
+import { Layout } from '@regla/monorepo'
+import type { LayoutType } from '../../types/default'
 
-const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
+const SidebarLayout: React.FC<LayoutType> = ({ children, modal }) => {
 	const route = useGetRoute()
 	const pathname = usePathname()
 	const customViewId = useCustomViewId()
@@ -33,7 +27,15 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 	const action = useGetAction()
 	const isCRUDPath = useIsCRUDPath()
 
-	const { isSidebarOpen } = usePreference()
+	const { isSidebarOpen, setOpen } = usePreference()
+	const { activate, back, deactivate, reactivate, submit } = useStaticStore()
+
+	// Breadcrumb and title
+	const { data } = useQuery({
+		queryFn: () => GetPathUrlScreen({ screenId: currentId ?? route }),
+		queryKey: ['get_path_url_screen', currentId, route],
+		refetchOnWindowFocus: false
+	})
 
 	// Sidebar Menu
 	useQuery({
@@ -63,13 +65,6 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 		refetchOnWindowFocus: false
 	})
 
-	// Breadcrumb and title
-	const { data } = useQuery({
-		queryFn: () => GetPathUrlScreen({ screenId: currentId ?? route }),
-		queryKey: ['get_path_url_screen', currentId, route],
-		refetchOnWindowFocus: false
-	})
-
 	const breadcrumb = useMemo(() => {
 		if (isEmpty(data) || (data && isEmpty(data.data)))
 			return [{ title: Case.capital(route), url: pathname }]
@@ -87,39 +82,27 @@ const SidebarLayout: React.FC<Layout> = ({ children, modal }) => {
 	const title = useMemo(() => {
 		const title = breadcrumb[breadcrumb.length - 1].title
 		if (isCRUDPath && action && !action.is_modal) return [Case.capital(route), title].join(' ')
-		return title
+
+		return title ?? Case.capital(route)
 	}, [action, breadcrumb, isCRUDPath, route])
 
 	return (
-		<Flex height="100vh" width="full">
-			<Sidebar isOpen={isSidebarOpen} />
-			<Flex as="main" flexDirection="column" overflow="hidden" width="full">
-				<Header />
-				<Stack
-					backgroundColor={{ _light: 'gray.100' }}
-					gap="6"
-					height="full"
-					overflowY="auto"
-					paddingX={{ base: 4, md: 8 }}
-					paddingY={{ base: 4, md: 6 }}
-				>
-					<HStack alignItems="center">
-						<IconButton size="xs" variant="subtle" onClick={() => history.back()}>
-							<Iconify height="14" icon="bx:arrow-back" />
-						</IconButton>
-						<Breadcrumb
-							fontWeight="semibold"
-							gap="2"
-							hideBelow="md"
-							items={breadcrumb}
-							separator="/"
-						/>
-					</HStack>
-					<TitleContainer title={title}>{children}</TitleContainer>
-				</Stack>
-			</Flex>
-			{modal}
-		</Flex>
+		<Layout
+			breadcrumb={breadcrumb}
+			container={{ activate, back, deactivate, reactivate, submit, title }}
+			modal={modal}
+			header={{
+				content: <></>,
+				onSymbolClick: () => setOpen(!isSidebarOpen)
+			}}
+			sidebar={{
+				content: <SidebarContent />,
+				footer: <SidebarMenu />,
+				isOpen: isSidebarOpen
+			}}
+		>
+			{children}
+		</Layout>
 	)
 }
 

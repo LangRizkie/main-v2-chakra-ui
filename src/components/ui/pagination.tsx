@@ -7,6 +7,7 @@ import {
 	Pagination as ChakraPagination,
 	Portal,
 	Select,
+	StackProps,
 	Text
 } from '@chakra-ui/react'
 import { useMemo } from 'react'
@@ -18,14 +19,20 @@ export type PageChangeDetails = {
 	pageSize: number
 }
 
-type PaginationProps = {
+type PaginationProps = StackProps & {
 	start: number
 	length: number
 	recordsTotal: number
 	onPageChange?: (value: PageChangeDetails) => void
 }
 
-const Pagination: React.FC<PaginationProps> = (props) => {
+const Pagination: React.FC<PaginationProps> = ({
+	length,
+	onPageChange,
+	recordsTotal,
+	start,
+	...props
+}) => {
 	const handlePerPageList = useMemo(() => {
 		return values.per.map((item) => ({ value: item.toString() }))
 	}, [])
@@ -35,16 +42,16 @@ const Pagination: React.FC<PaginationProps> = (props) => {
 	})
 
 	return (
-		<HStack alignItems="center" gap="8">
+		<HStack alignItems="center" gap="8" {...props}>
 			<Text>Items per page:</Text>
 			<Select.Root
 				key={crypto.randomUUID()}
 				collection={list}
-				defaultValue={[props.length.toString()]}
+				defaultValue={[length.toString()]}
 				size="sm"
 				width="24"
 				onValueChange={({ value }) => {
-					if (props.onPageChange) props.onPageChange({ page: 1, pageSize: Number(value[0]) })
+					if (onPageChange) onPageChange({ page: 1, pageSize: Number(value[0]) })
 				}}
 			>
 				<Select.HiddenSelect />
@@ -73,11 +80,11 @@ const Pagination: React.FC<PaginationProps> = (props) => {
 				</Portal>
 			</Select.Root>
 			<ChakraPagination.Root
-				key={props.start}
-				count={props.recordsTotal}
-				defaultPage={props.start + 1}
-				pageSize={props.length}
-				onPageChange={props.onPageChange}
+				key={start}
+				count={recordsTotal}
+				defaultPage={start + 1}
+				pageSize={length}
+				onPageChange={onPageChange}
 			>
 				<ButtonGroup size="sm" variant="ghost" w="full">
 					<ChakraPagination.PageText flex="1" format="long" />

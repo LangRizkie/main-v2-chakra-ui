@@ -7,12 +7,14 @@ export type CustomEndpointProps<P> = P & GetNavigationScreenDynamicForm
 const CustomEndpoint = async <P, R = never>(
 	payload: CustomEndpointProps<P>
 ): Promise<ReglaResponse<R>> => {
-	const data: P & Partial<GetNavigationScreenDynamicForm> = Object.assign({}, payload)
+	const data: P & Partial<GetNavigationScreenDynamicForm> = { ...payload }
 
 	delete data.url_api
 	delete data.action
 	delete data.is_modal
 	delete data.method
+
+	const key = payload.unique_key as keyof typeof data
 
 	switch (payload.method) {
 		case 'POST':
@@ -20,7 +22,6 @@ const CustomEndpoint = async <P, R = never>(
 		case 'PUT':
 			return await put(payload.url_api, data)
 		case 'DELETE':
-			const key = payload.unique_key as keyof typeof data
 			return await erase(payload.url_api, key in data ? data[key] : undefined)
 		default:
 			return await get(payload.url_api, data)

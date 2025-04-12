@@ -1,6 +1,6 @@
 import type { ButtonProps } from '@chakra-ui/react'
 
-export interface Layout {
+export interface LayoutType {
 	[name: string]: React.ReactNode
 }
 

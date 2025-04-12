@@ -5,12 +5,12 @@ type PreferenceData = {
 	isSidebarOpen: boolean
 }
 
-type UsePreferenceProps = Partial<PreferenceData> & {
+type UsePreferenceProps = PreferenceData & {
 	setOpen: (value: boolean) => void
 	reset: () => void
 }
 
-const initial: Partial<PreferenceData> = {
+const initial: PreferenceData = {
 	isSidebarOpen: false
 }
 

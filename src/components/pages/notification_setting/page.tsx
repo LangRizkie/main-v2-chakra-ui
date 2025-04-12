@@ -19,7 +19,7 @@ import useDiscard from '@/hooks/use-discard'
 import {
 	GetUserSettingsNotification,
 	UpdateUserSettingsNotification
-} from '@/libraries/mutation/email/notification_setting_user'
+} from '@/libraries/mutation/email/notification-setting-user'
 import {
 	UpdateUserSettingsNotificationPayload,
 	UpdateUserSettingsNotificationSchema

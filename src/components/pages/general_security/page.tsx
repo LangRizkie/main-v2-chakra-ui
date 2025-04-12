@@ -22,7 +22,7 @@ import {
 	GetDetailGeneralAppSetting,
 	GetLookUpMeasurementAppSetting,
 	GetLookUpMeasurementHourMinute
-} from '@/libraries/mutation/parameter/general_application_setting'
+} from '@/libraries/mutation/parameter/general-application-setting'
 import {
 	AddUpdateGeneralAppSettingPayload,
 	AddUpdateGeneralAppSettingSchema

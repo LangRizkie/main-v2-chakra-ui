@@ -32,6 +32,13 @@ NEXT_PUBLIC_APP_ID=PLATFORM_CENTER
 - **Animated Routing**: Page transitions include slide-in and fade-in animations.
 - **TBD**: Additional features will be added in future updates.
 
+## Under Development
+
+- **Account & Profile Setting**: 20% development
+- **License Management**: 90% development
+
+> Blocker mostly from Combobox component that ChakraUI doesn't developed yet.
+
 ## To do
 
 - **Websocket**: Real-time silent and noisy updates for live notifications.

@@ -14,7 +14,7 @@ type ModalContent = {
 	setContent: (children: React.ReactNode) => void
 }
 
-const getInitialState = (): Partial<ButtonData & ModalContent> => ({
+const getInitialState = (): Partial<Omit<ButtonData, 'back'> & ModalContent> => ({
 	activate: {
 		colorPalette: 'teal',
 		form: 'activate-form',
@@ -22,7 +22,6 @@ const getInitialState = (): Partial<ButtonData & ModalContent> => ({
 		title: 'Activate',
 		type: 'submit'
 	},
-	back: { hidden: true, title: 'Back', variant: 'subtle' },
 	cancel: { hidden: false, title: 'Cancel', variant: 'ghost' },
 	content: <></>,
 	deactivate: {
@@ -50,14 +49,13 @@ const getInitialState = (): Partial<ButtonData & ModalContent> => ({
 	title: ''
 })
 
-const useModalStore = create<UseButtonProps & ModalContent>((set, get) => ({
+const useModalStore = create<Omit<UseButtonProps, 'setBack'> & ModalContent>((set, get) => ({
 	...getInitialState(),
 	content: <></>,
 	getTitle: () => get().title,
 	reset: () => set(() => getInitialState()),
 	setActivate: (props) => set((state) => ({ activate: { ...state.activate, ...props } })),
 	setAttribute: (key, props) => set((state) => ({ [key]: { ...state[key], ...props } })),
-	setBack: (props) => set((state) => ({ back: { ...state.back, ...props } })),
 	setCancel: (props) => set((state) => ({ cancel: { ...state.cancel, ...props } })),
 	setContent: (props) => set({ content: props }),
 	setDeactivate: (props) => set((state) => ({ deactivate: { ...state.deactivate, ...props } })),

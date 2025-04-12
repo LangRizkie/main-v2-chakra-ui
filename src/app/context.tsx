@@ -4,7 +4,6 @@ import { useDisclosure, type UseDisclosureReturn } from '@chakra-ui/react'
 import { useNetwork } from 'ahooks'
 import { createContext, useEffect } from 'react'
 import useSetHistory from '@/hooks/use-set-history'
-import type { Layout } from '@/types/default'
 import toast from '@/utilities/toast'
 
 export const ModalReference: UseDisclosureReturn = {

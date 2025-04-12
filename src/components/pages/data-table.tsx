@@ -1038,8 +1038,8 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 		router.replace(queries)
 	}
 
-	const payload = useMemo((): GetDataPayload => {
-		return {
+	const payload = useMemo(
+		(): GetDataPayload => ({
 			columnSearch,
 			customViewId,
 			filter: { filters: [] },
@@ -1047,8 +1047,9 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 			search,
 			sort,
 			start
-		}
-	}, [columnSearch, customViewId, length, search, sort, start])
+		}),
+		[columnSearch, customViewId, length, search, sort, start]
+	)
 
 	useEffect(() => {
 		if (params.size <= 0 && !isCRUDPath) router.replace(queries)

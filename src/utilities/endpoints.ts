@@ -23,6 +23,13 @@ const endpoints = {
 		license: {
 			get_by_subscription_id: '/platform-settings/License/GetBySubscriptionId/'
 		},
+		license_key: {
+			assigned_license: '/platform-settings/LicenseKey/AssignedLicense',
+			get_list_license_paging: '/platform-settings/LicenseKey/GetListLicensePaging',
+			get_total_license: '/platform-settings/LicenseKey/GetTotalLicense',
+			global_user: '/platform-settings/LicenseKey/GlobalUser',
+			revoke_license: '/platform-settings/LicenseKey/RevokeLicense'
+		},
 		master_application: {
 			get_platform: '/platform-settings/MasterApplication/GetPlatform'
 		},
