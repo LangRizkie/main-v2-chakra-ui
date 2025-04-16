@@ -1,6 +1,6 @@
 import { Flex, Grid, GridItem, Text } from '@chakra-ui/react'
+import { Iconify } from '@regla/monorepo'
 import { useQuery } from '@tanstack/react-query'
-import Iconify from '@/components/ui/iconify'
 import { GetTotalLicense } from '@/libraries/mutation/platform-settings/license-key'
 import DataTable from './data-table'
 

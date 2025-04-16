@@ -6,9 +6,6 @@ import type { ButtonData, ButtonKeys, Sizes, UseButtonProps } from '@/types/defa
 type ModalContent = {
 	content: React.ReactNode
 	size?: Sizes
-	title?: string
-	getTitle: () => string | undefined
-	setTitle: (value: string) => void
 	setSize: (value: Sizes) => void
 	setAttribute: (key: ButtonKeys, props: ButtonProps) => void
 	setContent: (children: React.ReactNode) => void
@@ -45,14 +42,12 @@ const getInitialState = (): Partial<Omit<ButtonData, 'back'> & ModalContent> => 
 		hidden: false,
 		title: 'Submit',
 		type: 'submit'
-	},
-	title: ''
+	}
 })
 
-const useModalStore = create<Omit<UseButtonProps, 'setBack'> & ModalContent>((set, get) => ({
+const useModalStore = create<Omit<UseButtonProps, 'setBack'> & ModalContent>((set) => ({
 	...getInitialState(),
 	content: <></>,
-	getTitle: () => get().title,
 	reset: () => set(() => getInitialState()),
 	setActivate: (props) => set((state) => ({ activate: { ...state.activate, ...props } })),
 	setAttribute: (key, props) => set((state) => ({ [key]: { ...state[key], ...props } })),
@@ -61,8 +56,7 @@ const useModalStore = create<Omit<UseButtonProps, 'setBack'> & ModalContent>((se
 	setDeactivate: (props) => set((state) => ({ deactivate: { ...state.deactivate, ...props } })),
 	setReactivate: (props) => set((state) => ({ reactivate: { ...state.reactivate, ...props } })),
 	setSize: (props) => set({ size: props }),
-	setSubmit: (props) => set((state) => ({ submit: { ...state.submit, ...props } })),
-	setTitle: (props) => set({ title: props })
+	setSubmit: (props) => set((state) => ({ submit: { ...state.submit, ...props } }))
 }))
 
 export default useModalStore

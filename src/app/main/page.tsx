@@ -9,16 +9,17 @@ import {
 	Grid,
 	Heading,
 	IconButton,
+	Show,
 	Skeleton,
 	Stack,
 	Text
 } from '@chakra-ui/react'
+import { Iconify, Tooltip } from '@regla/monorepo'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useMemo } from 'react'
-import Iconify from '../../components/ui/iconify'
-import Tooltip from '../../components/ui/tooltip'
+import { exception_routes } from '@/utilities/constants'
 import { logout } from '../../config/instance'
 import { GetPlatform } from '../../libraries/mutation/platform-settings/master-application'
 import { GenerateIcon } from '../../utilities/helper'
@@ -33,12 +34,25 @@ const Page = () => {
 		return data?.data || []
 	}, [data])
 
+	const notification = useMemo(() => {
+		return `/platform_center${exception_routes.notification}`
+	}, [])
+
 	const handleAnimationDuration = (index: number) => {
 		return (index + 1) * 200 + 'ms'
 	}
 
 	return (
-		<Center flexDirection="column" gap="16" minHeight="100vh" padding="16">
+		<Center
+			backgroundImage="url('/antenna.svg')"
+			backgroundPosition="bottom right"
+			backgroundRepeat="no-repeat"
+			backgroundSize="24rem"
+			flexDirection="column"
+			gap="16"
+			minHeight="dvh"
+			padding="16"
+		>
 			<Flex
 				alignItems="center"
 				flexDirection={{ base: 'column', lg: 'row' }}
@@ -47,7 +61,12 @@ const Page = () => {
 				width="full"
 			>
 				<Stack gap="4">
-					<Heading color="gray" size="3xl" textAlign={{ base: 'center', lg: 'left' }}>
+					<Heading
+						color="gray"
+						fontWeight="semibold"
+						size="3xl"
+						textAlign={{ base: 'center', lg: 'left' }}
+					>
 						Welcome To Regla Platform
 					</Heading>
 					<Text
@@ -69,9 +88,11 @@ const Page = () => {
 						</IconButton>
 					</Tooltip>
 					<Tooltip content="Notification" showArrow>
-						<IconButton rounded="full" variant="ghost">
-							<Iconify height={20} icon="bxs:bell" />
-						</IconButton>
+						<Link href={notification}>
+							<IconButton rounded="full" variant="ghost">
+								<Iconify height={20} icon="bxs:bell" />
+							</IconButton>
+						</Link>
 					</Tooltip>
 					<Tooltip content="Logout" showArrow>
 						<IconButton rounded="full" variant="ghost" onClick={logout}>
@@ -100,60 +121,66 @@ const Page = () => {
 					md: 'repeat(2, 1fr)'
 				}}
 			>
-				<For each={Array.from(Array(8))}>
-					{(item, index) => (
-						<Skeleton key={index} hidden={!isPending} minHeight={48} width="full">
-							{item}
-						</Skeleton>
-					)}
-				</For>
-				<For each={menu}>
-					{(item, index) => {
-						return (
-							<Link key={index} href={item.url} passHref>
-								<Card.Root
-									animationDuration={handleAnimationDuration(index)}
-									animationName="slide-from-top, fade-in"
-									aria-disabled={!item.is_active_menu}
-									cursor={{ _disabled: 'not-allowed', base: 'pointer' }}
-									height="full"
-									hidden={isPending}
-									variant={{ _disabled: 'subtle', base: 'outline' }}
-								>
-									<Card.Header alignItems="center" flexDirection="row" gap="4">
-										<Box
-											aria-disabled={!item.is_active_menu}
-											borderColor="gray.300"
-											borderRadius="sm"
-											borderStyle="solid"
-											borderWidth="thin"
-											filter={{ _disabled: 'grayscale(80%)', base: '' }}
-											padding="2"
-										>
-											<GenerateIcon
-												icon={item.image_url}
-												size={28}
-												style={{ color: 'var(--chakra-colors-primary-fg)' }}
-											/>
-										</Box>
-										<Text
-											aria-disabled={!item.is_active_menu}
-											color={{ _disabled: 'gray', base: 'primary.fg' }}
-											fontWeight="semibold"
-										>
-											{item.applicationName}
-										</Text>
-									</Card.Header>
-									<Card.Body>
-										<Text color="gray" textStyle="xs" textWrap="pretty">
-											{item.description}
-										</Text>
-									</Card.Body>
-								</Card.Root>
-							</Link>
-						)
-					}}
-				</For>
+				<Show
+					when={!isPending}
+					fallback={
+						<For each={Array.from(Array(3))}>
+							{(item, index) => (
+								<Skeleton key={index} minHeight={48} width="full">
+									{item}
+								</Skeleton>
+							)}
+						</For>
+					}
+				>
+					<For each={menu}>
+						{(item, index) => {
+							return (
+								<Link key={index} href={item.url} passHref>
+									<Card.Root
+										animationDuration={handleAnimationDuration(index)}
+										animationName="slide-from-top, fade-in"
+										aria-disabled={!item.is_active_menu}
+										cursor={{ _disabled: 'not-allowed', base: 'pointer' }}
+										height="full"
+										hidden={isPending}
+										variant={{ _disabled: 'subtle', base: 'outline' }}
+									>
+										<Card.Header alignItems="center" flexDirection="row" gap="4">
+											<Box
+												aria-disabled={!item.is_active_menu}
+												borderColor="gray.300"
+												borderRadius="sm"
+												borderStyle="solid"
+												borderWidth="thin"
+												filter={{ _disabled: 'grayscale(80%)', base: '' }}
+												padding="2"
+											>
+												<GenerateIcon
+													icon={item.image_url}
+													size={28}
+													style={{ color: 'var(--chakra-colors-primary-fg)' }}
+												/>
+											</Box>
+											<Text
+												aria-disabled={!item.is_active_menu}
+												color={{ _disabled: 'gray', base: 'primary.fg' }}
+												fontWeight="semibold"
+											>
+												{item.applicationName}
+											</Text>
+										</Card.Header>
+										<Card.Body>
+											<Text color="gray" textStyle="xs" textWrap="pretty">
+												{item.description}
+											</Text>
+										</Card.Body>
+									</Card.Root>
+								</Link>
+							)
+						}}
+					</For>
+				</Show>
 			</Grid>
 		</Center>
 	)

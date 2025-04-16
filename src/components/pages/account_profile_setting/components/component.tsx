@@ -1,10 +1,10 @@
 import { For, Steps } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Iconify } from '@regla/monorepo'
 import { useSetState } from 'ahooks'
 import { Case } from 'change-case-all'
 import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import Iconify from '@/components/ui/iconify'
 import {
 	type AccountActiveUserPayload,
 	AccountActiveUserSchema

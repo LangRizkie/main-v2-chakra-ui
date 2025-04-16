@@ -71,7 +71,7 @@ const Page = () => {
 	}, [form, search])
 
 	return (
-		<Center height="100vh">
+		<Center height="dvh">
 			<Presence
 				present={!checkOTP.isSuccess}
 				_open={{

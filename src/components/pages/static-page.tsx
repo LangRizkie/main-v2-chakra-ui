@@ -14,6 +14,7 @@ type StaticProps = {
 	navigation: GetNavigationScreenData[]
 	privilege: GetPrivilegeData[]
 	isCard?: boolean
+	isException?: boolean
 }
 
 const ErrorComponent = () => <>{messages.component_not_found}</>
@@ -60,8 +61,8 @@ const Static: React.FC<StaticProps> = (props) => {
 	}, [canInsert, canUpdate])
 
 	const canView = useMemo(() => {
-		return privilege ? privilege.can_view : false
-	}, [privilege])
+		return privilege ? privilege.can_view : (props.isException ?? false)
+	}, [privilege, props.isException])
 
 	const canInteractWithSubmit = useMemo(() => {
 		return canSubmit && canView && props.isCard

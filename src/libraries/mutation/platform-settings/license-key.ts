@@ -1,5 +1,5 @@
 import { ReglaResponse } from '@/types/default'
-import { GetDataPayload } from '@/types/list'
+import { PaginationPayload } from '@/types/list'
 import {
 	AssignedLicensePayload,
 	GetListLicensePagingResponse,
@@ -19,7 +19,7 @@ const AssignedLicense = async (payload: AssignedLicensePayload): Promise<ReglaRe
 	await put(endpoints.platform_settings.license_key.assigned_license, payload)
 
 const GetListLicensePaging = async (
-	payload: GetDataPayload
+	payload: PaginationPayload
 ): Promise<GetListLicensePagingResponse> =>
 	await post(endpoints.platform_settings.license_key.get_list_license_paging, payload)
 

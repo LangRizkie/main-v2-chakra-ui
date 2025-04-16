@@ -4,7 +4,7 @@ import { Portal, Show, Spinner, Stack, Toast, Toaster } from '@chakra-ui/react'
 import toast from '@/utilities/toast'
 
 const ToastType = ({ isLoading }: { isLoading: boolean }) => {
-	if (isLoading) return <Spinner color="primary.500" size="sm" />
+	if (isLoading) return <Spinner color="primary.fg" size="sm" />
 	return <Toast.Indicator />
 }
 

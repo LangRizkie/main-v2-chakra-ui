@@ -29,6 +29,7 @@ import {
 	Text,
 	useDisclosure
 } from '@chakra-ui/react'
+import { Iconify, Tooltip } from '@regla/monorepo'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useDebounceFn, useSelections, useSetState } from 'ahooks'
 import { Case } from 'change-case-all'
@@ -52,7 +53,7 @@ import { GetLookupCustomView } from '@/libraries/mutation/user/common'
 import useStaticStore from '@/stores/button-static'
 import useModalStore from '@/stores/modal-dynamic'
 import type { ReglaResponse } from '@/types/default'
-import type { DownloadDataPayload, GetDataPayload } from '@/types/list'
+import type { DownloadDataPayload, PaginationPayload } from '@/types/list'
 import type {
 	GetNavigationScreenAction,
 	GetNavigationScreenData,
@@ -61,11 +62,9 @@ import type {
 import type { GetPrivilegeData } from '@/types/user/security-role'
 import { crud_routes } from '@/utilities/constants'
 import { createQueryParams, setQueryParams } from '@/utilities/helper'
-import modal from '@/utilities/modal'
 import { values } from '@/utilities/validation'
-import Iconify from '../ui/iconify'
+import modal from '../ui/modal'
 import Pagination, { type PageChangeDetails } from '../ui/pagination'
-import Tooltip from '../ui/tooltip'
 
 type DataTableProps = {
 	navigation: GetNavigationScreenData[]
@@ -506,7 +505,7 @@ const List: React.FC<ListProps> = (props) => {
 	}, [list])
 
 	const columns = useMemo(() => {
-		return props.navigation.map_column ? props.navigation.map_column : []
+		return props.navigation.map_column ?? []
 	}, [props.navigation])
 
 	const keys = Object.entries(groupBy(columns, (item) => item.object_name))
@@ -720,11 +719,11 @@ const Download: React.FC<StaticModalProps> = (props) => {
 	}, [params])
 
 	const length = useMemo(() => {
-		return params.get('length') ?? '5'
+		return params.get('length') ?? values.length
 	}, [params])
 
 	const start = useMemo(() => {
-		return params.get('start') ?? '0'
+		return params.get('start') ?? values.start
 	}, [params])
 
 	const sort = useMemo(() => {
@@ -785,11 +784,14 @@ const Download: React.FC<StaticModalProps> = (props) => {
 			[props.unique]: download.type === 'Selected' ? props.row : [],
 			format: download.format,
 			type: download.type
-		}).finally(() => modal.close())
+		}).finally(() => modal.close('download'))
 	}
 
 	useEffect(() => {
-		setAttribute('submit', { disabled: isEmpty(download.format) || isEmpty(download.type) })
+		modal.update('download', {
+			...modal.get('download'),
+			options: { submit: { disabled: isEmpty(download.format) || isEmpty(download.type) } }
+		})
 	}, [download.format, download.type, setAttribute])
 
 	return (
@@ -861,7 +863,7 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 	const { data, isPending, mutateAsync } = useMutation<
 		ReglaResponse<never[]>,
 		Error,
-		CustomEndpointProps<GetDataPayload>
+		CustomEndpointProps<PaginationPayload>
 	>({
 		mutationFn: CustomEndpoint,
 		mutationKey: ['list', screenId, params.toString()]
@@ -872,9 +874,9 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 			by: 'ASC',
 			column: 'All',
 			condition: props.navigation.default_custom_view_id ?? 'All',
-			length: '5',
+			length: values.length.toString(),
 			sort: 'Default',
-			start: '0'
+			start: values.start.toString()
 		},
 		{ route: pathname }
 	)
@@ -985,9 +987,11 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 		const list = row ? [row] : selected
 		const unique = list.map((item) => item[data.unique_key])
 
-		modal.create({
+		modal.open('download', {
 			children: <Download data={data} row={unique} unique={data.unique_key} />,
-			options: { size: 'lg', submit: { disabled: true, title: 'Download' }, title }
+			options: { submit: { disabled: true, title: 'Download' } },
+			size: 'lg',
+			title
 		})
 	}
 
@@ -999,7 +1003,7 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 		const list = row ? [row] : selected
 		const unique = list.map((item) => item[data.unique_key])
 
-		modal.create({
+		modal.open('danger', {
 			children: (
 				<Center paddingY="12">
 					Are you sure you want to {Case.lower(data.action)} the selected record(s)?
@@ -1015,13 +1019,13 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 							.catch((error) => error)
 							.finally(() => {
 								setAttribute('submit', { loading: false })
-								modal.close()
+								modal.close('danger')
 							})
 					},
 					title: Case.capital(data.action)
-				},
-				title
-			}
+				}
+			},
+			title
 		})
 	}
 
@@ -1039,7 +1043,7 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 	}
 
 	const payload = useMemo(
-		(): GetDataPayload => ({
+		(): PaginationPayload => ({
 			columnSearch,
 			customViewId,
 			filter: { filters: [] },

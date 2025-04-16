@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { LayoutType } from '@/types/default'
 import { Provider } from './provider'
 
 const inter = Inter({
@@ -13,7 +14,7 @@ export const metadata: Metadata = {
 	title: 'REGLA® App | Your platform for regulatory compliance'
 }
 
-const RootLayout: React.FC<Layout> = ({ children }) => {
+const RootLayout: React.FC<LayoutType> = ({ children }) => {
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body className={inter.className}>

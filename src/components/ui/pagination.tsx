@@ -10,9 +10,9 @@ import {
 	StackProps,
 	Text
 } from '@chakra-ui/react'
+import { Iconify } from '@regla/monorepo'
 import { useMemo } from 'react'
 import { values } from '@/utilities/validation'
-import Iconify from './iconify'
 
 export type PageChangeDetails = {
 	page: number

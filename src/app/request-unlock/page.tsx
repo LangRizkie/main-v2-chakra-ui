@@ -42,7 +42,7 @@ const Page = () => {
 	}, [form])
 
 	return (
-		<Center height="100vh">
+		<Center height="dvh">
 			<Presence
 				present={!requestUnlockAccount.isSuccess}
 				_open={{

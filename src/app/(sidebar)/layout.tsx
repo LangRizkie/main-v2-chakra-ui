@@ -1,10 +1,12 @@
 'use client'
 
+import { Layout } from '@regla/monorepo'
 import { useQuery } from '@tanstack/react-query'
 import { Case } from 'change-case-all'
 import { isEmpty } from 'lodash'
 import { usePathname } from 'next/navigation'
 import { useMemo } from 'react'
+import Header from '@/components/ui/header'
 import { SidebarContent, SidebarMenu } from '@/components/ui/sidebar'
 import useCustomViewId from '@/hooks/use-custom-view-id'
 import useGetAction from '@/hooks/use-get-action'
@@ -16,7 +18,6 @@ import { GetPathUrlScreen } from '@/libraries/mutation/user/screen'
 import { GetPrivilege } from '@/libraries/mutation/user/security-role'
 import useStaticStore from '@/stores/button-static'
 import usePreference from '@/stores/preference'
-import { Layout } from '@regla/monorepo'
 import type { LayoutType } from '../../types/default'
 
 const SidebarLayout: React.FC<LayoutType> = ({ children, modal }) => {
@@ -92,7 +93,7 @@ const SidebarLayout: React.FC<LayoutType> = ({ children, modal }) => {
 			container={{ activate, back, deactivate, reactivate, submit, title }}
 			modal={modal}
 			header={{
-				content: <></>,
+				content: <Header />,
 				onSymbolClick: () => setOpen(!isSidebarOpen)
 			}}
 			sidebar={{

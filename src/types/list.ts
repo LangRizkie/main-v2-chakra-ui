@@ -16,7 +16,7 @@ export type GetDataFilter = {
 	filters: GetDataFilters[]
 }
 
-export type GetDataPayload = {
+export type PaginationPayload = {
 	search: string
 	customViewId: Key
 	columnSearch: string[]
@@ -26,7 +26,7 @@ export type GetDataPayload = {
 	length: Key
 }
 
-export type DownloadDataPayload = GetDataPayload & {
+export type DownloadDataPayload = PaginationPayload & {
 	format: string
 	type: string
 	[key: string]: unknown

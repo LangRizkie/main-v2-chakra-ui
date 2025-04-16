@@ -16,11 +16,11 @@ import {
 	VisuallyHidden
 } from '@chakra-ui/react'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Iconify } from '@regla/monorepo'
 import { useMutation } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
-import Iconify from '@/components/ui/iconify'
 import { Password } from '@/components/ui/password'
 import { useColorMode } from '@/hooks/use-color-mode'
 import {

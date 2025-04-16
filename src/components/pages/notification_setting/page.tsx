@@ -127,7 +127,9 @@ const Page = () => {
 						checked={isAppChecked}
 						colorPalette="primary"
 						size="lg"
-						onCheckedChange={(e) => keys.app.forEach((item) => setValue(item, e.checked))}
+						onCheckedChange={({ checked }) =>
+							keys.app.forEach((item) => setValue(item, checked))
+						}
 					>
 						<Switch.HiddenInput />
 						<Switch.Control />
@@ -145,7 +147,7 @@ const Page = () => {
 										checked={Boolean(field.value)}
 										colorPalette="primary"
 										size="lg"
-										onCheckedChange={(e) => field.onChange(e.checked)}
+										onCheckedChange={({ checked }) => field.onChange(checked)}
 									>
 										<Switch.HiddenInput />
 										<Switch.Control />
@@ -169,7 +171,9 @@ const Page = () => {
 						checked={isEmailChecked}
 						colorPalette="primary"
 						size="lg"
-						onCheckedChange={(e) => keys.email.forEach((item) => setValue(item, e.checked))}
+						onCheckedChange={({ checked }) =>
+							keys.email.forEach((item) => setValue(item, checked))
+						}
 					>
 						<Switch.HiddenInput />
 						<Switch.Control />
@@ -187,7 +191,7 @@ const Page = () => {
 										checked={Boolean(field.value)}
 										colorPalette="primary"
 										size="lg"
-										onCheckedChange={(e) => field.onChange(e.checked)}
+										onCheckedChange={({ checked }) => field.onChange(checked)}
 									>
 										<Switch.HiddenInput />
 										<Switch.Control />

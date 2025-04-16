@@ -1,23 +1,12 @@
 'use client'
 
-import { useDisclosure, type UseDisclosureReturn } from '@chakra-ui/react'
 import { useNetwork } from 'ahooks'
-import { createContext, useEffect } from 'react'
+import { useEffect } from 'react'
 import useSetHistory from '@/hooks/use-set-history'
+import { LayoutType } from '@/types/default'
 import toast from '@/utilities/toast'
 
-export const ModalReference: UseDisclosureReturn = {
-	onClose: () => {},
-	onOpen: () => {},
-	onToggle: () => {},
-	open: false,
-	setOpen: () => {}
-}
-
-export const ModalContext = createContext<UseDisclosureReturn>(ModalReference)
-
-const Context: React.FC<Layout> = ({ children }) => {
-	const modal = useDisclosure()
+const Context: React.FC<LayoutType> = ({ children }) => {
 	const network = useNetwork()
 
 	useSetHistory()
@@ -31,9 +20,7 @@ const Context: React.FC<Layout> = ({ children }) => {
 		}
 	}, [network.online])
 
-	Object.assign(ModalReference, modal)
-
-	return <ModalContext.Provider value={modal}>{children}</ModalContext.Provider>
+	return children
 }
 
 export default Context

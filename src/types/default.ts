@@ -1,14 +1,14 @@
 import type { ButtonProps } from '@chakra-ui/react'
 
-export interface LayoutType {
+export type LayoutType = {
 	[name: string]: React.ReactNode
 }
 
-export interface Data<T> {
+export type Data<T> = {
 	data: T extends null ? null : T
 }
 
-export interface MessageObject {
+export type MessageObject = {
 	activity: string
 	detail_log: string
 	detail_log_download: string
@@ -16,7 +16,7 @@ export interface MessageObject {
 	message: string
 }
 
-export interface ReglaResponse<T = null> extends Data<T> {
+export type ReglaResponse<T = null> = Data<T> & {
 	isSuccess: boolean
 	statusCode?: number
 	message: string
@@ -27,7 +27,8 @@ export interface ReglaResponse<T = null> extends Data<T> {
 	isApproval: boolean
 	returnId: KeyType
 }
-export interface ButtonData {
+
+export type ButtonData = {
 	activate: ButtonProps
 	back: ButtonProps
 	cancel: ButtonProps
@@ -39,7 +40,7 @@ export interface ButtonData {
 export type ButtonKeys = keyof ButtonData
 export type Sizes = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'cover' | 'full'
 
-export interface UseButtonProps extends Partial<ButtonData> {
+export type UseButtonProps = Partial<ButtonData> & {
 	setActivate: (state: ButtonProps) => void
 	setBack: (state: ButtonProps) => void
 	setCancel: (state: ButtonProps) => void

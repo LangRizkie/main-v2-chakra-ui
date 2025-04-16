@@ -1,17 +1,18 @@
 'use client'
 
 import { ChakraProvider } from '@chakra-ui/react'
+import { system } from '@regla/monorepo'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { ThemeProvider } from 'next-themes'
-import Modal from '@/components/ui/modal'
+import modal from '@/components/ui/modal'
 import Notification from '@/components/ui/notification'
-import { system } from '@/config/theme'
+import { LayoutType } from '@/types/default'
 import Context from './context'
 
 const queryClient = new QueryClient()
 
-const Providers: React.FC<Layout> = ({ children }) => {
+const Providers: React.FC<LayoutType> = ({ children }) => {
 	return (
 		<ChakraProvider value={system}>
 			<ThemeProvider attribute="class">
@@ -19,8 +20,8 @@ const Providers: React.FC<Layout> = ({ children }) => {
 					<ReactQueryDevtools initialIsOpen={false} />
 					<Context>
 						<Notification />
-						<Modal />
 						{children}
+						<modal.Viewport />
 					</Context>
 				</QueryClientProvider>
 			</ThemeProvider>

@@ -1,30 +1,73 @@
-import { Button, ButtonGroup, CloseButton, Dialog, HStack, Portal } from '@chakra-ui/react'
-import { useMemo } from 'react'
-import useIsCRUDPath from '@/hooks/use-is-crud-path'
-import { useModal } from '@/hooks/use-page'
+import {
+	Button,
+	ButtonGroup,
+	ButtonProps,
+	createOverlay,
+	Dialog,
+	HStack,
+	Portal
+} from '@chakra-ui/react'
+import { useCallback, useMemo } from 'react'
 import useModalStore from '@/stores/modal-dynamic'
-import modal from '@/utilities/modal'
+import { Sizes, UseButtonProps } from '@/types/default'
 
-const Modal = () => {
-	const isCRUDPath = useIsCRUDPath()
+type ModalCreateProps = {
+	children: React.ReactNode
+	title?: string
+	size?: Sizes
+	options?: Pick<UseButtonProps, 'activate' | 'deactivate' | 'reactivate' | 'cancel' | 'submit'>
+}
 
-	const { open } = useModal()
-	const { activate, cancel, content, deactivate, reactivate, size, submit, title } =
-		useModalStore()
+const modal = createOverlay<ModalCreateProps>(({ children, options, title, ...props }) => {
+	const store = useModalStore()
+
+	const size = useMemo(() => {
+		return store.size ?? props.size
+	}, [props.size, store.size])
+
+	const activate = useMemo(() => {
+		return { ...store.activate, ...options?.activate }
+	}, [options?.activate, store.activate])
+
+	const deactivate = useMemo(() => {
+		return { ...store.deactivate, ...options?.deactivate }
+	}, [options?.deactivate, store.deactivate])
+
+	const reactivate = useMemo(() => {
+		return { ...store.reactivate, ...options?.reactivate }
+	}, [options?.reactivate, store.reactivate])
+
+	const cancel = useMemo(() => {
+		return { ...store.cancel, ...options?.cancel }
+	}, [options?.cancel, store.cancel])
+
+	const submit = useMemo(() => {
+		return { ...store.submit, ...options?.submit }
+	}, [options?.submit, store.submit])
 
 	const isGroupLoading = useMemo(() => {
 		return activate?.loading || deactivate?.loading || reactivate?.loading || submit?.loading
 	}, [activate?.loading, deactivate?.loading, reactivate?.loading, submit?.loading])
 
+	const isDisabled = useCallback(
+		(props?: ButtonProps) => {
+			return props?.disabled || isGroupLoading
+		},
+		[isGroupLoading]
+	)
+
+	const buttonChildren = useCallback((props?: ButtonProps) => {
+		return props?.children || props?.title
+	}, [])
+
 	return (
 		<Dialog.Root
 			motionPreset="slide-in-top"
-			open={open}
 			placement="center"
 			scrollBehavior="inside"
 			size={size}
 			unmountOnExit
-			onOpenChange={() => modal.close({ shouldBack: isCRUDPath })}
+			{...props}
 		>
 			<Portal>
 				<Dialog.Backdrop />
@@ -33,38 +76,31 @@ const Modal = () => {
 						<Dialog.Header>
 							<Dialog.Title>{title}</Dialog.Title>
 						</Dialog.Header>
-						<Dialog.Body paddingTop="0">{content}</Dialog.Body>
+						<Dialog.Body paddingTop="0">{children}</Dialog.Body>
 						<Dialog.Footer as={ButtonGroup}>
 							<HStack width="full">
-								<Button {...activate} disabled={activate?.disabled || isGroupLoading}>
-									{activate?.children || activate?.title}
+								<Button {...activate} disabled={isDisabled(activate)}>
+									{buttonChildren(activate)}
 								</Button>
-								<Button {...deactivate} disabled={deactivate?.disabled || isGroupLoading}>
-									{deactivate?.children || deactivate?.title}
+								<Button {...deactivate} disabled={isDisabled(deactivate)}>
+									{buttonChildren(deactivate)}
 								</Button>
-								<Button {...reactivate} disabled={reactivate?.disabled || isGroupLoading}>
-									{reactivate?.children || reactivate?.title}
+								<Button {...reactivate} disabled={isDisabled(reactivate)}>
+									{buttonChildren(reactivate)}
 								</Button>
 							</HStack>
 							<Dialog.ActionTrigger asChild>
-								<Button {...cancel}>{cancel?.children || cancel?.title}</Button>
+								<Button {...cancel}>{buttonChildren(cancel)}</Button>
 							</Dialog.ActionTrigger>
-							<Button
-								colorPalette="primary"
-								{...submit}
-								disabled={submit?.disabled || isGroupLoading}
-							>
-								{submit?.children || submit?.title}
+							<Button colorPalette="primary" {...submit} disabled={isDisabled(submit)}>
+								{buttonChildren(submit)}
 							</Button>
 						</Dialog.Footer>
-						<Dialog.CloseTrigger asChild>
-							<CloseButton size="sm" />
-						</Dialog.CloseTrigger>
 					</Dialog.Content>
 				</Dialog.Positioner>
 			</Portal>
 		</Dialog.Root>
 	)
-}
+})
 
-export default Modal
+export default modal

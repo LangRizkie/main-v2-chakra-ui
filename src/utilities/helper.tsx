@@ -1,7 +1,7 @@
+import { Iconify } from '@regla/monorepo'
 import { isEmpty } from 'lodash'
 import Image from 'next/image'
 import type { CSSProperties } from 'react'
-import Iconify from '../components/ui/iconify'
 
 type CreateQueryParamsOption = {
 	route: string
@@ -18,7 +18,7 @@ const createQueryParams = (
 	option?: Partial<CreateQueryParamsOption>
 ) => {
 	const search = new URLSearchParams(data)
-	const route = option?.route ? option.route : ''
+	const route = option?.route ?? ''
 	return route + '?' + search.toString()
 }
 
@@ -30,7 +30,7 @@ const setQueryParams = (
 	const search = new URLSearchParams(data)
 	const keys = Object.keys(value)
 	const values = Object.values(value)
-	const route = option?.route ? option.route : ''
+	const route = option?.route ?? ''
 
 	keys.forEach((key, index) => {
 		if (isEmpty(values[index])) return search.delete(key)

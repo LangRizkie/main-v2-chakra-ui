@@ -12,8 +12,8 @@ import {
 	Stack,
 	useControllableState
 } from '@chakra-ui/react'
+import { Iconify } from '@regla/monorepo'
 import { forwardRef, useRef } from 'react'
-import Iconify from './iconify'
 
 type PasswordStrengthMeterProps = StackProps & {
 	max?: number

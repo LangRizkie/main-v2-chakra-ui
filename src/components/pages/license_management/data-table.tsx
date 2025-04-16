@@ -14,12 +14,13 @@ import {
 	Stack,
 	Table
 } from '@chakra-ui/react'
+import { Iconify } from '@regla/monorepo'
 import { useMutation } from '@tanstack/react-query'
 import { useDebounceFn } from 'ahooks'
 import { isEmpty } from 'lodash'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import Iconify from '@/components/ui/iconify'
+import modal from '@/components/ui/modal'
 import Pagination from '@/components/ui/pagination'
 import {
 	AssignedLicense,
@@ -28,10 +29,9 @@ import {
 } from '@/libraries/mutation/platform-settings/license-key'
 import useStaticStore from '@/stores/button-static'
 import useModalStore from '@/stores/modal-dynamic'
-import { GetDataPayload } from '@/types/list'
+import { PaginationPayload } from '@/types/list'
 import { GetListLicensePagingData } from '@/types/platform-settings/license-key'
 import { createQueryParams, setQueryParams } from '@/utilities/helper'
-import modal from '@/utilities/modal'
 import { values } from '@/utilities/validation'
 
 const DataTable = () => {
@@ -68,8 +68,8 @@ const DataTable = () => {
 		{
 			by: 'ASC',
 			column: 'All',
-			length: '5',
-			start: '0'
+			length: values.length.toString(),
+			start: values.start.toString()
 		},
 		{ route: pathname }
 	)
@@ -148,7 +148,7 @@ const DataTable = () => {
 	}, [data])
 
 	const payload = useMemo(
-		(): GetDataPayload => ({
+		(): PaginationPayload => ({
 			columnSearch,
 			customViewId: '',
 			filter: { filters: [] },
@@ -169,7 +169,7 @@ const DataTable = () => {
 	)
 
 	const handleRevokeAction = (item: GetListLicensePagingData) => {
-		modal.create({
+		modal.open('revoke-license', {
 			children: (
 				<Center mb="4" mt="8" textStyle="md">
 					Are you sure want to Revoke this license?
@@ -189,20 +189,20 @@ const DataTable = () => {
 						})
 							.then(() => {
 								mutateAsync(payload)
-								return modal.close()
+								return modal.close('revoke-license')
 							})
 							.finally(() => {
 								setSubmit({ loading: false })
 							})
 					}
-				},
-				title: 'Revoke License'
-			}
+				}
+			},
+			title: 'Revoke License'
 		})
 	}
 
 	const handleAssignAction = (item: GetListLicensePagingData) => {
-		modal.create({
+		modal.open('assign-license', {
 			children: <Stack></Stack>,
 			options: {
 				cancel: { hidden: true },
@@ -218,15 +218,15 @@ const DataTable = () => {
 						})
 							.then(() => {
 								mutateAsync(payload)
-								return modal.close()
+								return modal.close('assign-license')
 							})
 							.finally(() => {
 								setSubmit({ loading: false })
 							})
 					}
-				},
-				title: 'Assign License'
-			}
+				}
+			},
+			title: 'Assign License'
 		})
 	}
 

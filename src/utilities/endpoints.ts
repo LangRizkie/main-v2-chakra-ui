@@ -3,6 +3,17 @@ const endpoints = {
 		notification_setting_user: {
 			get_user_settings_notification: '/email/GetUserSettingsNotification',
 			update_user_settings_notification: '/email/UpdateUserSettingsNotification'
+		},
+		update: {
+			all_read: '/email/Update/AllRead',
+			is_read: '/email/Update/IsRead'
+		},
+		user: {
+			notification: {
+				list: {
+					paging: '/email/User/Notification/List/Paging'
+				}
+			}
 		}
 	},
 	parameter: {
@@ -15,7 +26,9 @@ const endpoints = {
 			get_detail_general_app_setting: '/parameter/GetDetailGeneralAppSetting',
 			get_lookup_measurement_app_setting: '/parameter/GetLookUpMeasurementAppSetting',
 			get_lookup_measurement_hour_minute: '/parameter/GetLookUpMeasurementHourMinute'
-		}
+		},
+		general_search: '/parameter/GeneralSearch',
+		general_search_module: '/parameter/GeneralSearchModule'
 	},
 	platform_settings: {
 		add_account_active_user: '/platform-settings/AddAccountActiveUser',

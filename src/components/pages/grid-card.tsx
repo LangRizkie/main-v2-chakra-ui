@@ -72,9 +72,7 @@ const GridCard: React.FC<GridCardProps> = (props) => {
 												style={{ color: 'var(--chakra-colors-primary-fg)' }}
 											/>
 										</Box>
-										<Text color="primary" fontWeight="bold">
-											{item.title}
-										</Text>
+										<Text fontWeight="bold">{item.title}</Text>
 									</Card.Header>
 									<Card.Body>
 										<Text color="gray" textStyle="xs" textWrap="pretty">

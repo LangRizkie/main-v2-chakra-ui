@@ -85,7 +85,7 @@ const Page = () => {
 	}, [resetPasswordForm, params, unlockAccountForm])
 
 	return (
-		<Center height="100vh">
+		<Center height="dvh">
 			<Card.Root
 				as="form"
 				data-state="open"

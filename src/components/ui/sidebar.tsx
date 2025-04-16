@@ -8,6 +8,7 @@ import {
 	Presence,
 	Text
 } from '@chakra-ui/react'
+import { Iconify, Tooltip } from '@regla/monorepo'
 import { isEmpty } from 'lodash'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
@@ -20,7 +21,6 @@ import {
 	GetNavigationScreenResponse
 } from '@/types/user/common'
 import { GenerateIcon } from '@/utilities/helper'
-import { Iconify, Tooltip } from '@regla/monorepo'
 
 const SidebarContent = () => {
 	const router = useRouter()

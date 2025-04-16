@@ -51,7 +51,11 @@ const erase = async <P, R>(path: string, payload?: P, options?: Partial<OptionPr
 	return data
 }
 
-const get = async <P, R>(path: string, payload?: P, options?: Partial<OptionProps>) => {
+const get = async <P, R>(
+	path: string,
+	payload?: P,
+	options?: Partial<Omit<OptionProps, 'asParameter'>>
+) => {
 	const { data } = await instance.get<R>(path, {
 		headers: {
 			'x-redirect-replace': options?.redirectTo?.replace ?? false,

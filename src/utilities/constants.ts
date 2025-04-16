@@ -4,7 +4,8 @@ const routes = {
 	main: '/main',
 	request_unlock: '/request-unlock',
 	request_unlock_email: '/request-unlock/email',
-	request_unlock_otp: '/request-unlock/otp'
+	request_unlock_otp: '/request-unlock/otp',
+	search: '/search'
 }
 
 const crud_routes = {
@@ -12,6 +13,11 @@ const crud_routes = {
 	custom_view: '/custom_view',
 	update: '/update',
 	view: '/view'
+}
+
+const exception_routes = {
+	notification: '/notification',
+	search: '/search'
 }
 
 const cookies = {
@@ -25,4 +31,4 @@ const storages = {
 	username: 'username'
 }
 
-export { cookies, crud_routes, routes, storages }
+export { cookies, crud_routes, exception_routes, routes, storages }

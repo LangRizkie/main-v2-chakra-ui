@@ -9,7 +9,7 @@ const Page = () => {
 	const router = useRouter()
 
 	return (
-		<Center height="100vh">
+		<Center height="dvh">
 			<Card.Root
 				data-state="open"
 				gap="4"

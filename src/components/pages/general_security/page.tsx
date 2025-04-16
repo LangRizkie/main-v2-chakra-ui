@@ -102,8 +102,7 @@ const Page = () => {
 			<Heading size="lg">Password</Heading>
 			<Grid
 				alignItems="center"
-				gapX="16"
-				gapY="8"
+				gap="4"
 				templateColumns={{ base: '1fr', md: '20rem 1fr' }}
 				textStyle="sm"
 				w="full"
@@ -215,8 +214,7 @@ const Page = () => {
 			<Heading size="lg">Account Lockout</Heading>
 			<Grid
 				alignItems="center"
-				gapX="16"
-				gapY="8"
+				gap="4"
 				templateColumns={{ base: '1fr', md: '20rem 1fr' }}
 				textStyle="sm"
 				w="full"
@@ -252,8 +250,7 @@ const Page = () => {
 			<Heading size="lg">Timeout</Heading>
 			<Grid
 				alignItems="center"
-				gapX="16"
-				gapY="8"
+				gap="4"
 				templateColumns={{ base: '1fr', md: '20rem 1fr' }}
 				textStyle="sm"
 				w="full"

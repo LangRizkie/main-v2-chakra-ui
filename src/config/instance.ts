@@ -45,12 +45,13 @@ const request = async (config: InternalAxiosRequestConfig) => {
 export const logout = async () => {
 	const { credential } = await getCredential()
 	const callback = [location.pathname, location.search].join('')
+	const token = ['Bearer', credential?.toString()].join(' ')
 
 	const headers = new Headers()
 
 	headers.append('content-type', 'application/json')
 	headers.append('x-appid', process.env.NEXT_PUBLIC_APP_ID ?? '')
-	headers.append('Authorization', credential ? credential.toString() : '')
+	headers.append('Authorization', credential ? token : '')
 
 	await fetch(process.env.NEXT_PUBLIC_BASE_API + endpoints.user.common.logout, {
 		headers: headers,
@@ -112,7 +113,7 @@ instance.interceptors.response.use(
 	},
 	async (error) => {
 		const property = useUserProperty.getState()
-		const message = error.response?.data?.message ? error.response.data.message : error.message
+		const message = error.response?.data?.message ?? error.message
 
 		if (mutex.isLocked()) {
 			return await mutex.waitForUnlock().then(() => instance(error.config))
