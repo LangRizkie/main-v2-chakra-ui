@@ -41,6 +41,7 @@ NEXT_PUBLIC_APP_ID=PLATFORM_CENTER
 
 ## To do
 
+- **Commitlint**: Add commitlint integration for committing best practice.
 - **Websocket**: Real-time silent and noisy updates for live notifications.
 - **Password Rules**: Provides users with clear guidance on password strength and complexity requirements to enhance security.
 - **Route Change Prevention**: Prevents users from navigating away from a page if there are unsaved changes, thereby safeguarding data integrity.

@@ -1,4 +1,5 @@
 import type { ButtonProps } from '@chakra-ui/react'
+import { Key } from 'react'
 
 export type LayoutType = {
 	[name: string]: React.ReactNode
@@ -25,7 +26,7 @@ export type ReglaResponse<T = null> = Data<T> & {
 	recordsTotal: number
 	isRequestApproval: boolean
 	isApproval: boolean
-	returnId: KeyType
+	returnId: Key
 }
 
 export type ButtonData = {

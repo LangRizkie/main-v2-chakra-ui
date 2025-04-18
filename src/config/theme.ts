@@ -31,7 +31,7 @@ const config = defineConfig({
 				primary: {
 					50: { value: '#89A0D2' },
 					100: { value: '#728DC8' },
-					200: { value: '#5d7ABE' },
+					200: { value: '#5D7ABE' },
 					300: { value: '#4868B4' },
 					400: { value: '#3355A9' },
 					500: { value: '#20419E' },
