@@ -4,18 +4,17 @@ const routes = {
 	main: '/main',
 	request_unlock: '/request-unlock',
 	request_unlock_email: '/request-unlock/email',
-	request_unlock_otp: '/request-unlock/otp',
-	search: '/search'
+	request_unlock_otp: '/request-unlock/otp'
 }
 
 const crud_routes = {
 	create: '/create',
-	custom_view: '/custom_view',
 	update: '/update',
 	view: '/view'
 }
 
 const exception_routes = {
+	custom_view: '/custom_view',
 	notification: '/notification',
 	search: '/search'
 }

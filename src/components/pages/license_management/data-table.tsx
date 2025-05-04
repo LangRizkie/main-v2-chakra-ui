@@ -197,6 +197,7 @@ const DataTable = () => {
 					}
 				}
 			},
+			size: 'sm',
 			title: 'Revoke License'
 		})
 	}

@@ -7,6 +7,8 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { ThemeProvider } from 'next-themes'
 import modal from '@/components/ui/modal'
 import Notification from '@/components/ui/notification'
+import SignalR from '@/components/ui/signalr'
+import Websocket from '@/components/ui/websocket'
 import { LayoutType } from '@/types/default'
 import Context from './context'
 
@@ -17,12 +19,16 @@ const Providers: React.FC<LayoutType> = ({ children }) => {
 		<ChakraProvider value={system}>
 			<ThemeProvider attribute="class">
 				<QueryClientProvider client={queryClient}>
-					<ReactQueryDevtools initialIsOpen={false} />
-					<Context>
-						<Notification />
-						{children}
-						<modal.Viewport />
-					</Context>
+					<Websocket>
+						<SignalR>
+							<ReactQueryDevtools initialIsOpen={false} />
+							<Context>
+								<Notification />
+								{children}
+								<modal.Viewport />
+							</Context>
+						</SignalR>
+					</Websocket>
 				</QueryClientProvider>
 			</ThemeProvider>
 		</ChakraProvider>

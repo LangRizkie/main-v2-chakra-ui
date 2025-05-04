@@ -44,7 +44,7 @@ const request = async (config: InternalAxiosRequestConfig) => {
 
 export const logout = async () => {
 	const { credential } = await getCredential()
-	const callback = [location.pathname, location.search].join('')
+	const redirect = [location.pathname, location.search].join('')
 	const token = ['Bearer', credential?.toString()].join(' ')
 
 	const headers = new Headers()
@@ -61,7 +61,7 @@ export const logout = async () => {
 	await deleteCredential()
 	useUserProperty.getState().reset()
 
-	location.href = [routes.login, '?callback=', callback].join('')
+	location.href = [routes.login, '?redirect=', redirect].join('')
 }
 
 instance.interceptors.request.use(request)
@@ -164,10 +164,12 @@ instance.interceptors.response.use(
 			toast.error({ title: message })
 		}
 
-		if (error.response)
+		if (error.response) {
 			return Promise.reject(
 				new Error(error.response.data?.message, { cause: error.response.data })
 			)
+		}
+
 		return Promise.reject(new Error(error.message, { cause: error }))
 	}
 )

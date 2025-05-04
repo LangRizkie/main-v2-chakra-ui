@@ -2,12 +2,16 @@ import type { ButtonProps, CardRootProps } from '@chakra-ui/react'
 import { create } from 'zustand'
 import type { ButtonData, ButtonKeys, UseButtonProps } from '@/types/default'
 
+type CardProps = CardRootProps & {
+	normalize?: boolean
+}
+
 type StaticContent = {
 	title?: string
-	card?: CardRootProps
+	card?: CardProps
 	getTitle: () => string | undefined
 	setTitle: (value: string) => void
-	setCard: (props: CardRootProps) => void
+	setCard: (props: CardProps) => void
 	setAttribute: (key: ButtonKeys, props: ButtonProps) => void
 }
 
@@ -17,6 +21,7 @@ const getInitialState = (): Partial<Omit<ButtonData, 'cancel'> & StaticContent> 
 	card: {
 		animationDuration: '200ms',
 		animationName: 'slide-from-top, fade-in',
+		normalize: false,
 		size: 'sm',
 		width: 'full'
 	},

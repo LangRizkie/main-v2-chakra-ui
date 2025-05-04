@@ -1,11 +1,18 @@
 import {
+	Badge,
 	Box,
 	Center,
+	chakra,
 	EmptyState,
+	Float,
 	For,
+	FormatNumber,
 	Heading,
 	HStack,
+	IconButton,
 	Link,
+	Popover,
+	Portal,
 	Separator,
 	Show,
 	Spinner,
@@ -16,12 +23,24 @@ import { Iconify, Search } from '@regla/monorepo'
 import { useMutation } from '@tanstack/react-query'
 import { useDebounceFn } from 'ahooks'
 import { isEmpty } from 'lodash'
-import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import moment from 'moment'
+import Image from 'next/image'
+import {
+	redirect,
+	RedirectType,
+	usePathname,
+	useRouter,
+	useSearchParams
+} from 'next/navigation'
 import { useEffect, useMemo } from 'react'
 import useGetAppId from '@/hooks/use-get-app-id'
+import useQueryFetched from '@/hooks/use-query-fetched'
+import { IsRead } from '@/libraries/mutation/email/update'
 import { GeneralSearch, GeneralSearchModule } from '@/libraries/mutation/parameter/parameter'
-import { routes } from '@/utilities/constants'
+import { ListResponse, PagingData } from '@/types/email/user/notification/list'
+import { exception_routes } from '@/utilities/constants'
 import { setQueryParams } from '@/utilities/helper'
+import modal from './modal'
 
 const Empty = () => (
 	<EmptyState.Root size="sm">
@@ -39,6 +58,15 @@ const Header = () => {
 	const pathname = usePathname()
 	const params = useSearchParams()
 	const appId = useGetAppId()
+
+	const list = useQueryFetched<ListResponse>({
+		queryKey: ['list']
+	})
+
+	const { mutateAsync: isRead } = useMutation({
+		mutationFn: IsRead,
+		mutationKey: ['is_read']
+	})
 
 	const {
 		data: module,
@@ -83,17 +111,49 @@ const Header = () => {
 		return submodule?.data.list || []
 	}, [submodule?.data.list])
 
-	const route = useMemo(() => {
-		const route = [appId, routes.search].join('/')
+	const notification = useMemo(() => {
+		const count = list?.data.count ?? 0
+		const data = list?.data.list || []
+
+		return { count, data }
+	}, [list?.data.count, list?.data.list])
+
+	const searchRoute = useMemo(() => {
+		const route = [appId, exception_routes.search].join('')
 		return `/${route}${location.search}`
 	}, [appId])
+
+	const notificationRoute = useMemo(() => {
+		const route = [appId, exception_routes.notification].join('')
+		return `/${route}${location.search}`
+	}, [appId])
+
+	const handleLinkClick = (item: PagingData) => {
+		modal.open('is-read', {
+			children: (
+				<Center mb="4" mt="8">
+					<Spinner color="primary.fg" size="lg" />
+				</Center>
+			),
+			options: { cancel: { hidden: true }, submit: { hidden: true } },
+			size: 'xs'
+		})
+
+		isRead({ notification_id: item.notification_id })
+			.then(() => {
+				redirect(item.redirect_url, RedirectType.push)
+			})
+			.finally(() => {
+				modal.close('is-read')
+			})
+	}
 
 	useEffect(() => {
 		if (params.get('path')) handleValueChange(params.get('path'))
 	}, [handleValueChange, params])
 
 	return (
-		<HStack>
+		<HStack gap="4">
 			<Search defaultValue={value} onValueChange={handleValueChange}>
 				<Stack gap="0">
 					<Box padding="4">
@@ -182,12 +242,81 @@ const Header = () => {
 					</Box>
 					<Separator />
 					<Center padding="4">
-						<Link colorPalette="primary" href={route} textStyle="xs">
+						<Link colorPalette="primary" href={searchRoute} textStyle="xs">
 							See all results
 						</Link>
 					</Center>
 				</Stack>
 			</Search>
+			<Popover.Root autoFocus={false}>
+				<Popover.Trigger asChild>
+					<IconButton variant="subtle">
+						<Iconify height={20} icon="bxs:bell" />
+						<Show when={notification.count > 0}>
+							<Float placement="top-end">
+								<Badge colorPalette="red" size="sm" variant="solid">
+									<Text fontSize="2xs">
+										<FormatNumber
+											compactDisplay="short"
+											notation="compact"
+											value={notification.count}
+										/>
+									</Text>
+								</Badge>
+							</Float>
+						</Show>
+					</IconButton>
+				</Popover.Trigger>
+				<Portal>
+					<Popover.Positioner>
+						<Popover.Content width="96">
+							<Popover.Arrow />
+							<Popover.Body padding="0">
+								<Box padding="4">
+									<Heading textStyle="xs">Notification</Heading>
+								</Box>
+								<Separator />
+								<Box maxHeight="72" overflowX="auto" width="full">
+									<Show fallback={<Empty />} when={!isEmpty(notification.data)}>
+										<For each={notification.data}>
+											{(item, index) => (
+												<Link
+													key={index}
+													_hover={{ backgroundColor: 'bg.muted' }}
+													variant="plain"
+													width="full"
+													onClick={() => handleLinkClick(item)}
+												>
+													<HStack gap="4" padding="4" textStyle="xs" width="full">
+														{item.is_read && (
+															<Image alt="read" height={40} src="/read.svg" width={40} />
+														)}
+														{!item.is_read && (
+															<Image alt="unread" height={40} src="/unread.svg" width={40} />
+														)}
+														<chakra.div
+															dangerouslySetInnerHTML={{ __html: item.message }}
+															width="full"
+														/>
+														<Text whiteSpace="nowrap">
+															{moment(item.created_date).fromNow()}
+														</Text>
+													</HStack>
+												</Link>
+											)}
+										</For>
+									</Show>
+								</Box>
+								<Center padding="4">
+									<Link colorPalette="primary" href={notificationRoute} textStyle="xs">
+										View all notifications
+									</Link>
+								</Center>
+							</Popover.Body>
+						</Popover.Content>
+					</Popover.Positioner>
+				</Portal>
+			</Popover.Root>
 		</HStack>
 	)
 }

@@ -26,8 +26,8 @@ export const middleware = async (req: NextRequest) => {
 	}
 
 	if (!data.credential && pathname !== routes.login) {
-		const callback = pathname + req.nextUrl.search
-		const route = [routes.login, '?callback=', callback].join('')
+		const redirect = pathname + req.nextUrl.search
+		const route = [routes.login, '?redirect=', redirect].join('')
 
 		return NextResponse.redirect(new URL(route, req.url))
 	}

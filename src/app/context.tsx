@@ -8,7 +8,6 @@ import toast from '@/utilities/toast'
 
 const Context: React.FC<LayoutType> = ({ children }) => {
 	const network = useNetwork()
-
 	useSetHistory()
 
 	useEffect(() => {

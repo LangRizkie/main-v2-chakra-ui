@@ -70,8 +70,8 @@ const modal = createOverlay<ModalCreateProps>(({ children, options, title, ...pr
 			{...props}
 		>
 			<Portal>
-				<Dialog.Backdrop />
-				<Dialog.Positioner>
+				<Dialog.Backdrop zIndex={2000} />
+				<Dialog.Positioner zIndex={2100}>
 					<Dialog.Content>
 						<Dialog.Header>
 							<Dialog.Title>{title}</Dialog.Title>

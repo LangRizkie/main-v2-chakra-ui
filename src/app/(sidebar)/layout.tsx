@@ -13,6 +13,7 @@ import useGetAction from '@/hooks/use-get-action'
 import useGetCurrentId from '@/hooks/use-get-current-id'
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
+import { List } from '@/libraries/mutation/email/user/notification'
 import { GetAllNavigationScreen, GetNavigationScreen } from '@/libraries/mutation/user/common'
 import { GetPathUrlScreen } from '@/libraries/mutation/user/screen'
 import { GetPrivilege } from '@/libraries/mutation/user/security-role'
@@ -30,6 +31,13 @@ const SidebarLayout: React.FC<LayoutType> = ({ children, modal }) => {
 
 	const { isSidebarOpen, setOpen } = usePreference()
 	const { activate, back, deactivate, reactivate, submit } = useStaticStore()
+
+	// Notification Menu
+	useQuery({
+		queryFn: List,
+		queryKey: ['list'],
+		refetchOnWindowFocus: false
+	})
 
 	// Breadcrumb and title
 	const { data } = useQuery({

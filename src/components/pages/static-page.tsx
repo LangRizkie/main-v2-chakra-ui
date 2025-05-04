@@ -1,9 +1,10 @@
-import { Card, Center, Show, Spinner } from '@chakra-ui/react'
+import { Card, Center, Show, Spinner, Stack } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
 import { useEffect, useMemo } from 'react'
 import useGetCurrentId from '@/hooks/use-get-current-id'
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
+import useIsCustomView from '@/hooks/use-is-custom-view'
 import useStaticStore from '@/stores/button-static'
 import type { GetNavigationScreenData } from '@/types/user/common'
 import type { GetPrivilegeData } from '@/types/user/security-role'
@@ -29,7 +30,12 @@ const Static: React.FC<StaticProps> = (props) => {
 	const route = useGetRoute()
 	const screenId = useGetCurrentId()
 	const isCRUDPath = useIsCRUDPath()
-	const routes = `./${isCRUDPath ? screenId + '/' + route : screenId?.toLowerCase()}/page.tsx`
+	const isCustomView = useIsCustomView()
+
+	const crud = screenId + '/' + route
+	const normal = screenId?.toLowerCase()
+
+	const routes = `./${isCRUDPath && !isCustomView ? crud : normal}/page.tsx`
 
 	const { card, reset, setBack, setSubmit } = useStaticStore()
 
@@ -78,13 +84,16 @@ const Static: React.FC<StaticProps> = (props) => {
 	return (
 		<Show fallback={<Forbidden />} when={canView}>
 			<Show when={props.isCard}>
-				<Card.Root {...card}>
+				<Card.Root {...card} hidden={card?.normalize || card?.hidden}>
 					<Card.Header />
 					<Card.Body paddingX="8">
 						<Component {...props} />
 					</Card.Body>
 					<Card.Footer />
 				</Card.Root>
+				<Stack hidden={!card?.normalize}>
+					<Component {...props} />
+				</Stack>
 			</Show>
 			<Show when={!props.isCard}>
 				<Component {...props} />

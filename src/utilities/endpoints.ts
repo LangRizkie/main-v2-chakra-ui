@@ -1,5 +1,7 @@
 const endpoints = {
 	email: {
+		notification_hub: '/email/NotificationHub',
+		notification_noise_hub: '/email/NotificationNoiseHub',
 		notification_setting_user: {
 			get_user_settings_notification: '/email/GetUserSettingsNotification',
 			update_user_settings_notification: '/email/UpdateUserSettingsNotification'
@@ -10,9 +12,8 @@ const endpoints = {
 		},
 		user: {
 			notification: {
-				list: {
-					paging: '/email/User/Notification/List/Paging'
-				}
+				list: '/email/User/Notification/List',
+				paging: '/email/User/Notification/List/Paging'
 			}
 		}
 	},
@@ -43,9 +44,6 @@ const endpoints = {
 			global_user: '/platform-settings/LicenseKey/GlobalUser',
 			revoke_license: '/platform-settings/LicenseKey/RevokeLicense'
 		},
-		master_application: {
-			get_platform: '/platform-settings/MasterApplication/GetPlatform'
-		},
 		master_subscription_package: {
 			get_application_by_subs_id:
 				'/platform-settings/MasterSubscriptionPackage/GetApplicationBySubsId/'
@@ -53,6 +51,9 @@ const endpoints = {
 		update_account_active_user: '/platform-settings/UpdateAccountActiveUser'
 	},
 	user: {
+		application: {
+			get_platform: '/user/Application/GetPlatform'
+		},
 		check_otp: '/user/CheckOTP',
 		common: {
 			authenticate: '/user/Common/Authenticate',

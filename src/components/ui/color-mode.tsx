@@ -15,27 +15,25 @@ export const ColorModeIcon = () => {
 	return <Iconify icon={icon} />
 }
 
-const ColorModeButton = forwardRef<HTMLLabelElement, ColorSwitchProps>(
-	function ColorModeButton(props, ref) {
-		const { colorMode, toggleColorMode } = useColorMode()
+const ColorModeButton = forwardRef<HTMLLabelElement, ColorSwitchProps>((props, ref) => {
+	const { colorMode, toggleColorMode } = useColorMode()
 
-		return (
-			<Switch.Root
-				ref={ref}
-				aria-label="Toggle color mode"
-				checked={colorMode === 'dark'}
-				colorPalette="primary"
-				onCheckedChange={toggleColorMode}
-				{...props}
-			>
-				<Switch.HiddenInput />
-				<Switch.Control />
-			</Switch.Root>
-		)
-	}
-)
+	return (
+		<Switch.Root
+			ref={ref}
+			aria-label="Toggle color mode"
+			checked={colorMode === 'dark'}
+			colorPalette="primary"
+			onCheckedChange={toggleColorMode}
+			{...props}
+		>
+			<Switch.HiddenInput />
+			<Switch.Control />
+		</Switch.Root>
+	)
+})
 
-const LightMode = forwardRef<HTMLSpanElement, SpanProps>(function LightMode(props, ref) {
+const LightMode = forwardRef<HTMLSpanElement, SpanProps>((props, ref) => {
 	return (
 		<Span
 			ref={ref}
@@ -49,7 +47,7 @@ const LightMode = forwardRef<HTMLSpanElement, SpanProps>(function LightMode(prop
 	)
 })
 
-const DarkMode = forwardRef<HTMLSpanElement, SpanProps>(function DarkMode(props, ref) {
+const DarkMode = forwardRef<HTMLSpanElement, SpanProps>((props, ref) => {
 	return (
 		<Span
 			ref={ref}
@@ -62,5 +60,9 @@ const DarkMode = forwardRef<HTMLSpanElement, SpanProps>(function DarkMode(props,
 		/>
 	)
 })
+
+ColorModeButton.displayName = 'ColorModeButton'
+LightMode.displayName = 'LightMode'
+DarkMode.displayName = 'DarkMode'
 
 export { ColorModeButton, DarkMode, LightMode }

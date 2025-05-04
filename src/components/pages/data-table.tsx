@@ -60,7 +60,7 @@ import type {
 	GetNavigationScreenDynamicForm
 } from '@/types/user/common'
 import type { GetPrivilegeData } from '@/types/user/security-role'
-import { crud_routes } from '@/utilities/constants'
+import { crud_routes, exception_routes } from '@/utilities/constants'
 import { createQueryParams, setQueryParams } from '@/utilities/helper'
 import { values } from '@/utilities/validation'
 import modal from '../ui/modal'
@@ -356,7 +356,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 	}, [props])
 
 	const customViewRoute = useMemo(() => {
-		return isEmpty(custom) ? '' : [pathname, crud_routes.custom_view].join('')
+		return isEmpty(custom) ? '' : [pathname, exception_routes.custom_view].join('')
 	}, [custom, pathname])
 
 	return (
