@@ -1,4 +1,5 @@
 import {
+	Avatar,
 	Badge,
 	Box,
 	Center,
@@ -11,6 +12,8 @@ import {
 	HStack,
 	IconButton,
 	Link,
+	Menu,
+	MenuSelectionDetails,
 	Popover,
 	Portal,
 	Separator,
@@ -33,12 +36,15 @@ import {
 	useSearchParams
 } from 'next/navigation'
 import { useEffect, useMemo } from 'react'
+import { logout } from '@/config/instance'
 import useGetAppId from '@/hooks/use-get-app-id'
+import useGetRoute from '@/hooks/use-get-route'
 import useQueryFetched from '@/hooks/use-query-fetched'
 import { IsRead } from '@/libraries/mutation/email/update'
 import { GeneralSearch, GeneralSearchModule } from '@/libraries/mutation/parameter/parameter'
+import useUserProperty from '@/stores/user-property'
 import { ListResponse, PagingData } from '@/types/email/user/notification/list'
-import { exception_routes } from '@/utilities/constants'
+import { exception_routes, routes } from '@/utilities/constants'
 import { setQueryParams } from '@/utilities/helper'
 import modal from './modal'
 
@@ -58,6 +64,9 @@ const Header = () => {
 	const pathname = usePathname()
 	const params = useSearchParams()
 	const appId = useGetAppId()
+	const root = useGetRoute({ index: 0 })
+
+	const { firstName, lastName } = useUserProperty()
 
 	const list = useQueryFetched<ListResponse>({
 		queryKey: ['list']
@@ -103,6 +112,10 @@ const Header = () => {
 		return params.get('path') ?? undefined
 	}, [params])
 
+	const fallback = useMemo(() => {
+		return [firstName, lastName].join(' ')
+	}, [firstName, lastName])
+
 	const moduleList = useMemo(() => {
 		return module?.data.list || []
 	}, [module?.data.list])
@@ -146,6 +159,30 @@ const Header = () => {
 			.finally(() => {
 				modal.close('is-read')
 			})
+	}
+
+	const handleProfileClick = ({ value }: MenuSelectionDetails) => {
+		switch (value) {
+			case 'main':
+				return redirect(routes.main)
+			case 'profile':
+				return redirect('/' + root + exception_routes.profile, RedirectType.push)
+			case 'logout':
+				modal.open('logout', {
+					children: (
+						<Center mb="4" mt="8">
+							<Spinner color="primary.fg" size="lg" />
+						</Center>
+					),
+					options: { cancel: { hidden: true }, submit: { hidden: true } },
+					size: 'xs'
+				})
+
+				logout()
+				return
+			default:
+				break
+		}
 	}
 
 	useEffect(() => {
@@ -270,7 +307,6 @@ const Header = () => {
 				<Portal>
 					<Popover.Positioner>
 						<Popover.Content width="96">
-							<Popover.Arrow />
 							<Popover.Body padding="0">
 								<Box padding="4">
 									<Heading textStyle="xs">Notification</Heading>
@@ -317,6 +353,31 @@ const Header = () => {
 					</Popover.Positioner>
 				</Portal>
 			</Popover.Root>
+			<Menu.Root onSelect={handleProfileClick}>
+				<Menu.Trigger focusRing="outside" rounded="full">
+					<Avatar.Root size="sm" variant="outline">
+						<Avatar.Fallback name={fallback} />
+					</Avatar.Root>
+				</Menu.Trigger>
+				<Portal>
+					<Menu.Positioner>
+						<Menu.Content>
+							<Menu.Item value="main">
+								<Iconify height="16" icon="bx:grid-alt" />
+								<Text>Main</Text>
+							</Menu.Item>
+							<Menu.Item value="profile">
+								<Iconify height="16" icon="bx:user" />
+								<Text>Profile</Text>
+							</Menu.Item>
+							<Menu.Item color="red" value="logout">
+								<Iconify height="16" icon="bx:log-out" />
+								<Text>Logout</Text>
+							</Menu.Item>
+						</Menu.Content>
+					</Menu.Positioner>
+				</Portal>
+			</Menu.Root>
 		</HStack>
 	)
 }

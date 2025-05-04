@@ -33,7 +33,7 @@ const endpoints = {
 	},
 	platform_settings: {
 		add_account_active_user: '/platform-settings/AddAccountActiveUser',
-		generate_random: '/platform-settings/GenerateRandomPassword',
+		generate_random_pass: '/platform-settings/GenerateRandomPassword',
 		license: {
 			get_by_subscription_id: '/platform-settings/License/GetBySubscriptionId/'
 		},
@@ -57,15 +57,16 @@ const endpoints = {
 		check_otp: '/user/CheckOTP',
 		common: {
 			authenticate: '/user/Common/Authenticate',
+			change_pass: '/user/Common/ChangePassword',
 			check_username: '/user/Common/CheckUsername',
-			forgot: '/user/Common/ForgotPassword',
+			forgot_pass: '/user/Common/ForgotPassword',
 			get_all_navigation_screen: '/user/Common/GetAllNavigationScreen',
 			get_lookup_custom_view: '/user/Common/GetLookupCustomView',
 			get_navigation_screen: '/user/Common/GetNavigationScreen',
 			get_user_property: '/user/Common/GetUserProperty',
 			logout: '/user/Common/Logout',
 			refresh_token: '/user/Common/RefreshToken',
-			reset_with_token: '/user/Common/ResetPasswordWithToken'
+			reset_pass_with_token: '/user/Common/ResetPasswordWithToken'
 		},
 		request_unlock_account: '/user/RequestUnlockAccount',
 		resend_otp_unlock_account: '/user/ResendOTPUnlockAccount',
@@ -75,7 +76,8 @@ const endpoints = {
 		security_role: {
 			get_privilege: '/user/SecurityRole/GetPrivilege'
 		},
-		unlock_account: '/user/UnlockAccount'
+		unlock_account: '/user/UnlockAccount',
+		update_user_profile: '/user/UpdateUserProfile'
 	}
 }
 

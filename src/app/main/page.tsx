@@ -82,7 +82,7 @@ const Page = () => {
 					</Text>
 				</Stack>
 				<Flex alignItems="center" gap="6">
-					<Tooltip content="Chatbot AI" showArrow>
+					<Tooltip content="Bam AI" showArrow>
 						<IconButton colorPalette="gray" rounded="full" variant="surface">
 							<Image alt="bot" draggable={false} height={20} src="/bam.svg" width={20} />
 						</IconButton>

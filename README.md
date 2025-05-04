@@ -30,6 +30,7 @@ NEXT_PUBLIC_APP_ID=PLATFORM_CENTER
 - **Role-Based Access Control (RBAC)**: Pages and features are displayed based on user privileges.
 - **Sticky Sidebar and Header**: These elements remain fixed for better user navigation.
 - **Animated Routing**: Page transitions include slide-in and fade-in animations.
+- **Realtime Notification**: Implement Websocket for realtime notification.
 - **TBD**: Additional features will be added in future updates.
 
 ## Under Development

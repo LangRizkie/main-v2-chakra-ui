@@ -1,7 +1,7 @@
 'use client'
 
 import { Case } from 'change-case-all'
-import { redirect, usePathname } from 'next/navigation'
+import { redirect, RedirectType, usePathname } from 'next/navigation'
 import { useEffect, useMemo } from 'react'
 import Static from '@/components/pages/static-page'
 import modal from '@/components/ui/modal'
@@ -54,7 +54,7 @@ const Page = () => {
 						const isOrigin = document.referrer.startsWith(origin)
 
 						if (isOrigin) return history.back()
-						return redirect(parent)
+						return redirect(parent, RedirectType.push)
 					}
 				})
 		}

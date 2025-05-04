@@ -19,8 +19,8 @@ const Providers: React.FC<LayoutType> = ({ children }) => {
 		<ChakraProvider value={system}>
 			<ThemeProvider attribute="class">
 				<QueryClientProvider client={queryClient}>
-					<Websocket>
-						<SignalR>
+					<Websocket client={queryClient}>
+						<SignalR client={queryClient}>
 							<ReactQueryDevtools initialIsOpen={false} />
 							<Context>
 								<Notification />

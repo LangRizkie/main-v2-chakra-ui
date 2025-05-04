@@ -34,9 +34,12 @@ const disposition = (content: string) => {
 
 const request = async (config: InternalAxiosRequestConfig) => {
 	const { credential } = await getCredential()
+	const { accept_language } = useUserProperty.getState()
 
 	if (credential) {
 		config.headers.Authorization = ['Bearer', credential].join(' ')
+		config.headers.set('language', accept_language)
+		config.headers.set('accept-language', accept_language)
 	}
 
 	return config

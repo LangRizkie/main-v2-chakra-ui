@@ -4,7 +4,7 @@ import endpoints from '@/utilities/endpoints'
 import { get, post } from '@/utilities/mutation'
 
 const GenerateRandomPassword = async (): Promise<ReglaResponse> =>
-	await get(endpoints.platform_settings.generate_random, undefined, { useToast: false })
+	await get(endpoints.platform_settings.generate_random_pass, undefined, { useToast: false })
 
 const AddAccountActiveUser = async (
 	payload: AccountActiveUserPayload

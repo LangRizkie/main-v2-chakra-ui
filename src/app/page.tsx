@@ -19,7 +19,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { Iconify } from '@regla/monorepo'
 import { useMutation } from '@tanstack/react-query'
 import Image from 'next/image'
-import { redirect, useRouter, useSearchParams } from 'next/navigation'
+import { redirect, RedirectType, useRouter, useSearchParams } from 'next/navigation'
 import { Controller, useForm } from 'react-hook-form'
 import { Password } from '@/components/ui/password'
 import { useColorMode } from '@/hooks/use-color-mode'
@@ -93,7 +93,7 @@ const Page = () => {
 					if (status === 'unmounted') {
 						const route = search.get('redirect')
 						setColorMode(res.is_dark_mode ? 'dark' : 'light')
-						redirect(route ?? routes.main)
+						redirect(route ?? routes.main, RedirectType.replace)
 					}
 				},
 				title: `Welcome, ${res.username}!`

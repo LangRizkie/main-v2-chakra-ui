@@ -43,6 +43,25 @@ export const ResetPasswordWithTokenSchema = z
 		return context
 	})
 
+export const ChangePasswordSchema = z.object({
+	newPassword: z
+		.string()
+		.min(1, { message: messages.required })
+		.regex(regex.uppercase, { message: messages.uppercase })
+		.regex(regex.lowercase, { message: messages.lowercase })
+		.regex(regex.number, { message: messages.number })
+		.regex(regex.special, { message: messages.special })
+		.regex(regex.length, { message: messages.length })
+		.refine((value) => !regex.repeat.test(value), {
+			message: messages.repeat
+		})
+		.refine((value) => !regex.sequential.test(value), {
+			message: messages.sequential
+		}),
+	oldPassword: z.string().min(1, { message: messages.required })
+})
+
 export type CheckUsernamePayload = z.infer<typeof CheckUsernameSchema>
 export type AuthenticatePayload = z.infer<typeof AuthenticateSchema>
 export type ResetPasswordWithTokenPayload = z.infer<typeof ResetPasswordWithTokenSchema>
+export type ChangePasswordPayload = z.infer<typeof ChangePasswordSchema>

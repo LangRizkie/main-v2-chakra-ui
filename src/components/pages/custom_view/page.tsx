@@ -87,7 +87,11 @@ const Page = () => {
 		<HStack align="flex-start" gap="4" width="full">
 			<Card.Root width="md">
 				<Card.Body>
-					<Accordion.Root collapsible>
+					<Accordion.Root
+						value={categories.map((category) => category[0])}
+						collapsible
+						multiple
+					>
 						<For each={categories}>
 							{([category, items]) => (
 								<Accordion.Item key={category} value={category}>

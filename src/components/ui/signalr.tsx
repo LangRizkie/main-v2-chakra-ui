@@ -1,14 +1,19 @@
+import { QueryClient, QueryObserver } from '@tanstack/react-query'
 import { useWebSocket } from 'ahooks'
 import { Case } from 'change-case-all'
 import { isString } from 'lodash'
-import { redirect } from 'next/navigation'
+import { redirect, RedirectType } from 'next/navigation'
 import { createContext, RefObject, useCallback, useEffect, useMemo, useRef } from 'react'
 import useGetCredential from '@/hooks/use-get-credential'
 import useGetSession from '@/hooks/use-get-session'
-import { LayoutType } from '@/types/default'
 import { NotificationHubResponse } from '@/types/email/user/notification/list'
 import endpoints from '@/utilities/endpoints'
 import toast from '@/utilities/toast'
+
+type SignalRProps = {
+	children: React.ReactNode
+	client: QueryClient
+}
 
 type SignalRContext<T = unknown> = {
 	subscribe: (source: string, callback: (param: T) => void) => void
@@ -22,7 +27,9 @@ export const SignalRContext = createContext<SignalRContext>({
 	unsubscribe: () => {}
 })
 
-const SignalR: React.FC<LayoutType> = ({ children }) => {
+const SignalR: React.FC<SignalRProps> = ({ children, client }) => {
+	const observer = new QueryObserver(client, { queryKey: ['list'] })
+
 	const sources: SourceRef = useRef({})
 
 	const credential = useGetCredential()
@@ -64,6 +71,8 @@ const SignalR: React.FC<LayoutType> = ({ children }) => {
 					const response: NotificationHubResponse = JSON.parse(data)
 
 					if (response.arguments) {
+						observer.refetch()
+
 						response.arguments.forEach((item) => {
 							if (item.is_noisy) toast.success({ title: item.message })
 
@@ -71,7 +80,7 @@ const SignalR: React.FC<LayoutType> = ({ children }) => {
 								const id = item.data.session_id
 								const url = item.data.redirect_url
 
-								if (session && id) redirect(url)
+								if (session && id) redirect(url, RedirectType.push)
 							}
 						})
 					}

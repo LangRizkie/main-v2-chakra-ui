@@ -16,6 +16,7 @@ const crud_routes = {
 const exception_routes = {
 	custom_view: '/custom_view',
 	notification: '/notification',
+	profile: '/profile',
 	search: '/search'
 }
 
