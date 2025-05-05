@@ -168,7 +168,7 @@ const Page = () => {
 					<Iconify height="24" icon="fxemoji:pencil" />
 				</IconButton>
 			</HStack>
-			<HStack align="flex-start" gap="12">
+			<HStack align="flex-start" gap="8">
 				<Center flexDirection="column" gap="4" height="full" padding="6">
 					<Avatar.Root height="24" width="24">
 						<Avatar.Fallback name={getValues('first_name')} />
@@ -187,7 +187,7 @@ const Page = () => {
 						</Portal>
 					</Menu.Root>
 				</Center>
-				<Stack gap="6" width="full">
+				<Stack gap="4" width="full">
 					<Field.Root>
 						<Field.Label>Username</Field.Label>
 						<InputGroup startElement={<Iconify height="18" icon="hugeicons:user-circle-02" />}>
@@ -240,7 +240,7 @@ const Page = () => {
 						Change Password
 					</Button>
 				</Stack>
-				<Stack gap="6" width="full">
+				<Stack gap="4" width="full">
 					<Controller
 						control={control}
 						name="job_title"
@@ -302,7 +302,7 @@ const Page = () => {
 								{...attr.field}
 							>
 								<RadioCard.Label>Language</RadioCard.Label>
-								<HStack align="stretch">
+								<HStack align="stretch" gap="4">
 									<RadioCard.Item key="id" value="id">
 										<RadioCard.ItemHiddenInput />
 										<RadioCard.ItemControl>
