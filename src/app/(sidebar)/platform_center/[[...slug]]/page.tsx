@@ -51,7 +51,7 @@ const Page = () => {
 
 	const isStatic = useMemo(() => {
 		const BE = navigation.some((item) => isTable && item.form_type === 'STATIC')
-		const FE = (isCRUDPath && action && !action.is_modal) || isException
+		const FE = (isCRUDPath && !action?.is_modal) || isException
 
 		return BE || FE
 	}, [action, isCRUDPath, isException, isTable, navigation])
