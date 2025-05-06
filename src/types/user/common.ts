@@ -1,7 +1,7 @@
 import type { Key } from 'react'
 import type { ReglaResponse } from '../default'
 
-export type FormType = 'TABLE' | 'TREE' | 'STATIC'
+export type FormType = 'TABLE' | 'TREE' | 'STATIC' | 'CARD_TABLE'
 export type MethodType = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
 export type GetNavigationScreenAction =

@@ -38,7 +38,6 @@ import {
 import { useEffect, useMemo } from 'react'
 import { logout } from '@/config/instance'
 import useGetAppId from '@/hooks/use-get-app-id'
-import useGetRoute from '@/hooks/use-get-route'
 import useQueryFetched from '@/hooks/use-query-fetched'
 import { IsRead } from '@/libraries/mutation/email/update'
 import { GeneralSearch, GeneralSearchModule } from '@/libraries/mutation/parameter/parameter'
@@ -64,7 +63,6 @@ const Header = () => {
 	const pathname = usePathname()
 	const params = useSearchParams()
 	const appId = useGetAppId()
-	const root = useGetRoute({ index: 0 })
 
 	const { firstName, lastName } = useUserProperty()
 
@@ -166,7 +164,7 @@ const Header = () => {
 			case 'main':
 				return redirect(routes.main)
 			case 'profile':
-				return redirect('/' + root + exception_routes.profile, RedirectType.push)
+				return redirect('/' + appId + exception_routes.profile, RedirectType.push)
 			case 'logout':
 				modal.open('logout', {
 					children: (

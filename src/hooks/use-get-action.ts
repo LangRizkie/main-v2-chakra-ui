@@ -32,7 +32,7 @@ const useGetAction = (action?: GetNavigationScreenAction) => {
 				}
 			})
 
-			return map?.[0] ? map[0] : undefined
+			return map?.[0] ?? undefined
 		}
 
 		return undefined
