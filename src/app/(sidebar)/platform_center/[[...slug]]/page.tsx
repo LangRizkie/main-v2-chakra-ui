@@ -2,9 +2,10 @@
 
 import { useIsFetching } from '@tanstack/react-query'
 import { useMemo } from 'react'
-import DataTable from '@/components/pages/data-table'
 import GridCard from '@/components/pages/grid-card'
-import Static from '@/components/pages/static-page'
+import StaticPage from '@/components/pages/static-page'
+import TablePage from '@/components/pages/table-page'
+import TreePage from '@/components/pages/tree-page'
 import useCustomViewId from '@/hooks/use-custom-view-id'
 import useGetAction from '@/hooks/use-get-action'
 import useGetCurrentId from '@/hooks/use-get-current-id'
@@ -49,20 +50,51 @@ const Page = () => {
 		return navigation.some((item) => item.is_table)
 	}, [navigation])
 
+	const isFormTable = useMemo(() => {
+		return isTable && navigation.some((item) => item.form_type === 'TABLE')
+	}, [isTable, navigation])
+
+	const isFormCardTable = useMemo(() => {
+		return isTable && navigation.some((item) => item.form_type === 'CARD_TABLE')
+	}, [isTable, navigation])
+
+	const isTree = useMemo(() => {
+		return isTable && navigation.some((item) => item.form_type === 'TREE')
+	}, [isTable, navigation])
+
 	const isStatic = useMemo(() => {
-		const BE = navigation.some((item) => isTable && item.form_type === 'STATIC')
+		const BE = isTable && navigation.some((item) => item.form_type === 'STATIC')
 		const FE = (isCRUDPath && !action?.is_modal) || isException
 
 		return BE || FE
-	}, [action, isCRUDPath, isException, isTable, navigation])
+	}, [action?.is_modal, isCRUDPath, isException, isTable, navigation])
+
+	if (isTree) {
+		return <TreePage navigation={navigation} privilege={privilege}></TreePage>
+	}
 
 	if (isStatic) {
 		return (
-			<Static isException={isException} navigation={navigation} privilege={privilege} isCard />
+			<StaticPage
+				isException={isException}
+				navigation={navigation}
+				privilege={privilege}
+				isCard
+			/>
 		)
 	}
 
-	if (isTable) return <DataTable navigation={navigation} privilege={privilege} />
+	if (isTable) {
+		return (
+			<TablePage
+				isFormCardTable={isFormCardTable}
+				isFormTable={isFormTable}
+				navigation={navigation}
+				privilege={privilege}
+			/>
+		)
+	}
+
 	return <GridCard navigation={navigation} privilege={privilege} />
 }
 

@@ -3,7 +3,7 @@ import useGetRoute from './use-get-route'
 import useIsCRUDPath from './use-is-crud-path'
 
 const useGetCurrentId = () => {
-	const screenId = useGetRoute({ index: 1 })
+	const screenId = useGetRoute({ fromLast: true, index: 2 })
 	const parentId = useGetParentId()
 	const isCRUDPath = useIsCRUDPath()
 

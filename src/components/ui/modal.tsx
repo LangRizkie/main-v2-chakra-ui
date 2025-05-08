@@ -7,6 +7,7 @@ import {
 	HStack,
 	Portal
 } from '@chakra-ui/react'
+import { useIsFetching } from '@tanstack/react-query'
 import { useCallback, useMemo } from 'react'
 import useModalStore from '@/stores/modal-dynamic'
 import { Sizes, UseButtonProps } from '@/types/default'
@@ -20,6 +21,7 @@ type ModalCreateProps = {
 
 const modal = createOverlay<ModalCreateProps>(({ children, options, title, ...props }) => {
 	const store = useModalStore()
+	const isFetching = useIsFetching()
 
 	const size = useMemo(() => {
 		return store.size ?? props.size
@@ -51,9 +53,9 @@ const modal = createOverlay<ModalCreateProps>(({ children, options, title, ...pr
 
 	const isDisabled = useCallback(
 		(props?: ButtonProps) => {
-			return props?.disabled || isGroupLoading
+			return props?.disabled || isGroupLoading || !!isFetching
 		},
-		[isGroupLoading]
+		[isFetching, isGroupLoading]
 	)
 
 	const buttonChildren = useCallback((props?: ButtonProps) => {
@@ -68,6 +70,8 @@ const modal = createOverlay<ModalCreateProps>(({ children, options, title, ...pr
 			size={size}
 			unmountOnExit
 			{...props}
+			closeOnEscape={!isFetching}
+			closeOnInteractOutside={!isFetching}
 		>
 			<Portal>
 				<Dialog.Backdrop zIndex={2000} />
@@ -90,7 +94,9 @@ const modal = createOverlay<ModalCreateProps>(({ children, options, title, ...pr
 								</Button>
 							</HStack>
 							<Dialog.ActionTrigger asChild>
-								<Button {...cancel}>{buttonChildren(cancel)}</Button>
+								<Button {...cancel} disabled={!!isFetching}>
+									{buttonChildren(cancel)}
+								</Button>
 							</Dialog.ActionTrigger>
 							<Button colorPalette="primary" {...submit} disabled={isDisabled(submit)}>
 								{buttonChildren(submit)}

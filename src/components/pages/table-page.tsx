@@ -4,9 +4,11 @@ import {
 	Card,
 	Center,
 	Checkbox,
+	CheckboxCard,
 	createListCollection,
 	EmptyState,
 	Field,
+	Flex,
 	For,
 	Grid,
 	GridItem,
@@ -34,23 +36,19 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import { useDebounceFn, useSelections, useSetState } from 'ahooks'
 import { Case } from 'change-case-all'
 import { groupBy, isEmpty } from 'lodash'
+import moment from 'moment'
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type React from 'react'
-import {
-	type Dispatch,
-	type SetStateAction,
-	useCallback,
-	useEffect,
-	useMemo,
-	useState
-} from 'react'
+import { type Dispatch, type SetStateAction, useEffect, useMemo, useState } from 'react'
+import useGetAction from '@/hooks/use-get-action'
+import useGetCurrentId from '@/hooks/use-get-current-id'
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
+import useQueryFetched from '@/hooks/use-query-fetched'
 import { CustomEndpoint, type CustomEndpointProps } from '@/libraries/mutation/list'
 import { GetFormatExportFile, GetTypeExportFile } from '@/libraries/mutation/parameter/dropdown'
 import { GetLookupCustomView } from '@/libraries/mutation/user/common'
-import useStaticStore from '@/stores/button-static'
 import useModalStore from '@/stores/modal-dynamic'
 import type { ReglaResponse } from '@/types/default'
 import type { DownloadDataPayload, PaginationPayload } from '@/types/list'
@@ -59,29 +57,32 @@ import type {
 	GetNavigationScreenData,
 	GetNavigationScreenDynamicForm
 } from '@/types/user/common'
+import { GetPathUrlScreenResponse } from '@/types/user/screen'
 import type { GetPrivilegeData } from '@/types/user/security-role'
 import { crud_routes, exception_routes } from '@/utilities/constants'
-import { createQueryParams, setQueryParams } from '@/utilities/helper'
+import { createQueryParams, getForm, setQueryParams } from '@/utilities/helper'
 import { values } from '@/utilities/validation'
 import modal from '../ui/modal'
 import Pagination, { type PageChangeDetails } from '../ui/pagination'
 
-type DataTableProps = {
+type TablePageProps = {
 	navigation: GetNavigationScreenData[]
 	privilege: GetPrivilegeData[]
+	isFormTable: boolean
+	isFormCardTable: boolean
 }
 
-type ComponentProps = {
+type ComponentProps = Pick<TablePageProps, 'isFormTable' | 'isFormCardTable'> & {
 	index: number
 	navigation: GetNavigationScreenData
 	privilege: GetPrivilegeData
 }
 
-type WithFormProps = ComponentProps & {
-	form: (action: GetNavigationScreenAction) => GetNavigationScreenDynamicForm | undefined
+type ToolbarProps = Omit<ComponentProps, 'index'> & {
+	handleButtonClick: (action: GetNavigationScreenAction, row?: never) => void
 }
 
-type ToolbarProps = Omit<WithFormProps, 'index'> & {
+type ButtonActionProps = {
 	handleButtonClick: (action: GetNavigationScreenAction, row?: never) => void
 }
 
@@ -91,13 +92,14 @@ type StaticModalProps = {
 	unique: string
 }
 
-type ListProps = Omit<WithFormProps, 'index'> & {
-	rows: never[]
-	selected: never[]
-	isPending: boolean
-	setSelected: Dispatch<SetStateAction<never[]>>
-	handleButtonClick: (action: GetNavigationScreenAction, row?: never) => void
-}
+type ListProps = Omit<ComponentProps, 'index'> &
+	Pick<ComponentProps, 'isFormTable' | 'isFormCardTable'> & {
+		rows: never[]
+		selected: never[]
+		isPending: boolean
+		setSelected: Dispatch<SetStateAction<never[]>>
+		handleButtonClick: (action: GetNavigationScreenAction, row?: never) => void
+	}
 
 const Filter: React.FC<Pick<ComponentProps, 'navigation'>> = ({ navigation }) => {
 	const router = useRouter()
@@ -314,6 +316,9 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 	const router = useRouter()
 	const pathname = usePathname()
 	const search = useSearchParams()
+	const download = useGetAction('DOWNLOAD')
+	const custom = useGetAction('CUSTOM_VIEW')
+
 	const { open, setOpen } = useDisclosure()
 
 	const [filter, setFilter] = useSetState({
@@ -346,14 +351,6 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 		const queries = setQueryParams(search.toString(), filter, { route: pathname })
 		router.replace(queries)
 	}
-
-	const download = useMemo(() => {
-		return props.form('DOWNLOAD')
-	}, [props])
-
-	const custom = useMemo(() => {
-		return props.form('CUSTOM_VIEW')
-	}, [props])
 
 	const customViewRoute = useMemo(() => {
 		return isEmpty(custom) ? '' : [pathname, exception_routes.custom_view].join('')
@@ -452,25 +449,35 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 	)
 }
 
-const ButtonAction: React.FC<Pick<WithFormProps, 'form'>> = ({ form }) => {
+const ButtonAction: React.FC<ButtonActionProps> = ({ handleButtonClick }) => {
 	const pathname = usePathname()
-
-	const create = useMemo(() => {
-		return form('CREATE')
-	}, [form])
+	const create = useGetAction('CREATE')
+	const global = useGetAction('GLOBAL')
+	const approve = useGetAction('APPROVE')
 
 	const createRoute = useMemo(() => {
 		return [pathname, crud_routes.create].join('')
 	}, [pathname])
 
 	return (
-		<HStack flexDirection="row-reverse" justifyContent="space-between">
+		<HStack flexDirection="row-reverse" gap="2">
 			<Show when={!isEmpty(create)}>
 				<Button colorPalette="primary" asChild>
 					<Link href={createRoute} passHref shallow>
 						<Iconify height={20} icon="bx:plus" style={{ color: 'white' }} />
 						Create
 					</Link>
+				</Button>
+			</Show>
+			<Show when={!isEmpty(global)}>
+				<Button colorPalette="primary" onClick={() => handleButtonClick('GLOBAL')}>
+					<Iconify height={20} icon="bx:plus" style={{ color: 'white' }} />
+					Add Global User
+				</Button>
+			</Show>
+			<Show when={!isEmpty(approve)}>
+				<Button colorPalette="teal" onClick={() => handleButtonClick('APPROVE')}>
+					Approve
 				</Button>
 			</Show>
 		</HStack>
@@ -488,17 +495,13 @@ const List: React.FC<ListProps> = (props) => {
 		toggleAll
 	} = useSelections(props.rows, { defaultSelected: props.selected })
 
-	const list = useMemo(() => {
-		return props.form('LIST')
-	}, [props])
-
-	const deactivate = useMemo(() => {
-		return props.form('DEACTIVATE')
-	}, [props])
-
-	const erase = useMemo(() => {
-		return props.form('DELETE')
-	}, [props])
+	const list = useGetAction('LIST')
+	const view = useGetAction('VIEW')
+	const update = useGetAction('UPDATE')
+	const lock = useGetAction('LOCK')
+	const deallocate = useGetAction('DEALLOCATE')
+	const deactivate = useGetAction('DEACTIVATE')
+	const erase = useGetAction('DELETE')
 
 	const unique = useMemo(() => {
 		return list ? list.unique_key : undefined
@@ -516,21 +519,27 @@ const List: React.FC<ListProps> = (props) => {
 	}, [allSelected, partiallySelected])
 
 	const setCustomColumn = (row: never, key: string) => {
-		if (key.toLowerCase() !== 'status') return <Text>{row[key] || '-'}</Text>
+		if (key.toLowerCase() === 'status') {
+			const passed = ['active', 'success', 'passed']
+			const failed = ['failed', 'not passed']
 
-		const passed = ['active', 'success', 'passed']
-		const failed = ['failed', 'not passed']
+			const isPassed = passed.includes(Case.lower(row[key]))
+			const isFailed = failed.includes(Case.lower(row[key]))
 
-		const isPassed = passed.includes(Case.lower(row[key]))
-		const isFailed = failed.includes(Case.lower(row[key]))
+			const palette = (isPassed && 'green') || (isFailed && 'red') || 'gray'
 
-		const palette = (isPassed && 'green') || (isFailed && 'red') || undefined
+			return (
+				<Tag.Root colorPalette={palette}>
+					<Tag.Label>{row[key]}</Tag.Label>
+				</Tag.Root>
+			)
+		}
 
-		return (
-			<Tag.Root colorPalette={palette}>
-				<Tag.Label>{row[key]}</Tag.Label>
-			</Tag.Root>
-		)
+		if (key.toLowerCase().includes('_date')) {
+			return <Text>{moment(row[key] || '-').format('LLL')}</Text>
+		}
+
+		return <Text>{row[key] ?? '-'}</Text>
 	}
 
 	useEffect(() => {
@@ -556,94 +565,203 @@ const List: React.FC<ListProps> = (props) => {
 					</Center>
 				}
 			>
-				<Table.ScrollArea borderWidth="1px">
-					<Table.Root striped>
-						<Table.Header>
-							<Table.Row>
-								<Table.ColumnHeader backgroundColor="bg" left="0" position="sticky">
-									<Checkbox.Root
-										checked={checked}
-										colorPalette="primary"
-										onCheckedChange={() => toggleAll()}
-									>
-										<Checkbox.HiddenInput />
-										<Checkbox.Control />
-									</Checkbox.Root>
-								</Table.ColumnHeader>
-								<For each={columns}>
-									{(item) => (
-										<Table.ColumnHeader key={item.object_name} whiteSpace="nowrap">
-											{item.value}
-										</Table.ColumnHeader>
-									)}
-								</For>
-							</Table.Row>
-						</Table.Header>
-						<Table.Body>
-							<Show when={!isEmpty(props.rows)}>
-								<For each={props.rows}>
-									{(row, index) => {
-										const key = unique ? row[unique] : index
-										const color = ~index & 1 ? 'bg.muted' : 'bg'
+				<Show when={props.isFormTable}>
+					<Table.ScrollArea borderWidth="1px">
+						<Table.Root striped>
+							<Table.Header>
+								<Table.Row>
+									<Table.ColumnHeader backgroundColor="bg" left="0" position="sticky">
+										<Checkbox.Root
+											checked={checked}
+											colorPalette="primary"
+											onCheckedChange={() => toggleAll()}
+										>
+											<Checkbox.HiddenInput />
+											<Checkbox.Control />
+										</Checkbox.Root>
+									</Table.ColumnHeader>
+									<For each={columns}>
+										{(item) => (
+											<Table.ColumnHeader key={item.object_name} whiteSpace="nowrap">
+												{item.value}
+											</Table.ColumnHeader>
+										)}
+									</For>
+								</Table.Row>
+							</Table.Header>
+							<Table.Body>
+								<Show when={!isEmpty(props.rows)}>
+									<For each={props.rows}>
+										{(row, index) => {
+											const key = unique ? row[unique] : index
+											const color = ~index & 1 ? 'bg.muted' : 'bg'
 
-										return (
-											<Menu.Root
-												key={key}
-												onSelect={({ value }) =>
-													props.handleButtonClick(value as GetNavigationScreenAction, row)
-												}
+											return (
+												<Menu.Root
+													key={key}
+													onSelect={({ value }) =>
+														props.handleButtonClick(value as GetNavigationScreenAction, row)
+													}
+												>
+													<Menu.ContextTrigger width="full" asChild>
+														<Table.Row onClick={() => toggle(row)}>
+															<Table.Cell backgroundColor={color} left="0" position="sticky">
+																<Checkbox.Root
+																	checked={isSelected(row)}
+																	colorPalette="primary"
+																	onClick={() => toggle(row)}
+																>
+																	<Checkbox.HiddenInput />
+																	<Checkbox.Control />
+																</Checkbox.Root>
+															</Table.Cell>
+															<For each={keys}>
+																{([key]) => (
+																	<Table.Cell key={crypto.randomUUID()} whiteSpace="nowrap">
+																		{setCustomColumn(row, key)}
+																	</Table.Cell>
+																)}
+															</For>
+														</Table.Row>
+													</Menu.ContextTrigger>
+													<Portal>
+														<Menu.Positioner>
+															<Menu.Content>
+																<Menu.Item hidden={isEmpty(view)} value="VIEW">
+																	<Text width="full">View</Text>
+																	<Iconify height="16" icon="bxs:show" />
+																</Menu.Item>
+																<Menu.Item hidden={isEmpty(update)} value="UPDATE">
+																	<Text width="full">Update</Text>
+																	<Iconify height="16" icon="bxs:edit-alt" />
+																</Menu.Item>
+																<Menu.Item hidden={isEmpty(lock)} value="LOCK">
+																	<Text width="full">Unlock</Text>
+																	<Iconify height="16" icon="bx:lock-open" />
+																</Menu.Item>
+																<Menu.Item hidden={isEmpty(deallocate)} value="DEALLOCATE">
+																	<Text width="full">Deallocate</Text>
+																	<Iconify
+																		height="16"
+																		icon="icon-park-solid:people-delete-one"
+																	/>
+																</Menu.Item>
+																<Menu.Item hidden={isEmpty(deactivate)} value="DEACTIVATE">
+																	<Text width="full">Deactivate</Text>
+																	<Iconify height="16" icon="bxs:minus-circle" />
+																</Menu.Item>
+																<Menu.Item hidden={isEmpty(erase)} value="DELETE">
+																	<Text width="full">Delete</Text>
+																	<Iconify height="16" icon="bxs:trash" />
+																</Menu.Item>
+															</Menu.Content>
+														</Menu.Positioner>
+													</Portal>
+												</Menu.Root>
+											)
+										}}
+									</For>
+								</Show>
+							</Table.Body>
+						</Table.Root>
+					</Table.ScrollArea>
+				</Show>
+				<Show when={props.isFormCardTable}>
+					<Grid
+						gap="6"
+						templateColumns={{
+							base: 'repeat(1, 1fr)',
+							md: 'repeat(2, 1fr)',
+							xl: 'repeat(3, 1fr)'
+						}}
+					>
+						<For each={props.rows}>
+							{(row, index) => (
+								<GridItem key={index}>
+									<Menu.Root
+										onSelect={({ value }) =>
+											props.handleButtonClick(value as GetNavigationScreenAction, row)
+										}
+									>
+										<Menu.ContextTrigger width="full">
+											<CheckboxCard.Root
+												checked={isSelected(row)}
+												colorPalette="primary"
+												onCheckedChange={() => toggle(row)}
 											>
-												<Menu.ContextTrigger width="full" asChild>
-													<Table.Row onClick={() => toggle(row)}>
-														<Table.Cell backgroundColor={color} left="0" position="sticky">
-															<Checkbox.Root
-																checked={isSelected(row)}
-																colorPalette="primary"
-																onClick={() => toggle(row)}
-															>
-																<Checkbox.HiddenInput />
-																<Checkbox.Control />
-															</Checkbox.Root>
-														</Table.Cell>
-														<For each={keys}>
-															{([key]) => (
-																<Table.Cell key={crypto.randomUUID()} whiteSpace="nowrap">
-																	{setCustomColumn(row, key)}
-																</Table.Cell>
+												<CheckboxCard.HiddenInput />
+												<CheckboxCard.Control>
+													<CheckboxCard.Content>
+														<CheckboxCard.Label>
+															{
+																row[
+																	columns.filter((column) =>
+																		column.object_name.includes('_name')
+																	)[0].object_name ?? '-'
+																]
+															}
+														</CheckboxCard.Label>
+													</CheckboxCard.Content>
+													<CheckboxCard.Indicator />
+												</CheckboxCard.Control>
+												<CheckboxCard.Addon>
+													<Stack gap="2">
+														<For
+															each={columns.filter(
+																(column) => !column.object_name.includes('_name')
+															)}
+														>
+															{(column) => (
+																<Flex
+																	key={column.object_name}
+																	gap="4"
+																	justifyContent="space-between"
+																>
+																	<Text minWidth="fit">{column.value}</Text>
+																	{setCustomColumn(row, column.object_name)}
+																</Flex>
 															)}
 														</For>
-													</Table.Row>
-												</Menu.ContextTrigger>
-												<Portal>
-													<Menu.Positioner>
-														<Menu.Content>
-															<Menu.Item value="VIEW">
-																<Text width="full">View</Text>
-																<Iconify height="16" icon="bxs:show" />
-															</Menu.Item>
-															<Menu.Item value="UPDATE">
-																<Text width="full">Update</Text>
-																<Iconify height="16" icon="bxs:edit-alt" />
-															</Menu.Item>
-															<Menu.Item value="DEACTIVATE">
-																<Text width="full">Deactivate</Text>
-																<Iconify height="16" icon="bxs:minus-circle" />
-															</Menu.Item>
-															<Menu.Item value="DELETE">
-																<Text width="full">Delete</Text>
-																<Iconify height="16" icon="bxs:trash" />
-															</Menu.Item>
-														</Menu.Content>
-													</Menu.Positioner>
-												</Portal>
-											</Menu.Root>
-										)
-									}}
-								</For>
-							</Show>
-						</Table.Body>
-					</Table.Root>
-				</Table.ScrollArea>
+													</Stack>
+												</CheckboxCard.Addon>
+											</CheckboxCard.Root>
+										</Menu.ContextTrigger>
+										<Portal>
+											<Menu.Positioner>
+												<Menu.Content>
+													<Menu.Item hidden={isEmpty(view)} value="VIEW">
+														<Text width="full">View</Text>
+														<Iconify height="16" icon="bxs:show" />
+													</Menu.Item>
+													<Menu.Item hidden={isEmpty(update)} value="UPDATE">
+														<Text width="full">Update</Text>
+														<Iconify height="16" icon="bxs:edit-alt" />
+													</Menu.Item>
+													<Menu.Item hidden={isEmpty(lock)} value="LOCK">
+														<Text width="full">Unlock</Text>
+														<Iconify height="16" icon="bx:lock-open" />
+													</Menu.Item>
+													<Menu.Item hidden={isEmpty(deallocate)} value="DEALLOCATE">
+														<Text width="full">Deallocate</Text>
+														<Iconify height="16" icon="icon-park-solid:people-delete-one" />
+													</Menu.Item>
+													<Menu.Item hidden={isEmpty(deactivate)} value="DEACTIVATE">
+														<Text width="full">Deactivate</Text>
+														<Iconify height="16" icon="bxs:minus-circle" />
+													</Menu.Item>
+													<Menu.Item hidden={isEmpty(erase)} value="DELETE">
+														<Text width="full">Delete</Text>
+														<Iconify height="16" icon="bxs:trash" />
+													</Menu.Item>
+												</Menu.Content>
+											</Menu.Positioner>
+										</Portal>
+									</Menu.Root>
+								</GridItem>
+							)}
+						</For>
+					</Grid>
+				</Show>
 				<ActionBar.Root open={!noneSelected}>
 					<Portal>
 						<ActionBar.Positioner>
@@ -669,6 +787,23 @@ const List: React.FC<ListProps> = (props) => {
 											onClick={() => props.handleButtonClick('UPDATE', selected[0])}
 										>
 											<Iconify height="20" icon="bxs:edit-alt" />
+										</IconButton>
+									</Tooltip>
+								</Show>
+								<Show when={lock}>
+									<Tooltip content="unlock" showArrow>
+										<IconButton variant="ghost" onClick={() => props.handleButtonClick('LOCK')}>
+											<Iconify height="20" icon="bx:lock-open" />
+										</IconButton>
+									</Tooltip>
+								</Show>
+								<Show when={deallocate}>
+									<Tooltip content="deallocate" showArrow>
+										<IconButton
+											variant="ghost"
+											onClick={() => props.handleButtonClick('DEALLOCATE')}
+										>
+											<Iconify height="20" icon="icon-park-solid:people-delete-one" />
 										</IconButton>
 									</Tooltip>
 								</Show>
@@ -852,13 +987,15 @@ const Download: React.FC<StaticModalProps> = (props) => {
 
 const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 	const router = useRouter()
+	const route = useGetRoute()
 	const pathname = usePathname()
 	const params = useSearchParams()
 	const screenId = useGetRoute()
 	const isCRUDPath = useIsCRUDPath()
+	const currentId = useGetCurrentId()
+	const list = useGetAction('LIST')
 
 	const { setAttribute } = useModalStore()
-	const { getTitle } = useStaticStore()
 
 	const { data, isPending, mutateAsync } = useMutation<
 		ReglaResponse<never[]>,
@@ -866,7 +1003,11 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 		CustomEndpointProps<PaginationPayload>
 	>({
 		mutationFn: CustomEndpoint,
-		mutationKey: ['list', screenId, params.toString()]
+		mutationKey: ['custom_endpoint', screenId, params.toString()]
+	})
+
+	const getPathUrlScreen = useQueryFetched<GetPathUrlScreenResponse>({
+		queryKey: ['get_path_url_screen', currentId, route]
 	})
 
 	const queries = createQueryParams(
@@ -929,42 +1070,49 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 		return data?.data || []
 	}, [data])
 
+	const title = useMemo(() => {
+		if (getPathUrlScreen?.data) {
+			const path = getPathUrlScreen.data.flatMap((item) => item.path.split('/'))
+			return path[path.length - 1]
+		}
+
+		return ''
+	}, [getPathUrlScreen?.data])
+
 	const { clearAll, selected, setSelected } = useSelections(rows)
 
 	const handleAnimationDuration = (index: number) => {
 		return (index + 1) * 200 + 'ms'
 	}
 
-	const form = useCallback(
-		(action: GetNavigationScreenAction) => {
-			if (props.navigation.dynamic_form) {
-				const data = props.navigation.dynamic_form.find((item) => item.action === action)
-				return data
-			}
-
-			return undefined
-		},
-		[props.navigation.dynamic_form]
-	)
-
-	const list = useMemo(() => {
-		return form('LIST')
-	}, [form])
-
 	const handleButtonClick = (action: GetNavigationScreenAction, row?: never) => {
-		const data = form(action)
+		const data = getForm(action, props.navigation)
 
 		if (data) {
-			const title = [Case.capital(data.action), getTitle()].join(' ')
+			const name = [Case.capital(data.action), title].join(' ')
+			const unlock = ['Unlock', title].join(' ')
 			const route = [pathname, '/', data.action.toLowerCase()].join('')
 
 			if (data.is_modal) {
 				switch (data.action) {
 					case 'DOWNLOAD':
-						return handleDownloadModal(data, title)
+						return handleDownloadModal(data, name)
+					case 'GLOBAL':
+						return console.log('global')
+					case 'APPROVE':
+						return handleDynamicModal({ data, row, title: name })
+					case 'LOCK':
+						return handleDynamicModal({
+							buttonTitle: 'Unlock',
+							colorPalette: 'primary',
+							data,
+							row,
+							title: unlock
+						})
+					case 'DEALLOCATE':
 					case 'DEACTIVATE':
 					case 'DELETE':
-						return handleDangerousModal(data, title, row)
+						return handleDynamicModal({ colorPalette: 'red', data, row, title: name })
 				}
 			}
 
@@ -995,26 +1143,28 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 		})
 	}
 
-	const handleDangerousModal = (
-		data: GetNavigationScreenDynamicForm,
-		title: string,
+	const handleDynamicModal = (options: {
+		data: GetNavigationScreenDynamicForm
+		title: string
+		colorPalette?: 'primary' | 'red'
+		buttonTitle?: string
 		row?: never
-	) => {
-		const list = row ? [row] : selected
-		const unique = list.map((item) => item[data.unique_key])
+	}) => {
+		const list = options.row ? [options.row] : selected
+		const unique = list.map((item) => item[options.data.unique_key])
 
 		modal.open('danger', {
 			children: (
-				<Center paddingY="12">
-					Are you sure you want to {Case.lower(data.action)} the selected record(s)?
+				<Center paddingY="8">
+					Are you sure you want to {Case.lower(options.data.action)} the selected record(s)?
 				</Center>
 			),
 			options: {
 				submit: {
-					colorPalette: 'red',
+					colorPalette: options.colorPalette ?? 'primary',
 					onClick: () => {
 						setAttribute('submit', { loading: true })
-						CustomEndpoint({ [data.unique_key]: unique, ...data })
+						CustomEndpoint({ [options.data.unique_key]: unique, ...options.data })
 							.then(() => router.replace(setQueryParams(search.toString(), { start: '0' })))
 							.catch((error) => error)
 							.finally(() => {
@@ -1022,10 +1172,10 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 								modal.close('danger')
 							})
 					},
-					title: Case.capital(data.action)
+					title: options.buttonTitle ?? Case.capital(options.data.action)
 				}
 			},
-			title
+			title: options.title
 		})
 	}
 
@@ -1088,17 +1238,16 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 						</HStack>
 					</GridItem>
 					<GridItem colSpan={1} rowStart={{ base: 2, xl: 'auto' }}>
-						<Toolbar form={form} handleButtonClick={handleButtonClick} {...props} />
+						<Toolbar handleButtonClick={handleButtonClick} {...props} />
 					</GridItem>
 					<GridItem colSpan={{ base: 3, xl: 1 }} rowStart={{ base: 2, xl: 'auto' }}>
-						<ButtonAction form={form} {...props} />
+						<ButtonAction handleButtonClick={handleButtonClick} />
 					</GridItem>
 				</Grid>
 			</Card.Header>
 			<Card.Body>
 				<List
 					key={rows.toString()}
-					form={form}
 					handleButtonClick={handleButtonClick}
 					isPending={isPending}
 					rows={rows}
@@ -1119,13 +1268,15 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 	)
 }
 
-const DataTable: React.FC<DataTableProps> = (props) => {
+const TablePage: React.FC<TablePageProps> = (props) => {
 	return (
 		<For each={props.navigation}>
 			{(item, index) => (
 				<Component
 					key={index}
 					index={index}
+					isFormCardTable={props.isFormCardTable}
+					isFormTable={props.isFormTable}
 					navigation={item}
 					privilege={props.privilege[index]}
 				/>
@@ -1134,4 +1285,4 @@ const DataTable: React.FC<DataTableProps> = (props) => {
 	)
 }
 
-export default DataTable
+export default TablePage

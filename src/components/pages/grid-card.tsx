@@ -1,4 +1,5 @@
-import { Box, Card, For, Grid, Show, Text } from '@chakra-ui/react'
+import { Card, Center, For, Grid, Show, Text } from '@chakra-ui/react'
+import { Iconify } from '@regla/monorepo'
 import { isEmpty } from 'lodash'
 import Link from 'next/link'
 import { useMemo } from 'react'
@@ -59,19 +60,26 @@ const GridCard: React.FC<GridCardProps> = (props) => {
 									variant="outline"
 								>
 									<Card.Header alignItems="center" flexDirection="row" gap="4">
-										<Box
+										<Center
 											borderColor="gray.300"
 											borderRadius="sm"
 											borderStyle="solid"
 											borderWidth="thin"
+											height="12"
 											padding="2"
+											width="12"
 										>
-											<GenerateIcon
-												icon={item.image_url}
-												size={28}
-												style={{ color: 'var(--chakra-colors-primary-fg)' }}
-											/>
-										</Box>
+											<Show
+												fallback={<Iconify height="28" icon="bx:folder" />}
+												when={item.image_url}
+											>
+												<GenerateIcon
+													icon={item.image_url}
+													size={28}
+													style={{ color: 'var(--chakra-colors-primary-fg)' }}
+												/>
+											</Show>
+										</Center>
 										<Text fontWeight="bold">{item.title}</Text>
 									</Card.Header>
 									<Card.Body>

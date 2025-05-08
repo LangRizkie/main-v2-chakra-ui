@@ -6,6 +6,7 @@ import {
 	MenuSelectionDetails,
 	Portal,
 	Presence,
+	Show,
 	Text
 } from '@chakra-ui/react'
 import { Iconify, Tooltip } from '@regla/monorepo'
@@ -55,7 +56,9 @@ const SidebarContent = () => {
 								paddingY="3"
 								onClick={() => isEmpty(item.items) && router.push(item.url)}
 							>
-								<GenerateIcon icon={item.image_url} size={20} />
+								<Show fallback={<Iconify height="20" icon="bx:folder" />} when={item.image_url}>
+									<GenerateIcon icon={item.image_url} size={20} />
+								</Show>
 								<Text textStyle="sm" width="full" truncate>
 									{item.title}
 								</Text>
@@ -81,7 +84,12 @@ const SidebarContent = () => {
 													width="full"
 													onClick={() => router.push(item.url)}
 												>
-													<GenerateIcon icon={sub.image_url} size={16} />
+													<Show
+														fallback={<Iconify height="16" icon="bx:folder" />}
+														when={item.image_url}
+													>
+														<GenerateIcon icon={sub.image_url} size={16} />
+													</Show>
 													<Text textAlign="left" truncate>
 														{sub.title}
 													</Text>
@@ -130,7 +138,9 @@ const SidebarMenu = () => {
 						<For each={root}>
 							{(item, index) => (
 								<Menu.Item key={index} value={JSON.stringify(item)}>
-									<GenerateIcon icon={item.image_url} />
+									<Show fallback={<Iconify icon="bx:folder" />} when={item.image_url}>
+										<GenerateIcon icon={item.image_url} />
+									</Show>
 									{item.title}
 								</Menu.Item>
 							)}

@@ -7,10 +7,7 @@ type CardProps = CardRootProps & {
 }
 
 type StaticContent = {
-	title?: string
 	card?: CardProps
-	getTitle: () => string | undefined
-	setTitle: (value: string) => void
 	setCard: (props: CardProps) => void
 	setAttribute: (key: ButtonKeys, props: ButtonProps) => void
 }
@@ -37,26 +34,19 @@ const getInitialState = (): Partial<Omit<ButtonData, 'cancel'> & StaticContent> 
 		hidden: true,
 		title: 'Reactivate'
 	},
-	submit: { colorPalette: 'primary', form: 'submit-form', hidden: true, title: 'Save' },
-	title: ''
+	submit: { colorPalette: 'primary', form: 'submit-form', hidden: true, title: 'Save' }
 })
 
-const useStaticStore = create<Omit<UseButtonProps, 'setCancel'> & StaticContent>(
-	(set, get) => ({
-		...getInitialState(),
-		getTitle: () => get().title,
-		reset: () => set(() => ({ ...getInitialState(), title: '' })),
-		setActivate: (props) => set((state) => ({ activate: { ...state.activate, ...props } })),
-		setAttribute: (key, props) => set((state) => ({ [key]: { ...state[key], ...props } })),
-		setBack: (props) => set((state) => ({ back: { ...state.back, ...props } })),
-		setCard: (props) => set((state) => ({ card: { ...state.card, ...props } })),
-		setDeactivate: (props) =>
-			set((state) => ({ deactivate: { ...state.deactivate, ...props } })),
-		setReactivate: (props) =>
-			set((state) => ({ reactivate: { ...state.reactivate, ...props } })),
-		setSubmit: (props) => set((state) => ({ submit: { ...state.submit, ...props } })),
-		setTitle: (props) => set({ title: props })
-	})
-)
+const useStaticStore = create<Omit<UseButtonProps, 'setCancel'> & StaticContent>((set) => ({
+	...getInitialState(),
+	reset: () => set(() => ({ ...getInitialState(), title: '' })),
+	setActivate: (props) => set((state) => ({ activate: { ...state.activate, ...props } })),
+	setAttribute: (key, props) => set((state) => ({ [key]: { ...state[key], ...props } })),
+	setBack: (props) => set((state) => ({ back: { ...state.back, ...props } })),
+	setCard: (props) => set((state) => ({ card: { ...state.card, ...props } })),
+	setDeactivate: (props) => set((state) => ({ deactivate: { ...state.deactivate, ...props } })),
+	setReactivate: (props) => set((state) => ({ reactivate: { ...state.reactivate, ...props } })),
+	setSubmit: (props) => set((state) => ({ submit: { ...state.submit, ...props } }))
+}))
 
 export default useStaticStore

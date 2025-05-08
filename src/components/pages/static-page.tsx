@@ -11,7 +11,7 @@ import type { GetPrivilegeData } from '@/types/user/security-role'
 import { messages } from '@/utilities/validation'
 import Forbidden from './forbidden'
 
-type StaticProps = {
+type StaticPageProps = {
 	navigation: GetNavigationScreenData[]
 	privilege: GetPrivilegeData[]
 	isCard?: boolean
@@ -26,7 +26,7 @@ const LoadingComponent = () => (
 	</Center>
 )
 
-const Static: React.FC<StaticProps> = (props) => {
+const StaticPage: React.FC<StaticPageProps> = (props) => {
 	const route = useGetRoute()
 	const screenId = useGetCurrentId()
 	const isCRUDPath = useIsCRUDPath()
@@ -41,7 +41,7 @@ const Static: React.FC<StaticProps> = (props) => {
 
 	const Component = useMemo(
 		() =>
-			dynamic<StaticProps>(() => import(routes).catch(() => ErrorComponent), {
+			dynamic<StaticPageProps>(() => import(routes).catch(() => ErrorComponent), {
 				loading: LoadingComponent,
 				ssr: false
 			}),
@@ -102,4 +102,4 @@ const Static: React.FC<StaticProps> = (props) => {
 	)
 }
 
-export default Static
+export default StaticPage

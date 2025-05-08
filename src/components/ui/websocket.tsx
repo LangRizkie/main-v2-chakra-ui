@@ -58,7 +58,7 @@ const Websocket: React.FC<WebsocketProps> = ({ children, client }) => {
 			console.info(event.reason)
 		},
 		onError: () => {
-			console.error('Something went wrong')
+			console.warn('Something went wrong')
 		},
 		onMessage: (event) => {
 			if (event.data) {

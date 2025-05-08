@@ -2,6 +2,7 @@ import { Iconify } from '@regla/monorepo'
 import { isEmpty } from 'lodash'
 import Image from 'next/image'
 import type { CSSProperties } from 'react'
+import { GetNavigationScreenAction, GetNavigationScreenData } from '@/types/user/common'
 
 type CreateQueryParamsOption = {
 	route: string
@@ -10,7 +11,7 @@ type CreateQueryParamsOption = {
 type GenerateIconProps = {
 	size?: number
 	style?: CSSProperties
-	icon: string
+	icon: string | null
 }
 
 const createQueryParams = (
@@ -41,7 +42,7 @@ const setQueryParams = (
 }
 
 const GenerateIcon = ({ size = 14, ...props }: GenerateIconProps) => {
-	if (!props.icon.startsWith('https://'))
+	if (!props.icon?.startsWith('https://'))
 		return <Iconify height={size} icon={props.icon} style={props.style} />
 
 	return (
@@ -55,4 +56,13 @@ const GenerateIcon = ({ size = 14, ...props }: GenerateIconProps) => {
 	)
 }
 
-export { createQueryParams, GenerateIcon, setQueryParams }
+const getForm = (action: GetNavigationScreenAction, navigation?: GetNavigationScreenData) => {
+	if (navigation?.dynamic_form) {
+		const data = navigation.dynamic_form.find((item) => item.action === action)
+		return data
+	}
+
+	return undefined
+}
+
+export { createQueryParams, GenerateIcon, getForm, setQueryParams }

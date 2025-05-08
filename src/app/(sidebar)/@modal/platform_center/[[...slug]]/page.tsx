@@ -1,27 +1,36 @@
 'use client'
 
+import { useIsFetching } from '@tanstack/react-query'
 import { Case } from 'change-case-all'
 import { redirect, RedirectType, usePathname } from 'next/navigation'
 import { useEffect, useMemo } from 'react'
-import Static from '@/components/pages/static-page'
+import StaticPage from '@/components/pages/static-page'
 import modal from '@/components/ui/modal'
 import useCustomViewId from '@/hooks/use-custom-view-id'
 import useGetAction from '@/hooks/use-get-action'
 import useGetCurrentId from '@/hooks/use-get-current-id'
+import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import useQueryFetched from '@/hooks/use-query-fetched'
-import useStaticStore from '@/stores/button-static'
 import type { GetNavigationScreenResponse } from '@/types/user/common'
+import { GetPathUrlScreenResponse } from '@/types/user/screen'
 import type { GetPrivilegeResponse } from '@/types/user/security-role'
 
 const Page = () => {
+	const route = useGetRoute()
 	const isCRUDPath = useIsCRUDPath()
 	const form = useGetAction()
 	const customViewId = useCustomViewId()
 	const currentId = useGetCurrentId()
 	const pathname = usePathname()
 
-	const { getTitle } = useStaticStore()
+	useIsFetching({
+		queryKey: ['get_navigation_screen', customViewId, currentId]
+	})
+
+	const getPathUrlScreen = useQueryFetched<GetPathUrlScreenResponse>({
+		queryKey: ['get_path_url_screen', currentId, route]
+	})
 
 	const getNavigationScreen = useQueryFetched<GetNavigationScreenResponse>({
 		queryKey: ['get_navigation_screen', customViewId, currentId]
@@ -31,6 +40,15 @@ const Page = () => {
 		queryKey: ['get_privilege', currentId]
 	})
 
+	const title = useMemo(() => {
+		if (getPathUrlScreen?.data) {
+			const path = getPathUrlScreen.data.flatMap((item) => item.path.split('/'))
+			return form ? [Case.capital(form.action), path[path.length - 1]].join(' ') : ''
+		}
+
+		return ''
+	}, [form, getPathUrlScreen?.data])
+
 	const navigation = useMemo(() => {
 		return getNavigationScreen?.data || []
 	}, [getNavigationScreen])
@@ -39,13 +57,11 @@ const Page = () => {
 		return getPrivilege?.data || []
 	}, [getPrivilege])
 
-	const title = form && [Case.capital(form.action), getTitle()].join(' ')
-
 	useEffect(() => {
-		if (isCRUDPath && form?.is_modal) {
+		if (navigation && isCRUDPath && form?.is_modal) {
 			modal
 				.open('static-modal', {
-					children: <Static navigation={navigation} privilege={privilege} />,
+					children: <StaticPage navigation={navigation} privilege={privilege} />,
 					title
 				})
 				.then(() => {
@@ -58,7 +74,7 @@ const Page = () => {
 					}
 				})
 		}
-	}, [isCRUDPath, form, navigation, privilege, title, pathname])
+	}, [form?.is_modal, isCRUDPath, navigation, pathname, privilege, title])
 
 	return <></>
 }

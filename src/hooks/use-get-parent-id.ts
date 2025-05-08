@@ -7,11 +7,11 @@ const useGetParentId = () => {
 
 	const current = useMemo(() => {
 		if (slug) return slug[slug.length - 1]
-		return undefined
+		return ''
 	}, [slug])
 
 	const parentId = useMemo(() => {
-		return current ? Case.upper(current) : undefined
+		return current ? Case.upper(current) : ''
 	}, [current])
 
 	return parentId

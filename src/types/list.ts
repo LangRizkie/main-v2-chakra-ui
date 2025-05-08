@@ -1,18 +1,19 @@
 import type { Key } from 'react'
+import { ReglaResponse } from './default'
 
-export type GetDataSort = {
+type GetDataSort = {
 	field: string
 	dir: string
 }
 
-export type GetDataFilters = {
+type GetDataFilters = {
 	field: string
 	operator: string
 	value: string
 	logic: string
 }
 
-export type GetDataFilter = {
+type GetDataFilter = {
 	filters: GetDataFilters[]
 }
 
@@ -32,6 +33,11 @@ export type DownloadDataPayload = PaginationPayload & {
 	[key: string]: unknown
 }
 
-export type DeleteDataPayload = {
-	pkid: Key[]
+export type TreeData<T> = {
+	level: number
+	is_active: boolean
+	items: T[]
+	status: string
 }
+
+export type TreeResponse<T> = ReglaResponse<TreeData<T>[]>

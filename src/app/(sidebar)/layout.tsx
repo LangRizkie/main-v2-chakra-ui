@@ -90,7 +90,7 @@ const SidebarLayout: React.FC<LayoutType> = ({ children, modal }) => {
 
 	const title = useMemo(() => {
 		const title = breadcrumb[breadcrumb.length - 1].title
-		if (isCRUDPath && action && !action.is_modal) return [Case.capital(route), title].join(' ')
+		if (isCRUDPath && !action?.is_modal) return [Case.capital(route), title].join(' ')
 
 		return title ?? Case.capital(route)
 	}, [action, breadcrumb, isCRUDPath, route])

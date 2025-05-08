@@ -1,4 +1,3 @@
-import { useIsFetching } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import type {
 	GetNavigationScreenAction,
@@ -14,8 +13,6 @@ const useGetAction = (action?: GetNavigationScreenAction) => {
 	const parentId = useGetParentId()
 	const currentId = useGetCurrentId()
 
-	useIsFetching({ queryKey: ['get_navigation_screen', customViewId, currentId] })
-
 	const getNavigationScreen = useQueryFetched<GetNavigationScreenResponse>({
 		queryKey: ['get_navigation_screen', customViewId, currentId]
 	})
@@ -27,6 +24,7 @@ const useGetAction = (action?: GetNavigationScreenAction) => {
 					return item.dynamic_form.find((form) => {
 						const parent = parentId ? parentId.toLowerCase() : ''
 						const act = action ? action.toLowerCase() : parent
+
 						return form.action.toLowerCase() === act
 					})
 				}

@@ -120,11 +120,7 @@ const Page = () => {
 
 	const handleOnAllReadClick = () => {
 		modal.open('all-read', {
-			children: (
-				<Center mb="4" mt="8" textStyle="md">
-					Are you sure want to read all this notifications?
-				</Center>
-			),
+			children: <Center paddingY="8">Are you sure want to read all this notifications?</Center>,
 			options: {
 				submit: {
 					onClick: () => {
