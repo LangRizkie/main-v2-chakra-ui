@@ -15,7 +15,7 @@ import { useSetState } from 'ahooks'
 import { Case } from 'change-case-all'
 import { groupBy } from 'lodash'
 import { Key, useEffect, useMemo } from 'react'
-import useGetRoute from '@/hooks/use-get-route'
+import useGetCurrentId from '@/hooks/use-get-current-id'
 import { GetLookupCustomView } from '@/libraries/mutation/user/common'
 import useStaticStore from '@/stores/button-static'
 
@@ -25,7 +25,7 @@ type SelectedProps = {
 }
 
 const Page = () => {
-	const screenId = useGetRoute({ index: 1 })
+	const currentId = useGetCurrentId()
 	const { setCard, setSubmit } = useStaticStore()
 
 	const [selected, setSelected] = useSetState<SelectedProps>({
@@ -34,8 +34,8 @@ const Page = () => {
 	})
 
 	const { data } = useQuery({
-		queryFn: () => GetLookupCustomView({ screenId }),
-		queryKey: ['get_lookup_custom_view', screenId]
+		queryFn: () => GetLookupCustomView({ screenId: currentId }),
+		queryKey: ['get_lookup_custom_view', currentId]
 	})
 
 	const list = useMemo(() => {

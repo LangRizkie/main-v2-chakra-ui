@@ -1,7 +1,7 @@
 import { Card, Center, Show, Spinner, Stack } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
 import { useEffect, useMemo } from 'react'
-import useGetCurrentId from '@/hooks/use-get-current-id'
+import useGetDynamicId from '@/hooks/use-get-dynamic-id'
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import useIsCustomView from '@/hooks/use-is-custom-view'
@@ -27,13 +27,13 @@ const LoadingComponent = () => (
 )
 
 const StaticPage: React.FC<StaticPageProps> = (props) => {
-	const route = useGetRoute()
-	const screenId = useGetCurrentId()
+	const dynamicId = useGetDynamicId()
+	const route = useGetRoute({ fromLast: true, index: 0 })
 	const isCRUDPath = useIsCRUDPath()
 	const isCustomView = useIsCustomView()
 
-	const crud = screenId + '/' + route
-	const normal = screenId?.toLowerCase()
+	const normal = dynamicId?.toLowerCase()
+	const crud = normal + '/' + route
 
 	const routes = `./${isCRUDPath && !isCustomView ? crud : normal}/page.tsx`
 
@@ -50,9 +50,9 @@ const StaticPage: React.FC<StaticPageProps> = (props) => {
 
 	const privilege = useMemo(() => {
 		return props.privilege.find(
-			(item) => item.screen_id.toLowerCase() === screenId?.toLowerCase()
+			(item) => item.screen_id.toLowerCase() === dynamicId?.toLowerCase()
 		)
-	}, [props.privilege, screenId])
+	}, [props.privilege, dynamicId])
 
 	const canInsert = useMemo(() => {
 		return privilege ? privilege.can_insert : false

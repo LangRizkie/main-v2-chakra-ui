@@ -22,7 +22,8 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import useGetAction from '@/hooks/use-get-action'
 import useGetCurrentId from '@/hooks/use-get-current-id'
-import useGetRoute from '@/hooks/use-get-route'
+import useGetDynamicId from '@/hooks/use-get-dynamic-id'
+import useGetNativeCurrentId from '@/hooks/use-get-native-current-id'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import useQueryFetched from '@/hooks/use-query-fetched'
 import { CustomEndpoint, CustomEndpointProps } from '@/libraries/mutation/list'
@@ -97,7 +98,7 @@ const Search = () => {
 }
 
 const Download: React.FC<StaticModalProps> = (props) => {
-	const screenId = useGetRoute()
+	const currentId = useGetCurrentId()
 	const params = useSearchParams()
 
 	const { setAttribute } = useModalStore()
@@ -137,7 +138,7 @@ const Download: React.FC<StaticModalProps> = (props) => {
 		CustomEndpointProps<DownloadDataPayload>
 	>({
 		mutationFn: CustomEndpoint,
-		mutationKey: ['list_export', screenId, search.toString()]
+		mutationKey: ['list_export', currentId, search.toString()]
 	})
 
 	const handleSubmit = (event: React.FormEvent) => {
@@ -217,13 +218,15 @@ const Download: React.FC<StaticModalProps> = (props) => {
 
 const ButtonAction: React.FC<Pick<WithFormProps, 'form'>> = ({ form }) => {
 	const pathname = usePathname()
-	const route = useGetRoute()
-	const currentId = useGetCurrentId()
+	const nativeCurrentId = useGetNativeCurrentId()
+	const isCRUDPath = useIsCRUDPath()
+	const dynamicId = useGetDynamicId()
+
 	const download = useGetAction('DOWNLOAD')
 	const create = useGetAction('CREATE')
 
 	const getPathUrlScreen = useQueryFetched<GetPathUrlScreenResponse>({
-		queryKey: ['get_path_url_screen', currentId, route]
+		queryKey: ['get_path_url_screen', nativeCurrentId, isCRUDPath, dynamicId]
 	})
 
 	const title = useMemo(() => {
@@ -288,7 +291,7 @@ const Component: React.FC<ComponentProps> = ({ children, index, ...props }) => {
 	const router = useRouter()
 	const pathname = usePathname()
 	const params = useSearchParams()
-	const screenId = useGetRoute()
+	const currentId = useGetCurrentId()
 	const isCRUDPath = useIsCRUDPath()
 	const list = useGetAction('LIST')
 
@@ -298,7 +301,7 @@ const Component: React.FC<ComponentProps> = ({ children, index, ...props }) => {
 		CustomEndpointProps<PaginationPayload>
 	>({
 		mutationFn: CustomEndpoint,
-		mutationKey: ['custom_endpoint', screenId, params.toString()]
+		mutationKey: ['custom_endpoint', currentId, params.toString()]
 	})
 
 	const queries = createQueryParams({}, { route: pathname })

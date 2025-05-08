@@ -3,7 +3,7 @@ import { Iconify } from '@regla/monorepo'
 import { isEmpty } from 'lodash'
 import Link from 'next/link'
 import { useMemo } from 'react'
-import useGetRoute from '@/hooks/use-get-route'
+import useGetCurrentId from '@/hooks/use-get-current-id'
 import type { GetPrivilegeData } from '@/types/user/security-role'
 import type { GetNavigationScreenData } from '../../types/user/common'
 import { GenerateIcon } from '../../utilities/helper'
@@ -15,11 +15,11 @@ type GridCardProps = {
 }
 
 const GridCard: React.FC<GridCardProps> = (props) => {
-	const screenId = useGetRoute()
+	const currentId = useGetCurrentId()
 
 	const privilege = useMemo(() => {
-		return props.privilege.find((item) => item.screen_id.toLowerCase() === screenId)
-	}, [props.privilege, screenId])
+		return props.privilege.find((item) => item.screen_id.toLowerCase() === currentId)
+	}, [props.privilege, currentId])
 
 	const canView = useMemo(() => {
 		if (!privilege && !isEmpty(props.navigation)) return true

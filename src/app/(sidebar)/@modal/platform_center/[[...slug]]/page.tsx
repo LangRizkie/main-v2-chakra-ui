@@ -8,46 +8,39 @@ import StaticPage from '@/components/pages/static-page'
 import modal from '@/components/ui/modal'
 import useCustomViewId from '@/hooks/use-custom-view-id'
 import useGetAction from '@/hooks/use-get-action'
-import useGetCurrentId from '@/hooks/use-get-current-id'
+import useGetDynamicId from '@/hooks/use-get-dynamic-id'
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import useQueryFetched from '@/hooks/use-query-fetched'
 import type { GetNavigationScreenResponse } from '@/types/user/common'
-import { GetPathUrlScreenResponse } from '@/types/user/screen'
 import type { GetPrivilegeResponse } from '@/types/user/security-role'
 
 const Page = () => {
-	const route = useGetRoute()
-	const isCRUDPath = useIsCRUDPath()
 	const form = useGetAction()
+	const isCRUDPath = useIsCRUDPath()
 	const customViewId = useCustomViewId()
-	const currentId = useGetCurrentId()
+	const route = useGetRoute({ fromLast: true, index: 0 })
+	const dynamicId = useGetDynamicId()
 	const pathname = usePathname()
 
 	useIsFetching({
-		queryKey: ['get_navigation_screen', customViewId, currentId]
-	})
-
-	const getPathUrlScreen = useQueryFetched<GetPathUrlScreenResponse>({
-		queryKey: ['get_path_url_screen', currentId, route]
+		queryKey: ['get_navigation_screen', customViewId, dynamicId]
 	})
 
 	const getNavigationScreen = useQueryFetched<GetNavigationScreenResponse>({
-		queryKey: ['get_navigation_screen', customViewId, currentId]
+		queryKey: ['get_navigation_screen', customViewId, dynamicId]
 	})
 
 	const getPrivilege = useQueryFetched<GetPrivilegeResponse>({
-		queryKey: ['get_privilege', currentId]
+		queryKey: ['get_privilege', dynamicId]
 	})
 
 	const title = useMemo(() => {
-		if (getPathUrlScreen?.data) {
-			const path = getPathUrlScreen.data.flatMap((item) => item.path.split('/'))
-			return form ? [Case.capital(form.action), path[path.length - 1]].join(' ') : ''
-		}
+		const screen = getNavigationScreen?.data?.[0]
+		const title = screen?.title
 
-		return ''
-	}, [form, getPathUrlScreen?.data])
+		return [Case.capital(route), title].join(' ')
+	}, [route, getNavigationScreen?.data])
 
 	const navigation = useMemo(() => {
 		return getNavigationScreen?.data || []
@@ -73,8 +66,11 @@ const Page = () => {
 						return redirect(parent, RedirectType.push)
 					}
 				})
+				.finally(() => {
+					modal.remove('static-modal')
+				})
 		}
-	}, [form?.is_modal, isCRUDPath, navigation, pathname, privilege, title])
+	}, [form, isCRUDPath, navigation, pathname, privilege, title])
 
 	return <></>
 }

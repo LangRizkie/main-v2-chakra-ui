@@ -9,7 +9,7 @@ import TreePage from '@/components/pages/tree-page'
 import useCustomViewId from '@/hooks/use-custom-view-id'
 import useGetAction from '@/hooks/use-get-action'
 import useGetCurrentId from '@/hooks/use-get-current-id'
-import useGetRoute from '@/hooks/use-get-route'
+import useGetDynamicId from '@/hooks/use-get-dynamic-id'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import useQueryFetched from '@/hooks/use-query-fetched'
 import type { GetNavigationScreenResponse } from '@/types/user/common'
@@ -19,19 +19,19 @@ import { exception_routes } from '@/utilities/constants'
 const Page = () => {
 	const customViewId = useCustomViewId()
 	const currentId = useGetCurrentId()
-	const route = useGetRoute()
+	const dynamicId = useGetDynamicId()
 	const isCRUDPath = useIsCRUDPath()
 	const action = useGetAction()
 
-	useIsFetching({ queryKey: ['get_navigation_screen', customViewId, currentId] })
-	useIsFetching({ queryKey: ['get_privilege', currentId] })
+	useIsFetching({ queryKey: ['get_navigation_screen', customViewId, dynamicId] })
+	useIsFetching({ queryKey: ['get_privilege', dynamicId] })
 
 	const getNavigationScreen = useQueryFetched<GetNavigationScreenResponse>({
-		queryKey: ['get_navigation_screen', customViewId, currentId]
+		queryKey: ['get_navigation_screen', customViewId, dynamicId]
 	})
 
 	const getPrivilege = useQueryFetched<GetPrivilegeResponse>({
-		queryKey: ['get_privilege', currentId]
+		queryKey: ['get_privilege', dynamicId]
 	})
 
 	const navigation = useMemo(() => {
@@ -43,8 +43,8 @@ const Page = () => {
 	}, [getPrivilege])
 
 	const isException = useMemo(() => {
-		return Object.values(exception_routes).includes(`/${route}`)
-	}, [route])
+		return Object.values(exception_routes).includes(`/${currentId}`)
+	}, [currentId])
 
 	const isTable = useMemo(() => {
 		return navigation.some((item) => item.is_table)
@@ -70,7 +70,7 @@ const Page = () => {
 	}, [action?.is_modal, isCRUDPath, isException, isTable, navigation])
 
 	if (isTree) {
-		return <TreePage navigation={navigation} privilege={privilege}></TreePage>
+		return <TreePage navigation={navigation} privilege={privilege} />
 	}
 
 	if (isStatic) {

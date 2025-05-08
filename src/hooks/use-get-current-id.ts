@@ -1,13 +1,18 @@
-import useGetParentId from './use-get-parent-id'
-import useGetRoute from './use-get-route'
-import useIsCRUDPath from './use-is-crud-path'
+import { Case } from 'change-case-all'
+import { useParams } from 'next/navigation'
+import { useMemo } from 'react'
+
+// NOTES: this hook will get current last path respecting slug
 
 const useGetCurrentId = () => {
-	const screenId = useGetRoute({ fromLast: true, index: 2 })
-	const parentId = useGetParentId()
-	const isCRUDPath = useIsCRUDPath()
+	const { slug } = useParams()
 
-	return isCRUDPath ? screenId : parentId
+	const current = useMemo(() => {
+		if (slug) return slug[slug.length - 1]
+		return ''
+	}, [slug])
+
+	return current ? Case.upper(current) : undefined
 }
 
 export default useGetCurrentId

@@ -10,7 +10,9 @@ import Header from '@/components/ui/header'
 import { SidebarContent, SidebarMenu } from '@/components/ui/sidebar'
 import useCustomViewId from '@/hooks/use-custom-view-id'
 import useGetAction from '@/hooks/use-get-action'
-import useGetCurrentId from '@/hooks/use-get-current-id'
+import useGetDynamicId from '@/hooks/use-get-dynamic-id'
+import useGetNativeCurrentId from '@/hooks/use-get-native-current-id'
+import useGetParentId from '@/hooks/use-get-parent-id'
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
 import { List } from '@/libraries/mutation/email/user/notification'
@@ -22,12 +24,14 @@ import usePreference from '@/stores/preference'
 import type { LayoutType } from '../../types/default'
 
 const SidebarLayout: React.FC<LayoutType> = ({ children, modal }) => {
-	const route = useGetRoute()
 	const pathname = usePathname()
 	const customViewId = useCustomViewId()
-	const currentId = useGetCurrentId()
-	const action = useGetAction()
+	const dynamicId = useGetDynamicId()
+	const parentId = useGetParentId()
+	const route = useGetRoute({ fromLast: true, index: 0 })
+	const nativeCurrentId = useGetNativeCurrentId()
 	const isCRUDPath = useIsCRUDPath()
+	const action = useGetAction()
 
 	const { isSidebarOpen, setOpen } = usePreference()
 	const { activate, back, deactivate, reactivate, submit } = useStaticStore()
@@ -40,16 +44,16 @@ const SidebarLayout: React.FC<LayoutType> = ({ children, modal }) => {
 	})
 
 	// Breadcrumb and title
-	const { data } = useQuery({
-		queryFn: () => GetPathUrlScreen({ screenId: currentId ?? route }),
-		queryKey: ['get_path_url_screen', currentId, route],
+	const { data: pathUrlScreen } = useQuery({
+		queryFn: () => GetPathUrlScreen({ screenId: isCRUDPath ? dynamicId : nativeCurrentId }),
+		queryKey: ['get_path_url_screen', nativeCurrentId, isCRUDPath, dynamicId],
 		refetchOnWindowFocus: false
 	})
 
 	// Sidebar Menu
 	useQuery({
-		queryFn: () => GetAllNavigationScreen({ parentId: currentId }),
-		queryKey: ['get_all_navigation_screen', currentId],
+		queryFn: () => GetAllNavigationScreen({ parentId: parentId }),
+		queryKey: ['get_all_navigation_screen', parentId],
 		refetchOnWindowFocus: false
 	})
 
@@ -61,39 +65,55 @@ const SidebarLayout: React.FC<LayoutType> = ({ children, modal }) => {
 	})
 
 	// Dynamic menu
-	useQuery({
-		queryFn: () => GetNavigationScreen({ customViewId, parentId: currentId }),
-		queryKey: ['get_navigation_screen', customViewId, currentId],
+	const { data: navigationScreen } = useQuery({
+		queryFn: () => GetNavigationScreen({ customViewId, parentId: dynamicId }),
+		queryKey: ['get_navigation_screen', customViewId, dynamicId],
 		refetchOnWindowFocus: false
 	})
 
 	// User Privilege
 	useQuery({
-		queryFn: () => GetPrivilege({ screenId: currentId }),
-		queryKey: ['get_privilege', currentId],
+		queryFn: () => GetPrivilege({ screenId: dynamicId }),
+		queryKey: ['get_privilege', dynamicId],
 		refetchOnWindowFocus: false
 	})
 
 	const breadcrumb = useMemo(() => {
-		if (isEmpty(data) || (data && isEmpty(data.data)))
-			return [{ title: Case.capital(route), url: pathname }]
+		if (isEmpty(pathUrlScreen) || (pathUrlScreen && isEmpty(pathUrlScreen.data))) {
+			const routes = pathname.split('/').filter((item) => !!item)
 
-		const crumb = data.data[0]
+			const crumb = routes.map((item, index) => ({
+				title: Case.capital(item),
+				url: '/' + routes.slice(0, index + 1).join('/')
+			}))
+
+			return crumb
+		}
+
+		const crumb = pathUrlScreen.data[0]
 		const path = crumb.path.split('/').filter((item) => !!item)
 		const url = crumb.url.split('/').filter((item) => !!item)
 
-		return path.map((p, i) => ({
-			title: p,
-			url: '/' + url.slice(0, i + 1).join('/')
+		if (isCRUDPath) {
+			const capitalize = Case.capital(route)
+			path.push(capitalize)
+			url.push(capitalize)
+		}
+
+		return path.map((item, index) => ({
+			title: item,
+			url: '/' + url.slice(0, index + 1).join('/')
 		}))
-	}, [data, pathname, route])
+	}, [isCRUDPath, pathUrlScreen, pathname, route])
 
 	const title = useMemo(() => {
-		const title = breadcrumb[breadcrumb.length - 1].title
-		if (isCRUDPath && !action?.is_modal) return [Case.capital(route), title].join(' ')
+		const screen = navigationScreen?.data.find(
+			(item) => item.screen_id.toLowerCase() === dynamicId?.toLowerCase()
+		)
 
-		return title ?? Case.capital(route)
-	}, [action, breadcrumb, isCRUDPath, route])
+		if (isCRUDPath && !action?.is_modal) return [Case.capital(route), screen?.title].join(' ')
+		return screen?.title ?? Case.capital(route)
+	}, [navigationScreen?.data, isCRUDPath, action?.is_modal, route, dynamicId])
 
 	return (
 		<Layout

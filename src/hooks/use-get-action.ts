@@ -5,16 +5,16 @@ import type {
 } from '@/types/user/common'
 import useCustomViewId from './use-custom-view-id'
 import useGetCurrentId from './use-get-current-id'
-import useGetParentId from './use-get-parent-id'
+import useGetDynamicId from './use-get-dynamic-id'
 import useQueryFetched from './use-query-fetched'
 
 const useGetAction = (action?: GetNavigationScreenAction) => {
 	const customViewId = useCustomViewId()
-	const parentId = useGetParentId()
+	const dynamicId = useGetDynamicId()
 	const currentId = useGetCurrentId()
 
 	const getNavigationScreen = useQueryFetched<GetNavigationScreenResponse>({
-		queryKey: ['get_navigation_screen', customViewId, currentId]
+		queryKey: ['get_navigation_screen', customViewId, dynamicId]
 	})
 
 	const form = useMemo(() => {
@@ -22,10 +22,12 @@ const useGetAction = (action?: GetNavigationScreenAction) => {
 			const map = getNavigationScreen.data.map((item) => {
 				if (item.dynamic_form) {
 					return item.dynamic_form.find((form) => {
-						const parent = parentId ? parentId.toLowerCase() : ''
-						const act = action ? action.toLowerCase() : parent
+						const loop = form.action.toLowerCase()
+						const param = action?.toLowerCase()
+						const current = currentId?.toLowerCase()
 
-						return form.action.toLowerCase() === act
+						if (action) return param === loop
+						return loop === current
 					})
 				}
 			})
@@ -34,7 +36,7 @@ const useGetAction = (action?: GetNavigationScreenAction) => {
 		}
 
 		return undefined
-	}, [action, parentId, getNavigationScreen])
+	}, [getNavigationScreen?.data, action, currentId])
 
 	return form
 }
