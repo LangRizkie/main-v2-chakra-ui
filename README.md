@@ -1,6 +1,6 @@
 ![Logo](./public/logo/full.svg)
 
-# Regla Platform V2
+# Regla Main V2
 
 This project is dedicated to the Regla Project, aimed at addressing complex back-to-back requirements that can sometimes be challenging. The goal is to modernize and revamp this project as long as I remain part of the team.
 
@@ -13,8 +13,8 @@ This project is dedicated to the Regla Project, aimed at addressing complex back
 To run this project locally, you must include the following environment variables in your .env file
 
 ```
-NEXT_PUBLIC_BASE_API=https://webapp.dev.regla.cloud/api
-NEXT_PUBLIC_APP_ID=PLATFORM_CENTER
+NEXT_PUBLIC_BASE_API=https://{branch}.{env}.regla.cloud/api
+NEXT_PUBLIC_APP_ID={APP_ID}
 ```
 
 ## Tech Stack
