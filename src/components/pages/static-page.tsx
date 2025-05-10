@@ -1,10 +1,10 @@
-import { Card, Center, Show, Spinner, Stack } from '@chakra-ui/react'
+import { Card, Center, Show, Spinner } from '@chakra-ui/react'
 import dynamic from 'next/dynamic'
 import { useEffect, useMemo } from 'react'
 import useGetDynamicId from '@/hooks/use-get-dynamic-id'
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
-import useIsCustomView from '@/hooks/use-is-custom-view'
+import useIsExceptionPath from '@/hooks/use-is-exception-path'
 import useStaticStore from '@/stores/button-static'
 import type { GetNavigationScreenData } from '@/types/user/common'
 import type { GetPrivilegeData } from '@/types/user/security-role'
@@ -15,7 +15,6 @@ type StaticPageProps = {
 	navigation: GetNavigationScreenData[]
 	privilege: GetPrivilegeData[]
 	isCard?: boolean
-	isException?: boolean
 }
 
 const ErrorComponent = () => <>{messages.component_not_found}</>
@@ -30,14 +29,20 @@ const StaticPage: React.FC<StaticPageProps> = (props) => {
 	const dynamicId = useGetDynamicId()
 	const route = useGetRoute({ fromLast: true, index: 0 })
 	const isCRUDPath = useIsCRUDPath()
-	const isCustomView = useIsCustomView()
+	const isExceptionPath = useIsExceptionPath()
+
+	const { card, reset, setBack, setSubmit } = useStaticStore()
 
 	const normal = dynamicId?.toLowerCase()
 	const crud = normal + '/' + route
 
-	const routes = `./${isCRUDPath && !isCustomView ? crud : normal}/page.tsx`
+	const path = useMemo(() => {
+		if (isCRUDPath) return crud
+		if (isExceptionPath) return route
+		return normal
+	}, [crud, isCRUDPath, isExceptionPath, normal, route])
 
-	const { card, reset, setBack, setSubmit } = useStaticStore()
+	const routes = `./${path}/page.tsx`
 
 	const Component = useMemo(
 		() =>
@@ -67,8 +72,8 @@ const StaticPage: React.FC<StaticPageProps> = (props) => {
 	}, [canInsert, canUpdate])
 
 	const canView = useMemo(() => {
-		return privilege ? privilege.can_view : (props.isException ?? false)
-	}, [privilege, props.isException])
+		return privilege ? privilege.can_view : (isExceptionPath ?? false)
+	}, [privilege, isExceptionPath])
 
 	const canInteractWithSubmit = useMemo(() => {
 		return canSubmit && canView && props.isCard
@@ -84,16 +89,20 @@ const StaticPage: React.FC<StaticPageProps> = (props) => {
 	return (
 		<Show fallback={<Forbidden />} when={canView}>
 			<Show when={props.isCard}>
-				<Card.Root {...card} hidden={card?.normalize || card?.hidden}>
-					<Card.Header />
-					<Card.Body paddingX="8">
-						<Component {...props} />
-					</Card.Body>
-					<Card.Footer />
-				</Card.Root>
-				<Stack hidden={!card?.normalize}>
+				<Show
+					when={card?.normalize}
+					fallback={
+						<Card.Root {...card} hidden={card?.hidden}>
+							<Card.Header />
+							<Card.Body paddingX="8">
+								<Component {...props} />
+							</Card.Body>
+							<Card.Footer />
+						</Card.Root>
+					}
+				>
 					<Component {...props} />
-				</Stack>
+				</Show>
 			</Show>
 			<Show when={!props.isCard}>
 				<Component {...props} />

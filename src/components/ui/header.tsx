@@ -43,7 +43,7 @@ import { IsRead } from '@/libraries/mutation/email/update'
 import { GeneralSearch, GeneralSearchModule } from '@/libraries/mutation/parameter/parameter'
 import useUserProperty from '@/stores/user-property'
 import { ListResponse, PagingData } from '@/types/email/user/notification/list'
-import { exception_routes, routes } from '@/utilities/constants'
+import { routes } from '@/utilities/constants'
 import { setQueryParams } from '@/utilities/helper'
 import modal from './modal'
 
@@ -130,12 +130,12 @@ const Header = () => {
 	}, [list?.data.count, list?.data.list])
 
 	const searchRoute = useMemo(() => {
-		const route = [appId, exception_routes.search].join('')
+		const route = [appId, routes.exception.search].join('')
 		return `/${route}${location.search}`
 	}, [appId])
 
 	const notificationRoute = useMemo(() => {
-		const route = [appId, exception_routes.notification].join('')
+		const route = [appId, routes.exception.notification].join('')
 		return `/${route}${location.search}`
 	}, [appId])
 
@@ -164,7 +164,7 @@ const Header = () => {
 			case 'main':
 				return redirect(routes.main)
 			case 'profile':
-				return redirect('/' + appId + exception_routes.profile, RedirectType.push)
+				return redirect('/' + appId + routes.exception.profile, RedirectType.push)
 			case 'logout':
 				modal.open('logout', {
 					children: (

@@ -170,7 +170,11 @@ const DataTable = () => {
 
 	const handleRevokeAction = (item: GetListLicensePagingData) => {
 		modal.open('revoke-license', {
-			children: <Center paddingY="8">Are you sure want to Revoke this license?</Center>,
+			children: (
+				<Center paddingY="8" textStyle="md">
+					Are you sure want to Revoke this license?
+				</Center>
+			),
 			options: {
 				cancel: { hidden: true },
 				submit: {

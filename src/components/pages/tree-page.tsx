@@ -25,6 +25,7 @@ import useGetCurrentId from '@/hooks/use-get-current-id'
 import useGetDynamicId from '@/hooks/use-get-dynamic-id'
 import useGetNativeCurrentId from '@/hooks/use-get-native-current-id'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
+import useIsExceptionPath from '@/hooks/use-is-exception-path'
 import useQueryFetched from '@/hooks/use-query-fetched'
 import { CustomEndpoint, CustomEndpointProps } from '@/libraries/mutation/list'
 import { GetFormatExportFile, GetTypeExportFile } from '@/libraries/mutation/parameter/dropdown'
@@ -38,7 +39,7 @@ import {
 } from '@/types/user/common'
 import { GetPathUrlScreenResponse } from '@/types/user/screen'
 import { GetPrivilegeData } from '@/types/user/security-role'
-import { crud_routes } from '@/utilities/constants'
+import { routes } from '@/utilities/constants'
 import { createQueryParams, setQueryParams } from '@/utilities/helper'
 import modal from '../ui/modal'
 import StaticPage from './static-page'
@@ -220,13 +221,14 @@ const ButtonAction: React.FC<Pick<WithFormProps, 'form'>> = ({ form }) => {
 	const pathname = usePathname()
 	const nativeCurrentId = useGetNativeCurrentId()
 	const isCRUDPath = useIsCRUDPath()
+	const isExceptionPath = useIsExceptionPath()
 	const dynamicId = useGetDynamicId()
 
 	const download = useGetAction('DOWNLOAD')
 	const create = useGetAction('CREATE')
 
 	const getPathUrlScreen = useQueryFetched<GetPathUrlScreenResponse>({
-		queryKey: ['get_path_url_screen', nativeCurrentId, isCRUDPath, dynamicId]
+		queryKey: ['get_path_url_screen', nativeCurrentId, isCRUDPath, dynamicId, isExceptionPath]
 	})
 
 	const title = useMemo(() => {
@@ -264,7 +266,7 @@ const ButtonAction: React.FC<Pick<WithFormProps, 'form'>> = ({ form }) => {
 	}
 
 	const createRoute = useMemo(() => {
-		return [pathname, crud_routes.create].join('')
+		return [pathname, routes.crud.create].join('')
 	}, [pathname])
 
 	return (

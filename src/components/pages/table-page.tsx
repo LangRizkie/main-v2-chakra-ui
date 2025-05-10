@@ -46,6 +46,7 @@ import useGetCurrentId from '@/hooks/use-get-current-id'
 import useGetDynamicId from '@/hooks/use-get-dynamic-id'
 import useGetNativeCurrentId from '@/hooks/use-get-native-current-id'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
+import useIsExceptionPath from '@/hooks/use-is-exception-path'
 import useQueryFetched from '@/hooks/use-query-fetched'
 import { CustomEndpoint, type CustomEndpointProps } from '@/libraries/mutation/list'
 import { GetFormatExportFile, GetTypeExportFile } from '@/libraries/mutation/parameter/dropdown'
@@ -60,7 +61,7 @@ import type {
 } from '@/types/user/common'
 import { GetPathUrlScreenResponse } from '@/types/user/screen'
 import type { GetPrivilegeData } from '@/types/user/security-role'
-import { crud_routes, exception_routes } from '@/utilities/constants'
+import { routes } from '@/utilities/constants'
 import { createQueryParams, getForm, setQueryParams } from '@/utilities/helper'
 import { values } from '@/utilities/validation'
 import modal from '../ui/modal'
@@ -354,7 +355,7 @@ const Toolbar: React.FC<ToolbarProps> = (props) => {
 	}
 
 	const customViewRoute = useMemo(() => {
-		return isEmpty(custom) ? '' : [pathname, exception_routes.custom_view].join('')
+		return isEmpty(custom) ? '' : [pathname, routes.exception.custom_view].join('')
 	}, [custom, pathname])
 
 	return (
@@ -457,7 +458,7 @@ const ButtonAction: React.FC<ButtonActionProps> = ({ handleButtonClick }) => {
 	const approve = useGetAction('APPROVE')
 
 	const createRoute = useMemo(() => {
-		return [pathname, crud_routes.create].join('')
+		return [pathname, routes.crud.create].join('')
 	}, [pathname])
 
 	return (
@@ -991,6 +992,7 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 	const pathname = usePathname()
 	const params = useSearchParams()
 	const isCRUDPath = useIsCRUDPath()
+	const isExceptionPath = useIsExceptionPath()
 	const dynamicId = useGetDynamicId()
 	const nativeCurrentId = useGetNativeCurrentId()
 	const list = useGetAction('LIST')
@@ -1007,7 +1009,7 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 	})
 
 	const getPathUrlScreen = useQueryFetched<GetPathUrlScreenResponse>({
-		queryKey: ['get_path_url_screen', nativeCurrentId, isCRUDPath, dynamicId]
+		queryKey: ['get_path_url_screen', nativeCurrentId, isCRUDPath, dynamicId, isExceptionPath]
 	})
 
 	const queries = createQueryParams(
@@ -1155,7 +1157,7 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 
 		modal.open('danger', {
 			children: (
-				<Center paddingY="8">
+				<Center paddingY="8" textStyle="md">
 					Are you sure you want to {Case.lower(options.data.action)} the selected record(s)?
 				</Center>
 			),
@@ -1175,6 +1177,7 @@ const Component: React.FC<ComponentProps> = ({ index, ...props }) => {
 					title: options.buttonTitle ?? Case.capital(options.data.action)
 				}
 			},
+			size: 'sm',
 			title: options.title
 		})
 	}

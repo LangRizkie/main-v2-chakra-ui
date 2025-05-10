@@ -37,7 +37,9 @@ const Tree = <T extends TreeData<T>>(props: TreeProps<T>) => {
 	const handleDeleteTree = (item: T) => {
 		modal.open('delete-tree', {
 			children: (
-				<Center paddingY="8">Are you sure you want to delete the selected record(s)?</Center>
+				<Center paddingY="8" textStyle="md">
+					Are you sure you want to delete the selected record(s)?
+				</Center>
 			),
 			options: {
 				submit: {
@@ -48,7 +50,8 @@ const Tree = <T extends TreeData<T>>(props: TreeProps<T>) => {
 					title: 'Delete'
 				}
 			},
-			title: ['Delete', Case.capital(currentId)].join(' ')
+			size: 'md',
+			title: ['Delete', Case.capital(currentId ?? '')].join(' ')
 		})
 	}
 

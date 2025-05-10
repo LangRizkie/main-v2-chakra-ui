@@ -19,7 +19,7 @@ import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useMemo } from 'react'
-import { exception_routes } from '@/utilities/constants'
+import { routes } from '@/utilities/constants'
 import { logout } from '../../config/instance'
 import { GetPlatform } from '../../libraries/mutation/platform-settings/master-application'
 import { GenerateIcon } from '../../utilities/helper'
@@ -35,7 +35,7 @@ const Page = () => {
 	}, [data])
 
 	const notification = useMemo(() => {
-		return `/platform_center${exception_routes.notification}`
+		return `/platform_center${routes.exception.notification}`
 	}, [])
 
 	const handleAnimationDuration = (index: number) => {
@@ -124,7 +124,7 @@ const Page = () => {
 				<Show
 					when={!isPending}
 					fallback={
-						<For each={Array.from(Array(3))}>
+						<For each={Array.from(Array(4))}>
 							{(item, index) => (
 								<Skeleton key={index} minHeight={48} width="full">
 									{item}

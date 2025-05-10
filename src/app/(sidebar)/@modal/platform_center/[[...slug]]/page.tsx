@@ -11,6 +11,7 @@ import useGetAction from '@/hooks/use-get-action'
 import useGetDynamicId from '@/hooks/use-get-dynamic-id'
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
+import useIsExceptionPath from '@/hooks/use-is-exception-path'
 import useQueryFetched from '@/hooks/use-query-fetched'
 import type { GetNavigationScreenResponse } from '@/types/user/common'
 import type { GetPrivilegeResponse } from '@/types/user/security-role'
@@ -18,6 +19,7 @@ import type { GetPrivilegeResponse } from '@/types/user/security-role'
 const Page = () => {
 	const form = useGetAction()
 	const isCRUDPath = useIsCRUDPath()
+	const isExceptionPath = useIsExceptionPath()
 	const customViewId = useCustomViewId()
 	const route = useGetRoute({ fromLast: true, index: 0 })
 	const dynamicId = useGetDynamicId()
@@ -51,14 +53,14 @@ const Page = () => {
 	}, [getPrivilege])
 
 	useEffect(() => {
-		if (navigation && isCRUDPath && form?.is_modal) {
+		if (navigation && (isCRUDPath || isExceptionPath) && form?.is_modal) {
 			modal
 				.open('static-modal', {
 					children: <StaticPage navigation={navigation} privilege={privilege} />,
 					title
 				})
 				.then(() => {
-					if (isCRUDPath) {
+					if (isCRUDPath || isExceptionPath) {
 						const parent = pathname.slice(0, pathname.lastIndexOf('/'))
 						const isOrigin = document.referrer.startsWith(origin)
 
@@ -70,7 +72,7 @@ const Page = () => {
 					modal.remove('static-modal')
 				})
 		}
-	}, [form, isCRUDPath, navigation, pathname, privilege, title])
+	}, [form, isCRUDPath, isExceptionPath, navigation, pathname, privilege, title])
 
 	return <></>
 }

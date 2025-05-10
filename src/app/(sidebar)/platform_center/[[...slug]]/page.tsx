@@ -8,19 +8,18 @@ import TablePage from '@/components/pages/table-page'
 import TreePage from '@/components/pages/tree-page'
 import useCustomViewId from '@/hooks/use-custom-view-id'
 import useGetAction from '@/hooks/use-get-action'
-import useGetCurrentId from '@/hooks/use-get-current-id'
 import useGetDynamicId from '@/hooks/use-get-dynamic-id'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
+import useIsExceptionPath from '@/hooks/use-is-exception-path'
 import useQueryFetched from '@/hooks/use-query-fetched'
 import type { GetNavigationScreenResponse } from '@/types/user/common'
 import type { GetPrivilegeResponse } from '@/types/user/security-role'
-import { exception_routes } from '@/utilities/constants'
 
 const Page = () => {
 	const customViewId = useCustomViewId()
-	const currentId = useGetCurrentId()
 	const dynamicId = useGetDynamicId()
 	const isCRUDPath = useIsCRUDPath()
+	const isExceptionPath = useIsExceptionPath()
 	const action = useGetAction()
 
 	useIsFetching({ queryKey: ['get_navigation_screen', customViewId, dynamicId] })
@@ -42,10 +41,6 @@ const Page = () => {
 		return getPrivilege?.data || []
 	}, [getPrivilege])
 
-	const isException = useMemo(() => {
-		return Object.values(exception_routes).includes(`/${currentId}`)
-	}, [currentId])
-
 	const isTable = useMemo(() => {
 		return navigation.some((item) => item.is_table)
 	}, [navigation])
@@ -64,24 +59,17 @@ const Page = () => {
 
 	const isStatic = useMemo(() => {
 		const BE = isTable && navigation.some((item) => item.form_type === 'STATIC')
-		const FE = (isCRUDPath && !action?.is_modal) || isException
+		const FE = (isCRUDPath && !action?.is_modal) || isExceptionPath
 
 		return BE || FE
-	}, [action?.is_modal, isCRUDPath, isException, isTable, navigation])
+	}, [action?.is_modal, isCRUDPath, isExceptionPath, isTable, navigation])
 
 	if (isTree) {
 		return <TreePage navigation={navigation} privilege={privilege} />
 	}
 
 	if (isStatic) {
-		return (
-			<StaticPage
-				isException={isException}
-				navigation={navigation}
-				privilege={privilege}
-				isCard
-			/>
-		)
+		return <StaticPage navigation={navigation} privilege={privilege} isCard />
 	}
 
 	if (isTable) {

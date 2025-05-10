@@ -15,6 +15,7 @@ import useGetNativeCurrentId from '@/hooks/use-get-native-current-id'
 import useGetParentId from '@/hooks/use-get-parent-id'
 import useGetRoute from '@/hooks/use-get-route'
 import useIsCRUDPath from '@/hooks/use-is-crud-path'
+import useIsExceptionPath from '@/hooks/use-is-exception-path'
 import { List } from '@/libraries/mutation/email/user/notification'
 import { GetAllNavigationScreen, GetNavigationScreen } from '@/libraries/mutation/user/common'
 import { GetPathUrlScreen } from '@/libraries/mutation/user/screen'
@@ -31,6 +32,7 @@ const SidebarLayout: React.FC<LayoutType> = ({ children, modal }) => {
 	const route = useGetRoute({ fromLast: true, index: 0 })
 	const nativeCurrentId = useGetNativeCurrentId()
 	const isCRUDPath = useIsCRUDPath()
+	const isExceptionPath = useIsExceptionPath()
 	const action = useGetAction()
 
 	const { isSidebarOpen, setOpen } = usePreference()
@@ -45,8 +47,11 @@ const SidebarLayout: React.FC<LayoutType> = ({ children, modal }) => {
 
 	// Breadcrumb and title
 	const { data: pathUrlScreen } = useQuery({
-		queryFn: () => GetPathUrlScreen({ screenId: isCRUDPath ? dynamicId : nativeCurrentId }),
-		queryKey: ['get_path_url_screen', nativeCurrentId, isCRUDPath, dynamicId],
+		queryFn: () =>
+			GetPathUrlScreen({
+				screenId: isCRUDPath || isExceptionPath ? dynamicId : nativeCurrentId
+			}),
+		queryKey: ['get_path_url_screen', nativeCurrentId, isCRUDPath, dynamicId, isExceptionPath],
 		refetchOnWindowFocus: false
 	})
 
@@ -94,7 +99,7 @@ const SidebarLayout: React.FC<LayoutType> = ({ children, modal }) => {
 		const path = crumb.path.split('/').filter((item) => !!item)
 		const url = crumb.url.split('/').filter((item) => !!item)
 
-		if (isCRUDPath) {
+		if (isCRUDPath || isExceptionPath) {
 			const capitalize = Case.capital(route)
 			path.push(capitalize)
 			url.push(capitalize)
@@ -104,16 +109,18 @@ const SidebarLayout: React.FC<LayoutType> = ({ children, modal }) => {
 			title: item,
 			url: '/' + url.slice(0, index + 1).join('/')
 		}))
-	}, [isCRUDPath, pathUrlScreen, pathname, route])
+	}, [isCRUDPath, isExceptionPath, pathUrlScreen, pathname, route])
 
 	const title = useMemo(() => {
 		const screen = navigationScreen?.data.find(
 			(item) => item.screen_id.toLowerCase() === dynamicId?.toLowerCase()
 		)
 
-		if (isCRUDPath && !action?.is_modal) return [Case.capital(route), screen?.title].join(' ')
+		if ((isCRUDPath || isExceptionPath) && !action?.is_modal)
+			return [Case.capital(route), screen?.title].join(' ')
+
 		return screen?.title ?? Case.capital(route)
-	}, [navigationScreen?.data, isCRUDPath, action?.is_modal, route, dynamicId])
+	}, [navigationScreen?.data, isCRUDPath, isExceptionPath, action?.is_modal, route, dynamicId])
 
 	return (
 		<Layout

@@ -36,10 +36,6 @@ const Page = () => {
 		mutationFn: AddUpdateGeneralAppSetting,
 		mutationKey: ['add_update_general_app_setting']
 	})
-	const { data, mutateAsync: get } = useMutation({
-		mutationFn: GetDetailGeneralAppSetting,
-		mutationKey: ['get_detail_general_app_setting']
-	})
 
 	const { data: full } = useQuery({
 		queryFn: GetLookUpMeasurementAppSetting,
@@ -51,6 +47,11 @@ const Page = () => {
 		queryFn: GetLookUpMeasurementHourMinute,
 		queryKey: ['get_lookup_measurement_hour_minute'],
 		refetchOnWindowFocus: false
+	})
+
+	const { data, refetch } = useQuery({
+		queryFn: GetDetailGeneralAppSetting,
+		queryKey: ['get_detail_general_app_setting']
 	})
 
 	const { control, handleSubmit, reset } = useForm<AddUpdateGeneralAppSettingPayload>({
@@ -81,13 +82,9 @@ const Page = () => {
 	}, [time?.data])
 
 	const handleOnSubmit = useCallback(
-		(payload: AddUpdateGeneralAppSettingPayload) => update(payload).then(() => get()),
-		[get, update]
+		(payload: AddUpdateGeneralAppSettingPayload) => update(payload).then(() => refetch()),
+		[refetch, update]
 	)
-
-	useEffect(() => {
-		get()
-	}, [get])
 
 	useEffect(() => {
 		if (data?.data) reset(data.data)
