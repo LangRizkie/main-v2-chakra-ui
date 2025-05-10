@@ -48,7 +48,7 @@ Clone the repository and navigate to the project folder:
 
 ```bash
     $ git clone git@github.com:LangRizkie/regla-v2.git
-    $ cd regla-v2
+    $ cd main-v2-chakra-ui
     $ bun install
 ```
 
