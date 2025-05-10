@@ -9,12 +9,6 @@ import type {
 	AuthenticateResponse,
 	CheckUsernameResponse,
 	ForgotPasswordPayload,
-	GetAllNavigationScreenPayload,
-	GetAllNavigationScreenResponse,
-	GetLookupCustomViewPayload,
-	GetLookupCustomViewResponse,
-	GetNavigationScreenPayload,
-	GetNavigationScreenResponse,
 	GetUserPropertyResponse
 } from '@/types/user/common'
 import { routes } from '@/utilities/constants'
@@ -49,29 +43,11 @@ const ResetPasswordWithToken = async (
 		redirectTo: { replace: true, url: routes.login }
 	})
 
-const GetAllNavigationScreen = async (
-	payload?: GetAllNavigationScreenPayload
-): Promise<GetAllNavigationScreenResponse> =>
-	await get(endpoints.user.common.get_all_navigation_screen, payload)
-
-const GetNavigationScreen = async (
-	payload?: GetNavigationScreenPayload
-): Promise<GetNavigationScreenResponse> =>
-	await get(endpoints.user.common.get_navigation_screen, payload)
-
-const GetLookupCustomView = async (
-	payload?: GetLookupCustomViewPayload
-): Promise<GetLookupCustomViewResponse> =>
-	await get(endpoints.user.common.get_lookup_custom_view, payload)
-
 export {
 	Authenticate,
 	ChangePassword,
 	CheckUsername,
 	ForgotPassword,
-	GetAllNavigationScreen,
-	GetLookupCustomView,
-	GetNavigationScreen,
 	GetUserProperty,
 	ResetPasswordWithToken
 }

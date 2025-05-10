@@ -6,8 +6,7 @@ import { post, put } from '@/utilities/mutation'
 import type {
 	CheckOTPPayload,
 	RequestUnlockAccountPayload,
-	UnlockAccountPayload,
-	UpdateUserProfilePayload
+	UnlockAccountPayload
 } from '../../schemas/user/user'
 
 const RequestUnlockAccount = async (
@@ -31,7 +30,4 @@ const UnlockAccount = async (payload: UnlockAccountPayload): Promise<ReglaRespon
 		redirectTo: { replace: true, url: routes.login }
 	})
 
-const UpdateUserProfile = async (payload: UpdateUserProfilePayload): Promise<ReglaResponse> =>
-	await put(endpoints.user.update_user_profile, payload)
-
-export { CheckOTP, RequestUnlockAccount, ResendOTP, UnlockAccount, UpdateUserProfile }
+export { CheckOTP, RequestUnlockAccount, ResendOTP, UnlockAccount }

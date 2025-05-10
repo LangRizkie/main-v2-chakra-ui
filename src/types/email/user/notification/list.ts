@@ -1,18 +1,3 @@
-import { ReglaResponse } from '@/types/default'
-
-export type PagingData = {
-	created_date: string
-	is_read: boolean
-	message: string
-	notification_id: string
-	redirect_url: string
-}
-
-export type ListData = {
-	count: number
-	list: PagingData[]
-}
-
 type NotificationHubData = {
 	is_download: boolean
 	redirect_url: string
@@ -34,6 +19,3 @@ export type NotificationHubResponse = {
 	target: string
 	arguments: NotificationHubArguments[]
 }
-
-export type ListResponse = ReglaResponse<ListData>
-export type PagingResponse = ReglaResponse<PagingData[]>

@@ -19,9 +19,9 @@ import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useMemo } from 'react'
+import { GetPlatform } from '@/libraries/mutation/user/application'
 import { routes } from '@/utilities/constants'
 import { logout } from '../../config/instance'
-import { GetPlatform } from '../../libraries/mutation/platform-settings/master-application'
 import { GenerateIcon } from '../../utilities/helper'
 
 const Page = () => {

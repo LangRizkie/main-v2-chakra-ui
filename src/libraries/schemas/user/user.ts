@@ -31,17 +31,6 @@ export const UnlockAccountSchema = CheckOTPSchema.merge(
 	})
 )
 
-export const UpdateUserProfileSchema = z.object({
-	accept_language: z.string().min(1, { message: messages.required }),
-	department: z.string().min(1, { message: messages.required }),
-	first_name: z.string().min(1, { message: messages.required }),
-	is_dark_mode: z.boolean(),
-	job_title: z.string().min(1, { message: messages.required }),
-	last_name: z.string().min(1, { message: messages.required }),
-	office_country: z.string().min(1, { message: messages.required })
-})
-
 export type RequestUnlockAccountPayload = z.infer<typeof RequestUnlockAccountSchema>
 export type CheckOTPPayload = z.infer<typeof CheckOTPSchema>
 export type UnlockAccountPayload = z.infer<typeof UnlockAccountSchema>
-export type UpdateUserProfilePayload = z.infer<typeof UpdateUserProfileSchema>

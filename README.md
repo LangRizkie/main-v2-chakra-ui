@@ -33,13 +33,6 @@ NEXT_PUBLIC_APP_ID=PLATFORM_CENTER
 - **Realtime Notification**: Implement Websocket for realtime notification.
 - **TBD**: Additional features will be added in future updates.
 
-## Under Development
-
-- **Account & Profile Setting**: 20% development
-- **License Management**: 90% development
-
-> Blocker mostly from Combobox component that ChakraUI doesn't developed yet.
-
 ## To do
 
 - **Password Rules**: Provides users with clear guidance on password strength and complexity requirements to enhance security.
@@ -75,12 +68,6 @@ The directory structure is as follows:
 ├───public                                  (public folder to serve static assets)
 └───src                                     (source folder containing main application code)
     ├───app                                 (application folder for main pages)
-    │   ├───(sidebar)                       (route group)
-    │   │   ├───@modal                      (named slot routes)
-    │   │   │   └───(.)platform_center      (intercepting routes)
-    │   │   │       └───[[...slug]]         (optional catch-all routes)
-    │   │   └───platform_center             (platform_center route)
-    │   │       └───[[...slug]]             (intercepted optional catch-all routes)
     ├───components                          (components folder)
     │   ├───pages                           (component for page UI)
     │   └───ui                              (component for reusable UI)
