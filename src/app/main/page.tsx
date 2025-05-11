@@ -9,6 +9,7 @@ import {
 	Grid,
 	Heading,
 	IconButton,
+	Link,
 	Show,
 	Skeleton,
 	Stack,
@@ -17,7 +18,6 @@ import {
 import { Iconify, Tooltip } from '@regla/monorepo'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
-import Link from 'next/link'
 import { useMemo } from 'react'
 import { GetPlatform } from '@/libraries/mutation/user/application'
 import { routes } from '@/utilities/constants'
@@ -136,7 +136,7 @@ const Page = () => {
 					<For each={menu}>
 						{(item, index) => {
 							return (
-								<Link key={index} href={item.url} passHref>
+								<Link key={index} href={item.url}>
 									<Card.Root
 										animationDuration={handleAnimationDuration(index)}
 										animationName="slide-from-top, fade-in"
