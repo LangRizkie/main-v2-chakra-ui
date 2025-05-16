@@ -7,12 +7,12 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { RequestUnlockAccount } from '../../libraries/mutation/user/user'
+import { RequestUnlockAccount } from '@/libraries/mutation/user/user'
 import {
-	type RequestUnlockAccountPayload,
+	RequestUnlockAccountPayload,
 	RequestUnlockAccountSchema
-} from '../../libraries/schemas/user/user'
-import { routes, storages } from '../../utilities/constants'
+} from '@/libraries/schemas/user/user'
+import { routes, storages } from '@/utilities/constants'
 
 const Page = () => {
 	const router = useRouter()

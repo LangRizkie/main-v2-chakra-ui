@@ -15,14 +15,14 @@ import {
 	Stack,
 	Text
 } from '@chakra-ui/react'
-import { Iconify, Tooltip } from '@regla/monorepo'
+import { ClosedTooltip, Iconify } from '@regla/monorepo'
 import { useQuery } from '@tanstack/react-query'
 import Image from 'next/image'
 import { useMemo } from 'react'
+import { logout } from '@/config/instance'
 import { GetPlatform } from '@/libraries/mutation/user/application'
 import { routes } from '@/utilities/constants'
-import { logout } from '../../config/instance'
-import { GenerateIcon } from '../../utilities/helper'
+import { GenerateIcon } from '@/utilities/helper'
 
 const Page = () => {
 	const { data, isPending } = useQuery({
@@ -82,23 +82,23 @@ const Page = () => {
 					</Text>
 				</Stack>
 				<Flex alignItems="center" gap="6">
-					<Tooltip content="Bam AI" showArrow>
+					<ClosedTooltip content="Bam AI" showArrow>
 						<IconButton colorPalette="gray" rounded="full" variant="surface">
 							<Image alt="bot" draggable={false} height={20} src="/bam.svg" width={20} />
 						</IconButton>
-					</Tooltip>
-					<Tooltip content="Notification" showArrow>
+					</ClosedTooltip>
+					<ClosedTooltip content="Notification" showArrow>
 						<Link href={notification}>
 							<IconButton rounded="full" variant="ghost">
 								<Iconify height={20} icon="bxs:bell" />
 							</IconButton>
 						</Link>
-					</Tooltip>
-					<Tooltip content="Logout" showArrow>
+					</ClosedTooltip>
+					<ClosedTooltip content="Logout" showArrow>
 						<IconButton rounded="full" variant="ghost" onClick={logout}>
 							<Iconify height={20} icon="bx:log-out" />
 						</IconButton>
-					</Tooltip>
+					</ClosedTooltip>
 					<Image
 						alt="logo"
 						draggable={false}

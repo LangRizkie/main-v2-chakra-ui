@@ -35,12 +35,12 @@ import {
 	type CheckUsernamePayload,
 	CheckUsernameSchema
 } from '@/libraries/schemas/user/common'
+import useUserProperty from '@/stores/user-property'
 import type { ReglaResponse } from '@/types/default'
-import useUserProperty from '../stores/user-property'
-import type { ResponseUserData } from '../types/user/common'
-import { routes, storages } from '../utilities/constants'
-import { setCredential } from '../utilities/credentials'
-import toast from '../utilities/toast'
+import { ResponseUserData } from '@/types/user/common'
+import { routes, storages } from '@/utilities/constants'
+import { setCredential } from '@/utilities/credentials'
+import toast from '@/utilities/toast'
 
 const Page = () => {
 	const router = useRouter()

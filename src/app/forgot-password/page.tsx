@@ -3,7 +3,7 @@
 import { Button, Card, Center, Text } from '@chakra-ui/react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import { routes } from '../../utilities/constants'
+import { routes } from '@/utilities/constants'
 
 const Page = () => {
 	const router = useRouter()

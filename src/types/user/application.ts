@@ -1,4 +1,4 @@
-import type { ReglaResponse } from '../default'
+import { ReglaResponse } from '../default'
 
 export type GetPlatformData = {
 	is_active_menu: boolean
